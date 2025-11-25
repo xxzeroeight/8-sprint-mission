@@ -7,6 +7,9 @@ import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
@@ -98,5 +101,99 @@ public class JavaApplication
         messageService.delete(message1.getId());
         Message deletedMessage1 = messageService.findById(message1.getId());
         System.out.println("Deleted message2: " + deletedMessage1);
+
+        System.out.println("\n-----------------------File IO를 통한 데이터 영속화-----------------------");
+
+        UserService fileUserService = FileUserService.getInstance();
+        ChannelService fileChannelService = FileChannelService.getInstance();
+        MessageService fileMessageService = FileMessageService.getInstance();
+
+        System.out.println("-----------------------유저-----------------------");
+        User fileUser1 = fileUserService.create("fileUser1", "fileUser1Password", "fileUser1@naver.com");
+        User fileUser2 = fileUserService.create("fileUser2", "fileUser2Password", "fileUser2@naver.com");
+        User fileUser3 = fileUserService.create("fileUser3", "fileUser3Password", "fileUser3@naver.com");
+
+        System.out.println("[등록]");
+        System.out.println("Created fileUser1: " + fileUser1);
+        System.out.println("Created fileUser2: " + fileUser2);
+        System.out.println("Created fileUser3: " + fileUser3);
+        System.out.println("Total Users: " + fileUserService.findAllUsers().size());
+
+        System.out.println("[조회(단건)]");
+        User findFileUser1 = fileUserService.findById(fileUser1.getId());
+        System.out.println("Found fileUser1: " + findFileUser1);
+
+        System.out.println("[조회(다건)]");
+        List<User> findAllFileUsers = fileUserService.findAllUsers();
+        System.out.println("Found all fileUsers: " + findAllFileUsers);
+
+        System.out.println("[수정 & 수정된 데이터 조회]");
+        User updatedFileUser1 = fileUserService.update(fileUser1.getId(), "updatedFileUser1", "updatedFileUser1Password", "updatedFileUser1@naver.com");
+        System.out.println("Updated fileUser1: " + updatedFileUser1);
+
+        System.out.println("[삭제 & 조회를 통해 삭제되었는지 확인]");
+        fileUserService.delete(fileUser1.getId());
+        User deletedFileUser1 = fileUserService.findById(fileUser1.getId());
+        System.out.println("Deleted fileUser1: " + deletedFileUser1);
+        System.out.println("Total Users: " + userService.findAllUsers().size());
+
+        System.out.println("\n-----------------------채널-----------------------");
+        Channel fileChannel1 = fileChannelService.create("fileChannel1", "fileChannel1", ChannelType.PUBLIC);
+        Channel fileChannel2 = fileChannelService.create("fileChannel2", "fileChannel2", ChannelType.PRIVATE);
+        Channel fileChannel3 = fileChannelService.create("fileChannel3", "fileChannel3", ChannelType.PRIVATE);
+
+        System.out.println("[등록]");
+        System.out.println("Created fileChannel1: " + fileChannel1);
+        System.out.println("Created fileChannel2: " + fileChannel2);
+        System.out.println("Created fileChannel3: " + fileChannel3);
+        System.out.println("Totla Channels: " + fileChannelService.findAllChannels().size());
+
+        System.out.println("[조회(단건)]");
+        Channel findFileChannel1 = fileChannelService.findById(fileChannel1.getId());
+        System.out.println("Found fileChannel1: " + findFileChannel1);
+
+        System.out.println("[조회(다건)]");
+        List<Channel> findAllFileChannels = fileChannelService.findAllChannels();
+        System.out.println("Found all fileChannels: " + findAllFileChannels);
+
+        System.out.println("[수정 & 수정된 데이터 조회]");
+        Channel updatedFileChannel1 = fileChannelService.update(fileChannel1.getId(), "updatedFileChannel1", "upudatedFileChannel1Password", ChannelType.PRIVATE);
+        System.out.println("Updated fileChannel1: " + updatedFileChannel1);
+
+        System.out.println("[삭제 & 조회를 통해 삭제되었는지 확인]");
+        fileChannelService.delete(fileChannel1.getId());
+        Channel deletedFileChannel1 = fileChannelService.findById(fileChannel1.getId());
+        System.out.println("Deleted fileChannel1: " + deletedFileChannel1);
+        System.out.println("Totla Channels: " + fileChannelService.findAllChannels().size());
+
+        System.out.println("\n-----------------------메시지-----------------------");
+        Message fileMessage1 = fileMessageService.create("fileMessage1", fileUser2.getId(), fileChannel2.getId());
+        Message fileMessage2 = fileMessageService.create("fileMessage2", fileUser3.getId(), fileChannel3.getId());
+
+        System.out.println("[등록]");
+        System.out.println("Created fileMessage1: " + fileMessage1);
+        System.out.println("Created fileMessage2: " + fileMessage2);
+        System.out.println("Totla Messages: " + fileMessageService.findAllMessages().size());
+
+        System.out.println("[조회(단건)]");
+        Message findFileMessage1 = fileMessageService.findById(fileMessage1.getId());
+        System.out.println("Found fileMessage1: " + findFileMessage1);
+
+        System.out.println("[조회(다건)");
+        List<Message> findAllFileMessages = fileMessageService.findAllMessages();
+        System.out.println("Found all fileMessages: " + findAllFileMessages);
+
+        System.out.println("[수정 & 수정된 데이터 조회]");
+        Message updatedFileMessage1 = fileMessageService.update(fileMessage1.getId(), "updatedFileMessage1");
+        System.out.println("Updated fileMessage1: " + updatedFileMessage1);
+
+        System.out.println("[삭제 & 조회를 통해 삭제되었는지 확인]");
+        fileMessageService.delete(fileMessage1.getId());
+        Message deletedFileMessage1 = fileMessageService.findById(fileMessage1.getId());
+        System.out.println("Deleted fileMessage1: " + deletedFileMessage1);
+        System.out.println("Totla Messages: " + fileMessageService.findAllMessages().size());
+
+        /* JCF*Service VS File*Service의 "비즈니스 로직 차이점 */
+
     }
 }
