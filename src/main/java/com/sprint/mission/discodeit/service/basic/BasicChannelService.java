@@ -42,12 +42,12 @@ public class BasicChannelService implements ChannelService
         }
 
         Channel channel = channelRepository.findById(id);
-
         if (channel == null) {
             return null;
         }
 
         channel.update(channelName, description, channelType);
+
         return channelRepository.save(channel);
     }
 

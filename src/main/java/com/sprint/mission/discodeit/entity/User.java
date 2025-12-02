@@ -50,17 +50,9 @@ public class User implements Serializable
     }
 
     public void update(String username, String password, String email) {
-        if (username != null) {
-            this.username = username;
-        }
-
-        if (password != null) {
-            this.password = password;
-        }
-
-        if (email != null) {
-            this.email = email;
-        }
+        if (username != null) { this.username = username; }
+        if (password != null) { this.password = password; }
+        if (email != null) { this.email = email; }
 
         this.updatedAt = System.currentTimeMillis();
     }

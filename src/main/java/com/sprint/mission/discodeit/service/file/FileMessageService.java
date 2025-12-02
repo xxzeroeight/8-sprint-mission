@@ -52,32 +52,6 @@ public class FileMessageService implements MessageService
     }
 
     @Override
-    public List<Message> findAllByChannelId(UUID channelId) {
-        if (channelId == null) {
-            return null;
-        }
-
-        List<Message> messages = FileUtil.load(directory);
-
-        return messages.stream()
-                .filter(message -> message.getChannelId().equals(channelId))
-                .toList();
-    }
-
-    @Override
-    public List<Message> findAllByAuthorId(UUID authorId) {
-        if (authorId == null) {
-            return null;
-        }
-
-        List<Message> messages = FileUtil.load(directory);
-
-        return messages.stream()
-                .filter(message -> message.getAuthorId().equals(authorId))
-                .toList();
-    }
-
-    @Override
     public List<Message> findAllMessages() {
         return FileUtil.load(directory);
     }

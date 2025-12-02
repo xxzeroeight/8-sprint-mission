@@ -41,12 +41,12 @@ public class BasicUserService implements UserService
         }
 
         User user = userRepository.findById(id);
-
         if (user == null) {
             return null;
         }
 
         user.update(username, password, email);
+
         return userRepository.save(user);
     }
 

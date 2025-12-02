@@ -50,7 +50,6 @@ public class JCFChannelService implements ChannelService
         }
 
         Channel channel = data.get(id);
-
         if (channel == null) {
             return null;
         }

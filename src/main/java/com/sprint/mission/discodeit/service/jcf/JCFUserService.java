@@ -49,7 +49,6 @@ public class JCFUserService implements UserService
         }
 
         User oldUser = data.get(id);
-
         if (oldUser == null) {
             return null;
         }

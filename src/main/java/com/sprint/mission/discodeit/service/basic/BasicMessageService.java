@@ -34,16 +34,6 @@ public class BasicMessageService implements MessageService
     }
 
     @Override
-    public List<Message> findAllByChannelId(UUID channelId) {
-        return List.of();
-    }
-
-    @Override
-    public List<Message> findAllByAuthorId(UUID authorId) {
-        return List.of();
-    }
-
-    @Override
     public List<Message> findAllMessages() {
         return messageRepository.findAll();
     }
@@ -55,12 +45,12 @@ public class BasicMessageService implements MessageService
         }
 
         Message message = messageRepository.findById(id);
-
         if (message == null) {
             return null;
         }
 
         message.update(content);
+
         return message;
     }
 

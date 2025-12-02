@@ -54,28 +54,6 @@ public class JCFMessageService implements MessageService
     }
 
     @Override
-    public List<Message> findAllByChannelId(UUID channelId) {
-        if (channelId == null) {
-            return null;
-        }
-
-        return data.values().stream()
-                .filter(message -> message.getChannelId().equals(channelId))
-                .toList();
-    }
-
-    @Override
-    public List<Message> findAllByAuthorId(UUID authorId) {
-        if (authorId == null) {
-            return null;
-        }
-
-        return data.values().stream()
-                .filter(message -> message.getAuthorId().equals(authorId))
-                .toList();
-    }
-
-    @Override
     public List<Message> findAllMessages() {
         return new ArrayList<>(data.values());
     }
@@ -87,7 +65,6 @@ public class JCFMessageService implements MessageService
         }
 
         Message message = data.get(id);
-
         if (message == null) {
             return null;
         }
