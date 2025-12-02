@@ -95,5 +95,7 @@ public class JavaApplication
 
         /* JCF*Service or File*Service와의 차이점 */
         // "비즈니스 로직"과 "저장 로직"이 확실하게 분리되어 코드 작성이나 유지보수에 좋음.
+        // 저장 방식 변경 시 Repository만 교체 (Service 레이어는 건드리지 않음.)
+        // 각 클래스의 책임이 명확함.
     }
 }
