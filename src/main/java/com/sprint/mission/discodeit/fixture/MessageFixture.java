@@ -44,8 +44,8 @@ public class MessageFixture
 
         System.out.println("[삭제 & 조회를 통해 삭제되었는지 확인]");
         messageService.delete(message1.getId());
-        Message deletedMessage1 = messageService.findById(message1.getId());
-        System.out.println("Deleted message2: " + deletedMessage1);
+        List<Message> allMessages = messageService.findAllMessages();
+        System.out.println("Found all messages: " + allMessages);
         System.out.println("Total Messages: " + messageService.findAllMessages().size());
     }
 }

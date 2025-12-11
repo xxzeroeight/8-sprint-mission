@@ -9,13 +9,13 @@ public class Channel implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
+    private final UUID id;
 
     private String channelName;
     private String description;
     private ChannelType channelType;
 
-    private Long createdAt;
+    private final Long createdAt;
     private Long updatedAt;
 
     public Channel(String channelName, String description, ChannelType channelType) {
@@ -24,7 +24,7 @@ public class Channel implements Serializable
         this.description = description;
         this.channelType = channelType;
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = createdAt;
     }
 
     public UUID getId() {
@@ -52,9 +52,9 @@ public class Channel implements Serializable
     }
 
     public void update(String channelName, String description, ChannelType channelType) {
-        if (channelName != null) { this.channelName = channelName; }
-        if (description != null) { this.description = description; }
-        if (channelType != null) { this.channelType = channelType; }
+        if (channelName != null) this.channelName = channelName;
+        if (description != null) this.description = description;
+        if (channelType != null) this.channelType = channelType;
 
         this.updatedAt = System.currentTimeMillis();
     }

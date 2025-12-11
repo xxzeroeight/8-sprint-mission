@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.MessageException;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -46,11 +47,10 @@ public class JCFMessageService implements MessageService
 
     @Override
     public Message findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
+        Message message = data.get(id);
 
-        return data.get(id);
+        return Optional.ofNullable(message)
+                .orElseThrow(() -> new MessageException.MessageNotFoundException(id));
     }
 
     @Override
@@ -60,14 +60,10 @@ public class JCFMessageService implements MessageService
 
     @Override
     public Message update(UUID id, String content) {
-        if (id == null) {
-            return null;
-        }
+        Message messageNullable = data.get(id);
 
-        Message message = data.get(id);
-        if (message == null) {
-            return null;
-        }
+        Message message = Optional.ofNullable(messageNullable)
+                .orElseThrow(() -> new MessageException.MessageNotFoundException(id));
 
         message.update(content);
 
@@ -76,8 +72,8 @@ public class JCFMessageService implements MessageService
 
     @Override
     public void delete(UUID id) {
-        if (id == null) {
-            return;
+        if (!data.containsKey(id)) {
+            throw new MessageException.MessageNotFoundException(id);
         }
 
         data.remove(id);

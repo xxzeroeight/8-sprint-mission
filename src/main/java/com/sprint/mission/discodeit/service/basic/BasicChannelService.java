@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
+import com.sprint.mission.discodeit.exception.ChannelException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
@@ -23,11 +24,10 @@ public class BasicChannelService implements ChannelService
 
     @Override
     public Channel findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
+        Channel channel = channelRepository.findById(id)
+                .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
 
-        return channelRepository.findById(id);
+        return channel;
     }
 
     @Override
@@ -41,10 +41,8 @@ public class BasicChannelService implements ChannelService
             return null;
         }
 
-        Channel channel = channelRepository.findById(id);
-        if (channel == null) {
-            return null;
-        }
+        Channel channel = channelRepository.findById(id)
+                .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
 
         channel.update(channelName, description, channelType);
 

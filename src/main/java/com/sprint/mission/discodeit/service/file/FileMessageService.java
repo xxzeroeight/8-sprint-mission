@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.MessageException;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.util.FileUtil;
 
@@ -58,19 +59,12 @@ public class FileMessageService implements MessageService
 
     @Override
     public Message update(UUID id, String content) {
-        if (id == null) {
-            return null;
-        }
-
         List<Message> messages = FileUtil.load(directory);
+
         Message oldMessage = messages.stream()
                 .filter(message -> message.getId().equals(id))
                 .findFirst()
-                .orElse(null);
-
-        if (oldMessage == null) {
-            return null;
-        }
+                .orElseThrow(() -> new MessageException.MessageNotFoundException(id));
 
         oldMessage.update(content);
 

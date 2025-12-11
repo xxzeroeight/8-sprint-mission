@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
+import com.sprint.mission.discodeit.exception.ChannelException;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.util.FileUtil;
 
@@ -40,16 +41,12 @@ public class FileChannelService implements ChannelService
 
     @Override
     public Channel findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
-
         List<Channel> channels = FileUtil.load(directory);
 
         return channels.stream()
                 .filter(channel -> channel.getId().equals(id))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
     }
 
     @Override
@@ -59,19 +56,12 @@ public class FileChannelService implements ChannelService
 
     @Override
     public Channel update(UUID id, String channelName, String description, ChannelType channelType) {
-        if (id == null) {
-            return null;
-        }
-
         List<Channel> channels = FileUtil.load(directory);
+
         Channel oldChannel = channels.stream()
                 .filter(channel -> channel.getId().equals(id))
                 .findFirst()
-                .orElse(null);
-
-        if (oldChannel == null) {
-            return null;
-        }
+                .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
 
         oldChannel.update(channelName, description, channelType);
 

@@ -8,11 +8,8 @@ import java.util.UUID;
 public interface UserService
 {
     User create(String username, String password, String email);
-
     User findById(UUID id);
     List<User> findAllUsers();
-
     User update(UUID id, String username, String password, String email);
-
     void delete(UUID id);
 }

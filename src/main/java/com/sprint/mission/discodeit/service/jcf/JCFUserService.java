@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
@@ -30,11 +31,10 @@ public class JCFUserService implements UserService
 
     @Override
     public User findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
+        User user = data.get(id);
 
-        return data.get(id);
+        return Optional.ofNullable(user)
+                .orElseThrow(() -> new UserException.UserNotFoundException(id));
     }
 
     @Override
@@ -44,14 +44,10 @@ public class JCFUserService implements UserService
 
     @Override
     public User update(UUID id, String username, String password, String email) {
-        if (id == null) {
-            return null;
-        }
-
         User oldUser = data.get(id);
-        if (oldUser == null) {
-            return null;
-        }
+
+        User user = Optional.ofNullable(oldUser)
+                .orElseThrow(() -> new UserException.UserNotFoundException(id));
 
         oldUser.update(username, password, email);
 
@@ -60,8 +56,8 @@ public class JCFUserService implements UserService
 
     @Override
     public void delete(UUID id) {
-        if (id == null) {
-            return;
+        if (!data.containsKey(id)) {
+            throw new UserException.UserNotFoundException(id);
         }
 
         data.remove(id);

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
+import com.sprint.mission.discodeit.exception.ChannelException;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.*;
@@ -31,11 +32,10 @@ public class JCFChannelService implements ChannelService
 
     @Override
     public Channel findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
+        Channel channel = data.get(id);
 
-        return data.get(id);
+        return Optional.ofNullable(channel)
+                .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
     }
 
     @Override
@@ -45,14 +45,10 @@ public class JCFChannelService implements ChannelService
 
     @Override
     public Channel update(UUID id, String channelName, String description, ChannelType channelType) {
-        if (id == null) {
-            return null;
-        }
+        Channel channelNullable = data.get(id);
 
-        Channel channel = data.get(id);
-        if (channel == null) {
-            return null;
-        }
+        Channel channel = Optional.ofNullable(channelNullable)
+                .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
 
         channel.update(channelName, description, channelType);
 
@@ -61,8 +57,8 @@ public class JCFChannelService implements ChannelService
 
     @Override
     public void delete(UUID id) {
-        if (id == null) {
-            return;
+        if (!data.containsKey(id)) {
+            throw new ChannelException.ChannelNotFoundException(id);
         }
 
         data.remove(id);

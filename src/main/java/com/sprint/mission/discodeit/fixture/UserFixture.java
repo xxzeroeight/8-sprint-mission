@@ -33,8 +33,8 @@ public class UserFixture
 
         System.out.println("[삭제 & 조회를 통해 삭제되었는지 확인]");
         userService.delete(user1.getId());
-        User deletedUser1 = userService.findById(user1.getId());
-        System.out.println("Deleted user: " + deletedUser1);
+        List<User> allUsers = userService.findAllUsers();
+        System.out.println("Found all users: " + allUsers);
         System.out.println("Total Users: " + userService.findAllUsers().size());
     }
 }

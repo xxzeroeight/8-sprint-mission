@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.util.FileUtil;
 
@@ -58,19 +59,12 @@ public class FileUserService implements UserService
 
     @Override
     public User update(UUID id, String username, String password, String email) {
-        if (id == null) {
-            return null;
-        }
-
         List<User> users = FileUtil.load(directory);
+
         User oldUser = users.stream()
                 .filter(user -> user.getId().equals(id))
                 .findFirst()
-                .orElse(null);
-
-        if (oldUser == null) {
-            return null;
-        }
+                .orElseThrow(() -> new UserException.UserNotFoundException(id));
 
         oldUser.update(username, password, email);
 

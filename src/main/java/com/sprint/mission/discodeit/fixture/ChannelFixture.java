@@ -34,8 +34,8 @@ public class ChannelFixture
 
         System.out.println("[삭제 & 조회를 통해 삭제되었는지 확인]");
         channelService.delete(channel1.getId());
-        Channel deletedChannel1 = channelService.findById(channel1.getId());
-        System.out.println("Deleted channel1: " + deletedChannel1);
+        List<Channel> allChannels = channelService.findAllChannels();
+        System.out.println("Found all channels: " + allChannels);
         System.out.println("Total Channels: " + channelService.findAllChannels().size());
     }
 }

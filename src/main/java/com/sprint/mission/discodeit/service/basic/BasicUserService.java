@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
@@ -22,11 +23,10 @@ public class BasicUserService implements UserService
 
     @Override
     public User findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserException.UserNotFoundException(id));
 
-        return userRepository.findById(id);
+        return user;
     }
 
     @Override
@@ -40,10 +40,8 @@ public class BasicUserService implements UserService
             return null;
         }
 
-        User user = userRepository.findById(id);
-        if (user == null) {
-            return null;
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserException.UserNotFoundException(id));
 
         user.update(username, password, email);
 

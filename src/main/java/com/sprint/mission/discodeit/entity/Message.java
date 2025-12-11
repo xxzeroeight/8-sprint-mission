@@ -7,13 +7,13 @@ public class Message implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
-    private UUID channelId;
-    private UUID authorId;
+    private final UUID id;
+    private final UUID channelId;
+    private final UUID authorId;
 
     private String content;
 
-    private Long createdAt;
+    private final Long createdAt;
     private Long updatedAt;
 
     public Message(UUID channelId, UUID authorId, String content) {
@@ -22,7 +22,7 @@ public class Message implements Serializable
         this.authorId = authorId;
         this.content = content;
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = createdAt;
     }
 
     public UUID getId() {
@@ -50,7 +50,7 @@ public class Message implements Serializable
     }
 
     public void update(String content) {
-        if (content != null) { this.content = content; }
+        if (content != null) this.content = content;
 
         this.updatedAt = System.currentTimeMillis();
     }

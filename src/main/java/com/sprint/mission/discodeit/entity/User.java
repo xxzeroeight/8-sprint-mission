@@ -7,13 +7,13 @@ public class User implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
+    private final UUID id;
 
     private String username;
     private transient String password;
     private String email;
 
-    private Long createdAt;
+    private final Long createdAt;
     private Long updatedAt;
 
     public User(String username, String password, String email) {
@@ -22,7 +22,7 @@ public class User implements Serializable
         this.password = password;
         this.email = email;
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = createdAt;
     }
 
     public UUID getId() {
@@ -50,8 +50,8 @@ public class User implements Serializable
     }
 
     public void update(String username, String password, String email) {
-        if (username != null) { this.username = username; }
-        if (email != null) { this.email = email; }
+        if (username != null) this.username = username;
+        if (email != null) this.email = email;
 
         this.updatedAt = System.currentTimeMillis();
     }

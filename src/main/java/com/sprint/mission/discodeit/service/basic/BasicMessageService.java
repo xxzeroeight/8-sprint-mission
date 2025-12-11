@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.MessageException;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
@@ -30,7 +31,10 @@ public class BasicMessageService implements MessageService
 
     @Override
     public Message findById(UUID id) {
-        return messageRepository.findById(id);
+        Message message = messageRepository.findById(id)
+                .orElseThrow(() -> new MessageException.MessageNotFoundException(id));
+
+        return message;
     }
 
     @Override
@@ -44,10 +48,8 @@ public class BasicMessageService implements MessageService
             return null;
         }
 
-        Message message = messageRepository.findById(id);
-        if (message == null) {
-            return null;
-        }
+        Message message = messageRepository.findById(id)
+                .orElseThrow(() -> new MessageException.MessageNotFoundException(id));
 
         message.update(content);
 
