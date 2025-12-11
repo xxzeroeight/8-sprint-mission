@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.exception.MessageException;
+import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.util.FileUtil;
 
@@ -10,12 +12,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileMessageService implements MessageService
 {
     private static FileMessageService instance;
-    private final Path directory = Paths.get("data/messages");
+    private final Path directory = Paths.get(FileConstants.MESSAGE_DATA_DIR);
 
     private FileMessageService() {
         FileUtil.init(directory);
@@ -32,7 +35,7 @@ public class FileMessageService implements MessageService
     @Override
     public Message create(String content, UUID authorId, UUID channelId) {
         Message message = new Message(channelId, authorId, content);
-        Path filePath = directory.resolve(message.getId() + ".ser");
+        Path filePath = directory.resolve(message.getId() + FileConstants.FILE_EXTENSION);
         FileUtil.save(filePath, message);
 
         return message;
@@ -40,50 +43,42 @@ public class FileMessageService implements MessageService
 
     @Override
     public Message findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        Message message = FileUtil.read(filePath);
 
-        List<Message> messages = FileUtil.load(directory);
-
-        return messages.stream()
-                .filter(message -> message.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return Optional.ofNullable(message)
+                .orElseThrow(() -> new UserException.UserNotFoundException(id));
     }
 
     @Override
     public List<Message> findAllMessages() {
-        return FileUtil.load(directory);
+        return FileUtil.readAll(directory);
     }
 
     @Override
     public Message update(UUID id, String content) {
-        List<Message> messages = FileUtil.load(directory);
+        Path filPath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        Message oldMessage = FileUtil.read(filPath);
 
-        Message oldMessage = messages.stream()
-                .filter(message -> message.getId().equals(id))
-                .findFirst()
+        Message message = Optional.ofNullable(oldMessage)
                 .orElseThrow(() -> new MessageException.MessageNotFoundException(id));
 
-        oldMessage.update(content);
+        message.update(content);
+        FileUtil.save(filPath, message);
 
-        Path filePath = directory.resolve(oldMessage.getId() + ".ser");
-        FileUtil.save(filePath, oldMessage);
-
-        return oldMessage;
+        return message;
     }
 
     @Override
     public void delete(UUID id) {
-        if (id == null) {
-            return;
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+
+        if (Files.notExists(filePath)) {
+            throw new MessageException.MessageNotFoundException(id);
         }
 
-        Path filePath = directory.resolve(id + ".ser");
-
         try {
-            Files.deleteIfExists(filePath);
+            Files.delete(filePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

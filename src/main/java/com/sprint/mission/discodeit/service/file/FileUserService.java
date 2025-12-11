@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.service.UserService;
@@ -10,12 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileUserService implements UserService
 {
     private static FileUserService instance;
-    private final Path directory = Paths.get("data/users");
+    private final Path directory = Paths.get(FileConstants.USER_DATA_DIR);
 
     private FileUserService() {
         FileUtil.init(directory);
@@ -32,7 +34,7 @@ public class FileUserService implements UserService
     @Override
     public User create(String username, String password, String email) {
         User user = new User(username, password, email);
-        Path filePath = directory.resolve(user.getId() + ".ser");
+        Path filePath = directory.resolve(user.getId() + FileConstants.FILE_EXTENSION);
         FileUtil.save(filePath, user);
 
         return user;
@@ -40,50 +42,42 @@ public class FileUserService implements UserService
 
     @Override
     public User findById(UUID id) {
-        if (id == null) {
-            return null;
-        }
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        User user = FileUtil.read(filePath);
 
-        List<User> users = FileUtil.load(directory);
-
-        return users.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return Optional.ofNullable(user)
+                .orElseThrow(() -> new UserException.UserNotFoundException(id));
     }
 
     @Override
     public List<User> findAllUsers() {
-        return FileUtil.load(directory);
+        return FileUtil.readAll(directory);
     }
 
     @Override
     public User update(UUID id, String username, String password, String email) {
-        List<User> users = FileUtil.load(directory);
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        User oldUser = FileUtil.read(filePath);
 
-        User oldUser = users.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new UserException.UserNotFoundException(id));
+        User user = Optional.ofNullable(oldUser)
+                        .orElseThrow(() -> new UserException.UserNotFoundException(id));
 
-        oldUser.update(username, password, email);
+        user.update(username, password, email);
+        FileUtil.save(filePath, user);
 
-        Path filePath = directory.resolve(oldUser.getId() + ".ser");
-        FileUtil.save(filePath, oldUser);
-
-        return oldUser;
+        return user;
     }
 
     @Override
     public void delete(UUID id) {
-        if (id == null) {
-            return;
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+
+        if (Files.notExists(filePath)) {
+            throw new UserException.UserNotFoundException(id);
         }
 
-        Path filePath = directory.resolve(id + ".ser");
-
         try {
-            Files.deleteIfExists(filePath);
+            Files.delete(filePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

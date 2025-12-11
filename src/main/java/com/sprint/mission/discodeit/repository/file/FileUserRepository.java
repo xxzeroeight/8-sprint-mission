@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
 
@@ -14,9 +16,8 @@ import java.util.UUID;
 
 public class FileUserRepository implements UserRepository
 {
-    private final Path directory = Paths.get("rdata/users");
-
     private static FileUserRepository instance;
+    private final Path directory = Paths.get(FileConstants.USER_REPOSITORY_DATA_DIR);
 
     private FileUserRepository() {
         FileUtil.init(directory);
@@ -32,7 +33,7 @@ public class FileUserRepository implements UserRepository
 
     @Override
     public User save(User user) {
-        Path filePath = directory.resolve(user.getId() + ".ser");
+        Path filePath = directory.resolve(user.getId() + FileConstants.FILE_EXTENSION);
         FileUtil.save(filePath, user);
 
         return user;
@@ -40,24 +41,27 @@ public class FileUserRepository implements UserRepository
 
     @Override
     public Optional<User> findById(UUID id) {
-        List<User> users = FileUtil.load(directory);
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        User user = FileUtil.read(filePath);
 
-        return users.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst();
+        return Optional.ofNullable(user);
     }
 
     @Override
     public List<User> findAll() {
-        return FileUtil.load(directory);
+        return FileUtil.readAll(directory);
     }
 
     @Override
     public void delete(UUID id) {
-        Path filePath = directory.resolve(id + ".ser");
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+
+        if (Files.notExists(filePath)) {
+            throw new UserException.UserNotFoundException(id);
+        }
 
         try {
-            Files.deleteIfExists(filePath);
+            Files.delete(filePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

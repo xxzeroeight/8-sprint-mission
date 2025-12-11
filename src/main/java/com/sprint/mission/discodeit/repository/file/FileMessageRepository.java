@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
@@ -14,9 +15,8 @@ import java.util.UUID;
 
 public class FileMessageRepository implements MessageRepository
 {
-    private final Path directory = Paths.get("rdata/messages");
-
     private static FileMessageRepository instance;
+    private final Path directory = Paths.get(FileConstants.MESSAGE_REPOSITORY_DATA_DIR);
 
     private FileMessageRepository() {
         FileUtil.init(directory);
@@ -32,7 +32,7 @@ public class FileMessageRepository implements MessageRepository
 
     @Override
     public Message save(Message message) {
-        Path filePath = directory.resolve(message.getId() + ".ser");
+        Path filePath = directory.resolve(message.getId() + FileConstants.FILE_EXTENSION);
         FileUtil.save(filePath, message);
 
         return message;
@@ -40,21 +40,20 @@ public class FileMessageRepository implements MessageRepository
 
     @Override
     public Optional<Message> findById(UUID id) {
-        List<Message> messages = FileUtil.load(directory);
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        Message message = FileUtil.read(filePath);
 
-        return messages.stream()
-                .filter(message -> message.getId().equals(id))
-                .findFirst();
+        return Optional.ofNullable(message);
     }
 
     @Override
     public List<Message> findAll() {
-        return FileUtil.load(directory);
+        return FileUtil.readAll(directory);
     }
 
     @Override
     public void delete(UUID id) {
-        Path filePath = directory.resolve(id + ".ser");
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
         try {
             Files.deleteIfExists(filePath);

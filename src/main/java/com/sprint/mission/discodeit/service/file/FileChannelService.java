@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.exception.ChannelException;
@@ -11,12 +12,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileChannelService implements ChannelService
 {
     private static FileChannelService instance;
-    private final Path directory = Paths.get("data/channels");
+    private final Path directory = Paths.get(FileConstants.CHANNEL_DATA_DIR);
 
     private FileChannelService() {
         FileUtil.init(directory);
@@ -33,7 +35,7 @@ public class FileChannelService implements ChannelService
     @Override
     public Channel create(String channelName, String description, ChannelType channelType) {
         Channel channel = new Channel(channelName, description, channelType);
-        Path filePath = directory.resolve(channel.getId() + ".ser");
+        Path filePath = directory.resolve(channel.getId() + FileConstants.FILE_EXTENSION);
         FileUtil.save(filePath, channel);
 
         return channel;
@@ -41,46 +43,42 @@ public class FileChannelService implements ChannelService
 
     @Override
     public Channel findById(UUID id) {
-        List<Channel> channels = FileUtil.load(directory);
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        Channel channel = FileUtil.read(filePath);
 
-        return channels.stream()
-                .filter(channel -> channel.getId().equals(id))
-                .findFirst()
+        return Optional.ofNullable(channel)
                 .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
     }
 
     @Override
     public List<Channel> findAllChannels() {
-        return FileUtil.load(directory);
+        return FileUtil.readAll(directory);
     }
 
     @Override
     public Channel update(UUID id, String channelName, String description, ChannelType channelType) {
-        List<Channel> channels = FileUtil.load(directory);
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        Channel oldChannel = FileUtil.read(filePath);
 
-        Channel oldChannel = channels.stream()
-                .filter(channel -> channel.getId().equals(id))
-                .findFirst()
+        Channel channel = Optional.ofNullable(oldChannel)
                 .orElseThrow(() -> new ChannelException.ChannelNotFoundException(id));
 
-        oldChannel.update(channelName, description, channelType);
+        channel.update(channelName, description, channelType);
+        FileUtil.save(filePath, channel);
 
-        Path filePath = directory.resolve(oldChannel.getId() + ".ser");
-        FileUtil.save(filePath, oldChannel);
-
-        return oldChannel;
+        return channel;
     }
 
     @Override
     public void delete(UUID id) {
-        if (id == null) {
-            return;
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+
+        if (Files.notExists(filePath)) {
+            throw new ChannelException.ChannelNotFoundException(id);
         }
 
-        Path filePath = directory.resolve(id + ".ser");
-
         try {
-            Files.deleteIfExists(filePath);
+            Files.delete(filePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

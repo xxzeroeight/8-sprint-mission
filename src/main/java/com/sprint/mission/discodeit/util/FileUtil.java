@@ -29,28 +29,42 @@ public class FileUtil
         }
     }
 
-    public static <T> List<T> load(Path directory) {
-        if (Files.exists(directory)) {
-            try {
-                List<T> list = Files.list(directory)
-                        .map(path -> {
-                            try (
-                                    FileInputStream fis = new FileInputStream(path.toFile());
-                                    ObjectInputStream ois = new ObjectInputStream(fis)
-                            ) {
-                                Object data = ois.readObject();
-                                return (T) data;
-                            } catch (IOException | ClassNotFoundException e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
-                        .toList();
-                return list;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
+    public static <T> T read(Path filePath) {
+        if (!Files.exists(filePath)) {
+            return null;
+        }
+
+        try (
+            FileInputStream fis = new FileInputStream(filePath.toFile());
+            ObjectInputStream ois = new ObjectInputStream(fis);
+        ) {
+            return (T) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> List<T> readAll(Path directory) {
+        if (!Files.exists(directory)) {
             return new ArrayList<>();
+        }
+
+        try {
+            List<T> list = Files.list(directory)
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (T) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+            return list;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
