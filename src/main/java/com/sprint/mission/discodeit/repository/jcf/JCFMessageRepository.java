@@ -9,17 +9,14 @@ public class JCFMessageRepository implements MessageRepository
 {
     private final Map<UUID, Message> data = new HashMap<>();
 
-    private static JCFMessageRepository instance;
-
     private JCFMessageRepository() {}
 
+    private static JCFMessageRepository instance;
     public static JCFMessageRepository getInstance() {
-        if (instance == null) {
-            instance = new JCFMessageRepository();
-        }
-
+        if (instance == null) instance = new JCFMessageRepository();
         return instance;
     }
+
     @Override
     public Message save(Message message) {
         data.put(message.getId(), message);
@@ -39,7 +36,20 @@ public class JCFMessageRepository implements MessageRepository
     }
 
     @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return findAll().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .toList();
+    }
+
+    @Override
     public void delete(UUID id) {
         data.remove(id);
+    }
+
+    @Override
+    public void deleteAllByChannelId(UUID channelId) {
+        findAllByChannelId(channelId)
+                .forEach(message -> delete(message.getId()));
     }
 }

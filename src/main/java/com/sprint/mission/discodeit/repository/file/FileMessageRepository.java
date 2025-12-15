@@ -17,19 +17,10 @@ import java.util.UUID;
 @Repository
 public class FileMessageRepository implements MessageRepository
 {
-    private static FileMessageRepository instance;
     private final Path directory = Paths.get(FileConstants.MESSAGE_REPOSITORY_DATA_DIR);
 
     private FileMessageRepository() {
         FileUtil.init(directory);
-    }
-
-    public static FileMessageRepository getInstance() {
-        if (instance == null) {
-            instance = new FileMessageRepository();
-        }
-
-        return instance;
     }
 
     @Override
@@ -54,6 +45,13 @@ public class FileMessageRepository implements MessageRepository
     }
 
     @Override
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return findAll().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .toList();
+    }
+
+    @Override
     public void delete(UUID id) {
         Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
@@ -62,5 +60,11 @@ public class FileMessageRepository implements MessageRepository
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void deleteAllByChannelId(UUID channelId) {
+        findAllByChannelId(channelId)
+                .forEach(message -> delete(message.getId()));
     }
 }

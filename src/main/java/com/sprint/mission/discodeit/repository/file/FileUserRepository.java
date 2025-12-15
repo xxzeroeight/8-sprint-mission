@@ -18,19 +18,10 @@ import java.util.UUID;
 @Repository
 public class FileUserRepository implements UserRepository
 {
-    private static FileUserRepository instance;
     private final Path directory = Paths.get(FileConstants.USER_REPOSITORY_DATA_DIR);
 
     private FileUserRepository() {
         FileUtil.init(directory);
-    }
-
-    public static FileUserRepository getInstance() {
-        if (instance == null) {
-            instance = new FileUserRepository();
-        }
-
-        return instance;
     }
 
     @Override
@@ -47,6 +38,25 @@ public class FileUserRepository implements UserRepository
         User user = FileUtil.read(filePath);
 
         return Optional.ofNullable(user);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return findAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
     }
 
     @Override
