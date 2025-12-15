@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -17,15 +18,15 @@ public class Channel implements Serializable
     private String description;
     private ChannelType channelType;
 
-    private final Long createdAt;
-    private Long updatedAt;
+    private final Instant createdAt;
+    private Instant updatedAt;
 
     public Channel(String channelName, String description, ChannelType channelType) {
         this.id = UUID.randomUUID();
         this.channelName = channelName;
         this.description = description;
         this.channelType = channelType;
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
         this.updatedAt = createdAt;
     }
 
@@ -34,7 +35,7 @@ public class Channel implements Serializable
         if (description != null) this.description = description;
         if (channelType != null) this.channelType = channelType;
 
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = Instant.now();
     }
 
     @Override
