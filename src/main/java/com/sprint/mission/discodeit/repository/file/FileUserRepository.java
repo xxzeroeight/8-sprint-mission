@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
 import org.springframework.stereotype.Repository;
@@ -68,9 +67,9 @@ public class FileUserRepository implements UserRepository
     public void delete(UUID id) {
         Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
-        if (Files.notExists(filePath)) {
-            throw new UserException.UserNotFoundException(id);
-        }
+//        if (Files.notExists(filePath)) {
+//            throw new UserException.UserNotFoundException(id);
+//        }
 
         try {
             Files.delete(filePath);

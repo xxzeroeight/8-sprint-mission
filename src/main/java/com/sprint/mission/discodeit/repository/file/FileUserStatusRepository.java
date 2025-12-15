@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileUserStatusRepository implements UserStatusRepository
 {
     private final Path directory = Paths.get(FileConstants.USERSTATUS_REPOSITORY_DATA_DIR);

@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class FileReadStatusRepository implements ReadStatusRepository
 {
     private final Path directory = Paths.get(FileConstants.READSTATUS_REPOSITORY_DATA_DIR);

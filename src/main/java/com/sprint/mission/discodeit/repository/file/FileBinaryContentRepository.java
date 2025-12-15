@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+@Repository
 public class FileBinaryContentRepository implements BinaryContentRepository
 {
     private final Path directory = Paths.get(FileConstants.BINARYCONTENT_REPOSITORY_DATA_DIR);
