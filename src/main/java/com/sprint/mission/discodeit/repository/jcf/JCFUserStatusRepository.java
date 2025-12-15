@@ -1,0 +1,58 @@
+package com.sprint.mission.discodeit.repository.jcf;
+
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
+
+import java.util.*;
+
+public class JCFUserStatusRepository implements UserStatusRepository
+{
+    private final Map<UUID, UserStatus> data = new HashMap<>();
+
+    private JCFUserStatusRepository() {}
+
+    private static JCFUserStatusRepository instance;
+    public static JCFUserStatusRepository getInstance() {
+        if (instance == null) instance = new JCFUserStatusRepository();
+        return instance;
+    }
+
+    @Override
+    public UserStatus save(UserStatus userStatus) {
+        data.put(userStatus.getId(), userStatus);
+
+        return userStatus;
+    }
+
+    @Override
+    public Optional<UserStatus> findById(UUID id) {
+        UserStatus userStatus = data.get(id);
+
+        return Optional.ofNullable(userStatus);
+    }
+
+    @Override
+    public Optional<UserStatus> findByUserId(UUID userId) {
+        return findAll().stream()
+                .filter(userStatus -> userStatus.getUserId().equals(userId))
+                .findFirst();
+    }
+
+    @Override
+    public List<UserStatus> findAll() {
+        List<UserStatus> userStatuses = data.values().stream().toList();
+
+        return userStatuses;
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        data.remove(id);
+    }
+
+    @Override
+    public void deleteByUserId(UUID userId) {
+        findByUserId(userId)
+                .ifPresent(userStatus -> data.remove(userStatus.getId()));
+    }
+}
