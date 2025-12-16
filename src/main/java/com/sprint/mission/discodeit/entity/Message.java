@@ -44,6 +44,7 @@ public class Message implements Serializable
                 "id=" + id +
                 ", channelId=" + channelId +
                 ", authorId=" + authorId +
+                ", attachmentIds=" + attachmentIds +
                 ", content='" + content + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

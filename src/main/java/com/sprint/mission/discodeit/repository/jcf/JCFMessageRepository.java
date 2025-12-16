@@ -47,13 +47,13 @@ public class JCFMessageRepository implements MessageRepository
     }
 
     @Override
-    public void delete(UUID id) {
+    public void deleteById(UUID id) {
         data.remove(id);
     }
 
     @Override
     public void deleteAllByChannelId(UUID channelId) {
         findAllByChannelId(channelId)
-                .forEach(message -> delete(message.getId()));
+                .forEach(message -> deleteById(message.getId()));
     }
 }

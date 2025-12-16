@@ -54,6 +54,13 @@ public class FileChannelRepository implements ChannelRepository
     }
 
     @Override
+    public boolean existsById(UUID id) {
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+
+        return Files.exists(filePath);
+    }
+
+    @Override
     public void delete(UUID id) {
         Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 

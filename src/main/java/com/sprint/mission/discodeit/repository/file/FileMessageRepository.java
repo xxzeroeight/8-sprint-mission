@@ -52,7 +52,7 @@ public class FileMessageRepository implements MessageRepository
     }
 
     @Override
-    public void delete(UUID id) {
+    public void deleteById(UUID id) {
         Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
         try {
@@ -65,6 +65,6 @@ public class FileMessageRepository implements MessageRepository
     @Override
     public void deleteAllByChannelId(UUID channelId) {
         findAllByChannelId(channelId)
-                .forEach(message -> delete(message.getId()));
+                .forEach(message -> deleteById(message.getId()));
     }
 }

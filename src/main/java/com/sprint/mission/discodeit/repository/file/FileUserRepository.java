@@ -64,12 +64,15 @@ public class FileUserRepository implements UserRepository
     }
 
     @Override
-    public void delete(UUID id) {
+    public boolean existsById(UUID id) {
         Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
-//        if (Files.notExists(filePath)) {
-//            throw new UserException.UserNotFoundException(id);
-//        }
+        return Files.exists(filePath);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
         try {
             Files.delete(filePath);
