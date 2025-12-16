@@ -52,6 +52,13 @@ public class FileUserStatusRepository implements UserStatusRepository
     }
 
     @Override
+    public boolean existsById(UUID id) {
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+
+        return Files.exists(filePath);
+    }
+
+    @Override
     public void deleteById(UUID id) {
         Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
