@@ -20,7 +20,7 @@ public class BinaryContent implements Serializable
 
     private Instant createdAt;
 
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes, Instant createdAt) {
+    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
         this.id = UUID.randomUUID();
         this.fileName = fileName;
         this.size = size;

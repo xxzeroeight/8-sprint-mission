@@ -31,9 +31,10 @@ public class User implements Serializable
         this.updatedAt = createdAt;
     }
 
-    public void update(String username, String password, String email) {
+    public void update(String username, String password, String email, UUID profileId) {
         if (username != null) this.username = username;
         if (email != null) this.email = email;
+        if (profileId != null) this.profileId = profileId;
 
         this.updatedAt = Instant.now();
     }
@@ -42,6 +43,7 @@ public class User implements Serializable
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", profileId=" + profileId +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
