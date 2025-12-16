@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@Primary
 @Repository
 public class JCFBinaryContentRepository implements BinaryContentRepository
 {
