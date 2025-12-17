@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.ChannelUpdateNotAllowedException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -80,7 +81,7 @@ public class BasicChannelService implements ChannelService
                 .orElseThrow(() -> ChannelNotFoundException.byId(channelId));
 
        if (channel.getChannelType().equals(ChannelType.PRIVATE)) {
-           throw new IllegalArgumentException("비밀 채널은 변경할 수 없습니다.");
+           throw ChannelUpdateNotAllowedException.forPrivateChannel("비밀 채널은 변경할 수 없습니다.");
        }
 
        channel.update(publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());

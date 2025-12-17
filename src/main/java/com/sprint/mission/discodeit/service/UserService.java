@@ -16,5 +16,5 @@ public interface UserService
     UserDto findById(UUID userId);
     List<UserDto> findAll();
     User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
-    void deleteById(UUID userId);
+    void delete(UUID userId);
 }

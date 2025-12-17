@@ -105,7 +105,7 @@ public class BasicUserService implements UserService
     }
 
     @Override
-    public void deleteById(UUID userId) {
+    public void delete(UUID userId) {
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> UserNotFoundException.byId(userId));
 
