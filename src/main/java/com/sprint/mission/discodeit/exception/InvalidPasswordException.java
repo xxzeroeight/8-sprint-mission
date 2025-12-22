@@ -7,6 +7,6 @@ public class InvalidPasswordException extends RuntimeException
     }
 
     public static InvalidPasswordException incorrect() {
-        return new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
+        return new InvalidPasswordException("아이디 또는 비밀번호가 일치하지 않습니다.");
     }
 }
