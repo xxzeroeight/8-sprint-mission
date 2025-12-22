@@ -2,13 +2,14 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.entity.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -30,7 +31,7 @@ public class BasicUserService implements UserService
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+    public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
         if (userRepository.existsByEmail(userCreateRequest.email())) {
             throw DuplicateUserException.byEmail(userCreateRequest.email());
         }
@@ -39,7 +40,7 @@ public class BasicUserService implements UserService
             throw DuplicateUserException.byUsername(userCreateRequest.username());
         }
 
-        UUID profilId = null;
+        UUID profileId = null;
         if (binaryContentCreateRequest.isPresent()) {
             BinaryContent binaryContent = new BinaryContent(
                     binaryContentCreateRequest.get().fileName(),
@@ -48,16 +49,16 @@ public class BasicUserService implements UserService
                     binaryContentCreateRequest.get().bytes()
             );
 
-            profilId = binaryContentRepository.save(binaryContent).getId();
+            profileId = binaryContentRepository.save(binaryContent).getId();
         }
 
-        User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profilId);
+        User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profileId);
         User createdUser = userRepository.save(user);
 
         UserStatus userStatus = new UserStatus(createdUser.getId(), Instant.now());
         userStatusRepository.save(userStatus);
 
-        return createdUser;
+        return toDto(createdUser);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class BasicUserService implements UserService
     }
 
     @Override
-    public User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+    public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
         if (userRepository.existsByUsername(userUpdateRequest.updateUsername())) {
             throw DuplicateUserException.byUsername(userUpdateRequest.updateUsername());
         }
@@ -100,8 +101,23 @@ public class BasicUserService implements UserService
         }
 
         user.update(userUpdateRequest.updateUsername(), userUpdateRequest.updatePassword(), userUpdateRequest.updateEmail(), profilId);
+        userRepository.save(user);
 
-        return userRepository.save(user);
+        return toDto(user);
+    }
+
+    @Override
+    public UserDto updateOnlineStatus(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> UserNotFoundException.byId(userId));
+
+        UserStatus userStatus = userStatusRepository.findByUserId(userId)
+                .orElseThrow(() -> UserStatusNotFoundException.byId(userId));
+
+        userStatus.update(Instant.now());
+        UserStatus updatedUserStatus = userStatusRepository.save(userStatus);
+
+        return toDto(user);
     }
 
     @Override
