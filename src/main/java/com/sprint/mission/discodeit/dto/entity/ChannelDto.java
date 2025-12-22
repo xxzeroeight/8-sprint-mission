@@ -12,5 +12,7 @@ public record ChannelDto(
         String description,
         ChannelType channelType,
         List<UUID> userIds,
-        Instant lastMessageAt
+        Instant lastMessageAt,
+        Instant createdAt,
+        Instant udpatedAt
 ) {}

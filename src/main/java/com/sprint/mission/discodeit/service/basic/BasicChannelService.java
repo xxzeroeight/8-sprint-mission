@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.entity.ChannelDto;
-import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -32,18 +32,20 @@ public class BasicChannelService implements ChannelService
     private final MessageRepository messageRepository;
 
     @Override
-    public Channel create(PublicChannelCreateRequest publicChannelCreateRequest) {
+    public ChannelDto create(PublicChannelCreateRequest publicChannelCreateRequest) {
         Channel channel = new Channel(
                 publicChannelCreateRequest.channelName(),
                 publicChannelCreateRequest.description(),
                 ChannelType.PUBLIC
         );
 
-        return channelRepository.save(channel);
+        Channel savedChannel = channelRepository.save(channel);
+
+        return toDto(savedChannel);
     }
 
     @Override
-    public Channel create(PrivateChannelCreateRequest privateChannelCreateRequest) {
+    public ChannelDto create(PrivateChannelCreateRequest privateChannelCreateRequest) {
         Channel channel = new Channel(null, null, ChannelType.PRIVATE);
         Channel createdChannel = channelRepository.save(channel);
 
@@ -53,7 +55,7 @@ public class BasicChannelService implements ChannelService
             readStatusRepository.save(readStatus);
         }
 
-        return createdChannel;
+        return toDto(createdChannel);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class BasicChannelService implements ChannelService
     }
 
     @Override
-    public Channel update(UUID channelId, PublicChannelUpdateRequest publicChannelUpdateRequest) {
+    public ChannelDto update(UUID channelId, PublicChannelUpdateRequest publicChannelUpdateRequest) {
        Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> ChannelNotFoundException.byId(channelId));
 
@@ -85,8 +87,9 @@ public class BasicChannelService implements ChannelService
        }
 
        channel.update(publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());
+       Channel savedChannel = channelRepository.save(channel);
 
-       return channelRepository.save(channel);
+       return toDto(savedChannel);
     }
 
     @Override
@@ -122,7 +125,9 @@ public class BasicChannelService implements ChannelService
                 channel.getDescription(),
                 channel.getChannelType(),
                 userIds,
-                lastMessageAt
+                lastMessageAt,
+                channel.getCreatedAt(),
+                channel.getUpdatedAt()
         );
     }
 }
