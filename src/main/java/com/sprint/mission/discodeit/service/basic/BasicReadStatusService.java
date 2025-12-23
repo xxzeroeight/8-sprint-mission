@@ -1,11 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.entity.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.readStatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.*;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -13,6 +12,7 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,41 +25,51 @@ public class BasicReadStatusService implements ReadStatusService
     private final ChannelRepository channelRepository;
 
     @Override
-    public ReadStatus create(ReadStatusCreateRequest readStatusCreateRequest) {
+    public ReadStatusDto create(ReadStatusCreateRequest readStatusCreateRequest) {
         if (!userRepository.existsById(readStatusCreateRequest.userId())) {
             throw UserNotFoundException.byId(readStatusCreateRequest.userId());
         }
 
-        if (!channelRepository.existsById(readStatusCreateRequest.channleId())) {
-            throw ChannelNotFoundException.byId(readStatusCreateRequest.channleId());
+        if (!channelRepository.existsById(readStatusCreateRequest.channelId())) {
+            throw ChannelNotFoundException.byId(readStatusCreateRequest.channelId());
         }
 
-        ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(), readStatusCreateRequest.channleId(), readStatusCreateRequest.lastReadAt());
-        readStatusRepository.save(readStatus);
+        if (readStatusRepository.findAllByUserId(readStatusCreateRequest.userId()).stream()
+                .anyMatch(status -> status.getChannelId().equals(readStatusCreateRequest.channelId()))) {
+            throw new DuplicateReadStatusException("이미 해당 채널의 읽음 상태가 존재합니다.");
+        }
 
-        return readStatus;
+        Instant lastReadAt = readStatusCreateRequest.lastReadAt() != null ? readStatusCreateRequest.lastReadAt() : Instant.now();
+
+        ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(), readStatusCreateRequest.channelId(), lastReadAt);
+        ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
+
+        return toDto(savedReadStatus);
     }
 
     @Override
-    public ReadStatus find(UUID readStatusId) {
+    public ReadStatusDto find(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
+                .map(readStatus -> toDto(readStatus))
                 .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
     }
 
     @Override
-    public List<ReadStatus> findAllByUserId(UUID userId) {
+    public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
+                .map(readStatus -> toDto(readStatus))
                 .toList();
     }
 
     @Override
-    public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest readStatusUpdateRequest) {
+    public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest readStatusUpdateRequest) {
         ReadStatus readStatus = readStatusRepository.findById(readStatusId)
                 .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
 
         readStatus.update(readStatusUpdateRequest.updateLastReadAt());
+        ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
-        return readStatusRepository.save(readStatus);
+        return toDto(savedReadStatus);
     }
 
     @Override
@@ -69,5 +79,16 @@ public class BasicReadStatusService implements ReadStatusService
         }
 
         readStatusRepository.deleteById(readStatusId);
+    }
+
+    private ReadStatusDto toDto(ReadStatus readStatus) {
+        return new ReadStatusDto(
+                readStatus.getId(),
+                readStatus.getUserId(),
+                readStatus.getChannelId(),
+                readStatus.getCreatedAt(),
+                readStatus.getUpdatedAt(),
+                readStatus.getLastReadAt()
+        );
     }
 }

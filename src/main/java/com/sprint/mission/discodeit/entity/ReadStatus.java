@@ -24,6 +24,7 @@ public class ReadStatus implements Serializable
         this.userId = userId;
         this.channelId = channelId;
         this.createdAt = Instant.now();
+        this.updatedAt = this.createdAt;
         this.lastReadAt = lastReadAt;
     }
 
