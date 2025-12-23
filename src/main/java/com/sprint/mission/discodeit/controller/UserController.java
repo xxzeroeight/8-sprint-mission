@@ -1,11 +1,15 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.entity.UserDto;
+import com.sprint.mission.discodeit.dto.entity.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +28,7 @@ import java.util.UUID;
 public class UserController
 {
     private final UserService userService;
+    private final UserStatusService userStatusService;
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(@RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
@@ -85,20 +90,21 @@ public class UserController
                 .body(UserResponse.from(user));
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<UserResponse> updateUserOnlineStatus(@PathVariable UUID id)
-    {
-        UserDto user = userService.updateOnlineStatus(id);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(UserResponse.from(user));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id)
     {
         userService.delete(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<UserStatusResponse> updateUserOnlineStatusByUserId(@PathVariable UUID id,
+                                                                             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
+    {
+        UserStatusDto userStatus = userStatusService.updateByUserId(id, userStatusUpdateRequest);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(UserStatusResponse.from(userStatus));
     }
 }

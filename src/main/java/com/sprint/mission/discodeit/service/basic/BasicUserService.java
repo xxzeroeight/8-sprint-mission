@@ -9,7 +9,6 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -102,20 +101,6 @@ public class BasicUserService implements UserService
 
         user.update(userUpdateRequest.updateUsername(), userUpdateRequest.updatePassword(), userUpdateRequest.updateEmail(), profilId);
         userRepository.save(user);
-
-        return toDto(user);
-    }
-
-    @Override
-    public UserDto updateOnlineStatus(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> UserNotFoundException.byId(userId));
-
-        UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> UserStatusNotFoundException.byId(userId));
-
-        userStatus.update(Instant.now());
-        UserStatus updatedUserStatus = userStatusRepository.save(userStatus);
 
         return toDto(user);
     }

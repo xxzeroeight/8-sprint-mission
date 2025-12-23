@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.entity.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -59,13 +60,14 @@ public class BasicUserStatusService implements UserStatusService
     }
 
     @Override
-    public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest userStatusUpdateRequest) {
+    public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest userStatusUpdateRequest) {
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> UserStatusNotFoundException.byId(userId));
 
         userStatus.update(userStatusUpdateRequest.updateLastActiveAt());
+        UserStatus savedUserStatus = userStatusRepository.save(userStatus);
 
-        return userStatusRepository.save(userStatus);
+        return toDto(savedUserStatus);
     }
 
     @Override
@@ -75,5 +77,15 @@ public class BasicUserStatusService implements UserStatusService
         }
 
         userStatusRepository.deleteById(userStatusId);
+    }
+
+    private UserStatusDto toDto(UserStatus userStatus) {
+        return new UserStatusDto(
+                userStatus.getId(),
+                userStatus.getUserId(),
+                userStatus.getCreatedAt(),
+                userStatus.getUpdatedAt(),
+                userStatus.getLastActiveAt()
+        );
     }
 }

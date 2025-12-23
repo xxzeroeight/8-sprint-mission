@@ -15,6 +15,5 @@ public interface UserService
     UserDto findById(UUID userId);
     List<UserDto> findAll();
     UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest);
-    UserDto updateOnlineStatus(UUID userId);
     void delete(UUID userId);
 }
