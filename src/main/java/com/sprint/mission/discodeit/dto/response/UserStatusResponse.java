@@ -13,8 +13,6 @@ public record UserStatusResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant createdAt,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-        Instant updatedAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant lastActiveAt
 ) {
     public static UserStatusResponse from(UserStatusDto userStatus) {
@@ -22,7 +20,6 @@ public record UserStatusResponse(
                 userStatus.id(),
                 userStatus.userId(),
                 userStatus.createdAt(),
-                userStatus.updatedAt(),
                 userStatus.lastActiveAt()
         );
     }
