@@ -1,8 +1,10 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.user;
+
+import com.sprint.mission.discodeit.exception.DuplicateException;
 
 import java.util.UUID;
 
-public class DuplicateUserException extends RuntimeException
+public class DuplicateUserException extends DuplicateException
 {
     public DuplicateUserException(String message) {
         super(message);

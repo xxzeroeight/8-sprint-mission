@@ -1,8 +1,10 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.readstatus;
+
+import com.sprint.mission.discodeit.exception.NotFoundException;
 
 import java.util.UUID;
 
-public class ReadStatusNotFoundException extends RuntimeException
+public class ReadStatusNotFoundException extends NotFoundException
 {
     public ReadStatusNotFoundException(String message) {
         super(message);

@@ -1,8 +1,10 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.user;
+
+import com.sprint.mission.discodeit.exception.NotFoundException;
 
 import java.util.UUID;
 
-public class UserNotFoundException extends RuntimeException
+public class UserNotFoundException extends NotFoundException
 {
     private UserNotFoundException(String message) {
         super(message);

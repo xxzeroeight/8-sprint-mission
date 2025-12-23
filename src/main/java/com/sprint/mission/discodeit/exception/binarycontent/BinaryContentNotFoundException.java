@@ -1,8 +1,10 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.binarycontent;
+
+import com.sprint.mission.discodeit.exception.NotFoundException;
 
 import java.util.UUID;
 
-public class BinaryContentNotFoundException extends RuntimeException
+public class BinaryContentNotFoundException extends NotFoundException
 {
     public BinaryContentNotFoundException(String message) {
         super(message);

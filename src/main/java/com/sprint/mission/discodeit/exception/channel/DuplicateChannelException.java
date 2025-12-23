@@ -1,8 +1,10 @@
-package com.sprint.mission.discodeit.exception;
+package com.sprint.mission.discodeit.exception.channel;
+
+import com.sprint.mission.discodeit.exception.DuplicateException;
 
 import java.util.UUID;
 
-public class DuplicateChannelException extends RuntimeException
+public class DuplicateChannelException extends DuplicateException
 {
     public DuplicateChannelException(String message) {
         super(message);
