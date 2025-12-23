@@ -25,7 +25,7 @@ public class MessageController
 {
     private final MessageService messageService;
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> cretaeMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
                                                          @RequestPart(value = "messageImages", required = false) MultipartFile messageImages) throws IOException
     {
@@ -44,10 +44,10 @@ public class MessageController
                 .body(MessageResponse.from(message));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<MessageResponse>> getChannelMessages(@PathVariable UUID id)
+    @GetMapping("/{channelId}")
+    public ResponseEntity<List<MessageResponse>> getMessagesByChannelId(@PathVariable UUID channelId)
     {
-        List<MessageDto> messages = messageService.findAllByChannelId(id);
+        List<MessageDto> messages = messageService.findAllByChannelId(channelId);
 
         List<MessageResponse> messagesResponses = messages.stream()
                 .map(MessageResponse::from)
@@ -57,20 +57,20 @@ public class MessageController
                 .body(messagesResponses);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<MessageResponse> updateMessage(@PathVariable UUID id,
+    @PatchMapping("/{messageId}")
+    public ResponseEntity<MessageResponse> updateMessage(@PathVariable UUID messageId,
                                                          @RequestBody MessageUpdateRequest messageUpdateRequest)
     {
-        MessageDto message = messageService.update(id, messageUpdateRequest);
+        MessageDto message = messageService.update(messageId, messageUpdateRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(MessageResponse.from(message));
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id)
+    @DeleteMapping("{messageId}")
+    public ResponseEntity<Void> delete(@PathVariable UUID messageId)
     {
-        messageService.delete(id);
+        messageService.delete(messageId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

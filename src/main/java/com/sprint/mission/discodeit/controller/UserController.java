@@ -30,7 +30,7 @@ public class UserController
     private final UserService userService;
     private final UserStatusService userStatusService;
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(@RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
                                                    @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
 
@@ -49,10 +49,10 @@ public class UserController
                 .body(UserResponse.from(user));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable UUID id)
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable UUID userId)
     {
-        UserDto user = userService.findById(id);
+        UserDto user = userService.findById(userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserResponse.from(user));
@@ -70,8 +70,8 @@ public class UserController
                 .body(responses);
     }
 
-    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id,
+    @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId,
                                                    @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
                                                    @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException
     {
@@ -84,25 +84,25 @@ public class UserController
             ));
         }
 
-        UserDto user = userService.update(id, userUpdateRequest, binaryContentCreateRequest);
+        UserDto user = userService.update(userId, userUpdateRequest, binaryContentCreateRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserResponse.from(user));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id)
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID userId)
     {
-        userService.delete(id);
+        userService.delete(userId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<UserStatusResponse> updateUserOnlineStatusByUserId(@PathVariable UUID id,
+    @PatchMapping("/{userId}/status")
+    public ResponseEntity<UserStatusResponse> updateUserOnlineStatusByUserId(@PathVariable UUID userId,
                                                                              @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
     {
-        UserStatusDto userStatus = userStatusService.updateByUserId(id, userStatusUpdateRequest);
+        UserStatusDto userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserStatusResponse.from(userStatus));

@@ -18,10 +18,10 @@ public class BinaryContentController
 {
     private final BinaryContentService binaryContentService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BinaryContentResponse> getBinaryContent(@PathVariable UUID id)
+    @GetMapping("/{binaryContentId}")
+    public ResponseEntity<BinaryContentResponse> getBinaryContent(@PathVariable UUID binaryContentId)
     {
-        BinaryContentDto binaryContent = binaryContentService.find(id);
+        BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BinaryContentResponse.from(binaryContent));

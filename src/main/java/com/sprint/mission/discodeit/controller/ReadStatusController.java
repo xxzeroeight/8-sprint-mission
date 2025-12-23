@@ -40,7 +40,7 @@ public class ReadStatusController
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<List<ReadStatusResponse>> getReadStatusByUser(@PathVariable UUID id)
+    public ResponseEntity<List<ReadStatusResponse>> getReadStatusByUserId(@PathVariable UUID id)
     {
         List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(id);
 

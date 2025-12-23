@@ -21,7 +21,7 @@ public class ChannelController
 {
     private final ChannelService channelService;
 
-    @PostMapping("/create/public")
+    @PostMapping("/public")
     public ResponseEntity<ChannelResponse> createPublicChannel(@RequestBody PublicChannelCreateRequest publicChannelCreateRequest)
     {
         ChannelDto channel = channelService.create(publicChannelCreateRequest);
@@ -30,7 +30,7 @@ public class ChannelController
                 .body(ChannelResponse.from(channel));
     }
 
-    @PostMapping("/create/private")
+    @PostMapping("/private")
     public ResponseEntity<ChannelResponse> createPrivateChannel(@RequestBody PrivateChannelCreateRequest privateChannelCreateRequest)
     {
         ChannelDto channel = channelService.create(privateChannelCreateRequest);
@@ -39,10 +39,10 @@ public class ChannelController
                 .body(ChannelResponse.from(channel));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<ChannelResponse>> getUserChannels(@PathVariable UUID id)
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<ChannelResponse>> getAllChannelsByUserId(@PathVariable UUID userId)
     {
-        List<ChannelDto> channels = channelService.findAllByUserId(id);
+        List<ChannelDto> channels = channelService.findAllByUserId(userId);
 
         List<ChannelResponse> channelResponses = channels.stream()
                 .map(ChannelResponse::from)
@@ -52,20 +52,20 @@ public class ChannelController
                 .body(channelResponses);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ChannelResponse> updateChannel(@PathVariable UUID id,
-                                                         @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
+    @PatchMapping("/{channelId}")
+    public ResponseEntity<ChannelResponse> updatePublicChannel(@PathVariable UUID channelId,
+                                                               @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
     {
-        ChannelDto channel = channelService.update(id, publicChannelUpdateRequest);
+        ChannelDto channel = channelService.update(channelId, publicChannelUpdateRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ChannelResponse.from(channel));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteChannel(@PathVariable UUID id)
+    @DeleteMapping("/{channelId}")
+    public ResponseEntity<Void> deleteChannel(@PathVariable UUID channelId)
     {
-        channelService.delete(id);
+        channelService.delete(channelId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
