@@ -1,61 +1,135 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.entity.UserDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.DuplicateUserException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Service
 public class BasicUserService implements UserService
 {
     private final UserRepository userRepository;
-
-    public BasicUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(String username, String password, String email) {
-        return userRepository.save(new User(username, password, email));
-    }
-
-    @Override
-    public User findById(UUID id) {
-        if (id == null) {
-            return null;
+    public User create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+        if (userRepository.existsByEmail(userCreateRequest.email())) {
+            throw DuplicateUserException.byEmail(userCreateRequest.email());
         }
 
-        return userRepository.findById(id);
+        if (userRepository.existsByUsername(userCreateRequest.username())) {
+            throw DuplicateUserException.byUsername(userCreateRequest.username());
+        }
+
+        UUID profilId = null;
+        if (binaryContentCreateRequest.isPresent()) {
+            BinaryContent binaryContent = new BinaryContent(
+                    binaryContentCreateRequest.get().fileName(),
+                    (long) binaryContentCreateRequest.get().bytes().length,
+                    binaryContentCreateRequest.get().contentType(),
+                    binaryContentCreateRequest.get().bytes()
+            );
+
+            profilId = binaryContentRepository.save(binaryContent).getId();
+        }
+
+        User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profilId);
+        User createdUser = userRepository.save(user);
+
+        UserStatus userStatus = new UserStatus(createdUser.getId(), Instant.now());
+        userStatusRepository.save(userStatus);
+
+        return createdUser;
     }
 
     @Override
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    public UserDto findById(UUID userId) {
+        return userRepository.findById(userId)
+                .map(user -> toDto(user))
+                .orElseThrow(() -> UserNotFoundException.byId(userId));
     }
 
     @Override
-    public User update(UUID id, String username, String password, String email) {
-        if (id == null) {
-            return null;
+    public List<UserDto> findAll() {
+        return userRepository.findAll().stream()
+                .map(user -> toDto(user))
+                .toList();
+    }
+
+    @Override
+    public User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+        if (userRepository.existsByUsername(userUpdateRequest.updateUsername())) {
+            throw DuplicateUserException.byUsername(userUpdateRequest.updateUsername());
         }
 
-        User user = userRepository.findById(id);
-        if (user == null) {
-            return null;
+        if (userRepository.existsByEmail(userUpdateRequest.updateEmail())) {
+            throw DuplicateUserException.byEmail(userUpdateRequest.updateEmail());
         }
 
-        user.update(username, password, email);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> UserNotFoundException.byId(userId));
+
+        UUID profilId = null;
+        if (binaryContentCreateRequest.isPresent()) {
+            BinaryContent binaryContent = new BinaryContent(
+                    binaryContentCreateRequest.get().fileName(),
+                    (long) binaryContentCreateRequest.get().bytes().length,
+                    binaryContentCreateRequest.get().contentType(),
+                    binaryContentCreateRequest.get().bytes()
+            );
+
+            profilId = binaryContentRepository.save(binaryContent).getId();
+        }
+
+        user.update(userUpdateRequest.updateUsername(), userUpdateRequest.updatePassword(), userUpdateRequest.updateEmail(), profilId);
 
         return userRepository.save(user);
     }
 
     @Override
-    public void delete(UUID id) {
-        if (id == null) {
-            return;
+    public void delete(UUID userId) {
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> UserNotFoundException.byId(userId));
+
+        if (user.getProfileId() != null) {
+            binaryContentRepository.deleteById(user.getProfileId());
         }
 
-        userRepository.delete(id);
+        userStatusRepository.deleteByUserId(userId);
+        userRepository.delete(userId);
+    }
+
+    private UserDto toDto(User user) {
+        Boolean online = userStatusRepository.findByUserId(user.getId())
+                .map(userStatus -> userStatus.isOnline())
+                .orElse(null);
+
+        return new UserDto(
+                user.getId(),
+                user.getProfileId(),
+                user.getUsername(),
+                user.getEmail(),
+                online,
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
     }
 }

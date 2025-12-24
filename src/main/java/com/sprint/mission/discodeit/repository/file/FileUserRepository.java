@@ -1,63 +1,87 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import com.sprint.mission.discodeit.constants.FileConstants;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.util.FileUtil;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+@ConditionalOnProperty(
+        prefix = "discodeit.repository",
+        name = "type",
+        havingValue = "file"
+)
+@Repository
 public class FileUserRepository implements UserRepository
 {
-    private final Path directory = Paths.get("rdata/users");
-
-    private static FileUserRepository instance;
+    private final Path directory = Paths.get(FileConstants.USER_REPOSITORY_DATA_DIR);
 
     private FileUserRepository() {
         FileUtil.init(directory);
     }
 
-    public static FileUserRepository getInstance() {
-        if (instance == null) {
-            instance = new FileUserRepository();
-        }
-
-        return instance;
-    }
-
     @Override
     public User save(User user) {
-        Path filePath = directory.resolve(user.getId() + ".ser");
+        Path filePath = directory.resolve(user.getId() + FileConstants.FILE_EXTENSION);
         FileUtil.save(filePath, user);
 
         return user;
     }
 
     @Override
-    public User findById(UUID id) {
-        List<User> users = FileUtil.load(directory);
+    public Optional<User> findById(UUID id) {
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+        User user = FileUtil.read(filePath);
 
-        return users.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return Optional.ofNullable(user);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return findAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
     }
 
     @Override
     public List<User> findAll() {
-        return FileUtil.load(directory);
+        return FileUtil.readAll(directory);
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
+
+        return Files.exists(filePath);
     }
 
     @Override
     public void delete(UUID id) {
-        Path filePath = directory.resolve(id + ".ser");
+        Path filePath = directory.resolve(id + FileConstants.FILE_EXTENSION);
 
         try {
-            Files.deleteIfExists(filePath);
+            Files.delete(filePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

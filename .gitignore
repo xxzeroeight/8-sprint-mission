@@ -1,4 +1,7 @@
-.idea
+8-sprint-mission.iml
+data/
+rdata/
+.idea/
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar

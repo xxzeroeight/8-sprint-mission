@@ -1,58 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Message implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
-    private UUID channelId;
-    private UUID authorId;
+    private final UUID id;
+    private final UUID channelId;
+    private final UUID authorId;
+    private List<UUID> attachmentIds;
 
     private String content;
 
-    private Long createdAt;
-    private Long updatedAt;
+    private final Instant createdAt;
+    private Instant updatedAt;
 
-    public Message(UUID channelId, UUID authorId, String content) {
+    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds) {
         this.id = UUID.randomUUID();
         this.channelId = channelId;
         this.authorId = authorId;
+        this.attachmentIds = attachmentIds;
         this.content = content;
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getAuthorId() {
-        return authorId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
+        this.createdAt = Instant.now();
+        this.updatedAt = createdAt;
     }
 
     public void update(String content) {
-        if (content != null) { this.content = content; }
+        if (content != null) this.content = content;
 
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = Instant.now();
     }
 
     @Override
@@ -61,6 +44,7 @@ public class Message implements Serializable
                 "id=" + id +
                 ", channelId=" + channelId +
                 ", authorId=" + authorId +
+                ", attachmentIds=" + attachmentIds +
                 ", content='" + content + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

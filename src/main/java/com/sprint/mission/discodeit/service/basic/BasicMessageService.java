@@ -1,65 +1,95 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.*;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Service
 public class BasicMessageService implements MessageService
 {
     private final MessageRepository messageRepository;
+    private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
-    public BasicMessageService(MessageRepository messageRepository) {
-        this.messageRepository = messageRepository;
+    @Override
+    public Message create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+        if (!channelRepository.existsById(messageCreateRequest.channelId())) {
+            throw DuplicateChannelException.byId(messageCreateRequest.channelId());
+        }
+
+        if (!userRepository.existsById(messageCreateRequest.authorId())) {
+            throw DuplicateUserException.byId(messageCreateRequest.authorId());
+        }
+
+        List<UUID> binaryContentIds = binaryContentCreateRequests.stream()
+                .map(binaryContentCreateRequest -> {
+                    BinaryContent binaryContent = new BinaryContent(
+                            binaryContentCreateRequest.fileName(),
+                            (long) binaryContentCreateRequest.bytes().length,
+                            binaryContentCreateRequest.contentType(),
+                            binaryContentCreateRequest.bytes()
+                    );
+
+                    BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
+                    return createdBinaryContent.getId();
+                })
+                .toList();
+
+        Message message = new Message(
+                messageCreateRequest.channelId(),
+                messageCreateRequest.authorId(),
+                messageCreateRequest.content(),
+                binaryContentIds
+        );
+
+        return messageRepository.save(message);
     }
 
     @Override
-    public Message create(String content, UUID authorId, UUID channelId) {
-        if (channelId == null) {
-            return null;
-        }
-
-        if (authorId == null) {
-            return null;
-        }
-
-        return messageRepository.save(new Message(authorId, channelId, content));
+    public Message findById(UUID messageId) {
+        return messageRepository.findById(messageId)
+                .orElseThrow(() -> MessageNotFoundException.byId(messageId));
     }
 
     @Override
-    public Message findById(UUID id) {
-        return messageRepository.findById(id);
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return messageRepository.findAllByChannelId(channelId).stream()
+                .toList();
     }
 
     @Override
-    public List<Message> findAllMessages() {
-        return messageRepository.findAll();
+    public Message update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> MessageNotFoundException.byId(messageId));
+
+        message.update(messageUpdateRequest.updateContent());
+
+        return messageRepository.save(message);
     }
 
     @Override
-    public Message update(UUID id, String content) {
-        if (id == null) {
-            return null;
-        }
+    public void delete(UUID messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> MessageNotFoundException.byId(messageId));
 
-        Message message = messageRepository.findById(id);
-        if (message == null) {
-            return null;
-        }
+        message.getAttachmentIds()
+                .forEach(messageAttachmentId -> binaryContentRepository.deleteById(messageAttachmentId));
 
-        message.update(content);
-
-        return message;
-    }
-
-    @Override
-    public void delete(UUID id) {
-        if (id == null) {
-            return;
-        }
-
-        messageRepository.delete(id);
+        messageRepository.deleteById(messageId);
     }
 }
