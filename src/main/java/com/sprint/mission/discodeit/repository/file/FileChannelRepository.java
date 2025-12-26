@@ -23,19 +23,10 @@ import java.util.UUID;
 @Repository
 public class FileChannelRepository implements ChannelRepository
 {
-    private static FileChannelRepository instance;
     private final Path directory = Paths.get(FileConstants.CHANNEL_REPOSITORY_DATA_DIR);
 
     private FileChannelRepository() {
         FileUtil.init(directory);
-    }
-
-    public static FileChannelRepository getInstance() {
-        if (instance == null) {
-            instance = new FileChannelRepository();
-        }
-
-        return instance;
     }
 
     @Override

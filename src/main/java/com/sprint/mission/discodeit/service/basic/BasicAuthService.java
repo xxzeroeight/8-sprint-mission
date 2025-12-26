@@ -12,6 +12,8 @@ import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Service
 public class BasicAuthService implements AuthService
@@ -28,20 +30,14 @@ public class BasicAuthService implements AuthService
             throw InvalidPasswordException.incorrect();
         }
 
-        return toDto(user);
+        Boolean online = getOnlineStatus(user.getId());
+
+        return UserDto.from(user, online);
     }
 
-    private UserDto toDto(User user) {
-        UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElse(null);
-
-        return new UserDto(
-                user.getId(),
-                user.getProfileId(),
-                user.getUsername(),
-                user.getEmail(),
-                userStatus != null ? userStatus.isOnline() : false,
-                user.getCreatedAt(),
-                user.getUpdatedAt()
-        );
+    private Boolean getOnlineStatus(UUID userId) {
+        return userStatusRepository.findByUserId(userId)
+                .map(UserStatus::isOnline)
+                .orElse(null);
     }
 }

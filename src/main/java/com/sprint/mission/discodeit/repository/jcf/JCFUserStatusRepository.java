@@ -5,7 +5,11 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ConditionalOnProperty(
         prefix = "discodeit.repository",
@@ -16,15 +20,7 @@ import java.util.*;
 @Repository
 public class JCFUserStatusRepository implements UserStatusRepository
 {
-    private final Map<UUID, UserStatus> data = new HashMap<>();
-
-    private JCFUserStatusRepository() {}
-
-    private static JCFUserStatusRepository instance;
-    public static JCFUserStatusRepository getInstance() {
-        if (instance == null) instance = new JCFUserStatusRepository();
-        return instance;
-    }
+    private final Map<UUID, UserStatus> data = new ConcurrentHashMap<>();
 
     @Override
     public UserStatus save(UserStatus userStatus) {

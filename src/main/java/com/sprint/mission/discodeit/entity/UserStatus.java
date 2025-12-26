@@ -10,6 +10,7 @@ import java.util.UUID;
 @Getter
 public class UserStatus implements Serializable
 {
+    private final int ONLINE_TIMEOUT = 5;
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
@@ -33,7 +34,7 @@ public class UserStatus implements Serializable
     }
 
     public Boolean isOnline() {
-        Instant instant = Instant.now().minus(Duration.ofMinutes(5));
+        Instant instant = Instant.now().minus(Duration.ofMinutes(ONLINE_TIMEOUT));
 
         return lastActiveAt.isAfter(instant);
     }

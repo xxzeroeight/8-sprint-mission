@@ -57,20 +57,28 @@ public class BasicUserService implements UserService
         UserStatus userStatus = new UserStatus(createdUser.getId(), Instant.now());
         userStatusRepository.save(userStatus);
 
-        return toDto(createdUser);
+        Boolean online = getOnlineStatus(createdUser.getId());
+
+        return UserDto.from(createdUser, online);
     }
 
     @Override
     public UserDto findById(UUID userId) {
         return userRepository.findById(userId)
-                .map(user -> toDto(user))
+                .map(user -> {
+                    Boolean online = getOnlineStatus(user.getId());
+                    return UserDto.from(user, online);
+                })
                 .orElseThrow(() -> UserNotFoundException.byId(userId));
     }
 
     @Override
     public List<UserDto> findAll() {
         return userRepository.findAll().stream()
-                .map(user -> toDto(user))
+                .map(user -> {
+                    Boolean online = getOnlineStatus(user.getId());
+                    return UserDto.from(user, online);
+                })
                 .toList();
     }
 
@@ -102,7 +110,9 @@ public class BasicUserService implements UserService
         user.update(userUpdateRequest.updateUsername(), userUpdateRequest.updatePassword(), userUpdateRequest.updateEmail(), profilId);
         userRepository.save(user);
 
-        return toDto(user);
+        Boolean online = getOnlineStatus(user.getId());
+
+        return UserDto.from(user, online);
     }
 
     @Override
@@ -118,19 +128,9 @@ public class BasicUserService implements UserService
         userRepository.delete(userId);
     }
 
-    private UserDto toDto(User user) {
-        Boolean online = userStatusRepository.findByUserId(user.getId())
-                .map(userStatus -> userStatus.isOnline())
+    private Boolean getOnlineStatus(UUID userId) {
+        return userStatusRepository.findByUserId(userId)
+                .map(UserStatus::isOnline)
                 .orElse(null);
-
-        return new UserDto(
-                user.getId(),
-                user.getProfileId(),
-                user.getUsername(),
-                user.getEmail(),
-                online,
-                user.getCreatedAt(),
-                user.getUpdatedAt()
-        );
     }
 }

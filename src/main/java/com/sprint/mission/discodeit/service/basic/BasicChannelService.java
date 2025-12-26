@@ -18,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ public class BasicChannelService implements ChannelService
 
         Channel savedChannel = channelRepository.save(channel);
 
-        return toDto(savedChannel);
+        return ChannelDto.from(savedChannel, List.of(), null);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BasicChannelService implements ChannelService
             readStatusRepository.save(readStatus);
         }
 
-        return toDto(createdChannel);
+        return ChannelDto.from(createdChannel, userIds, null);
     }
 
     @Override
@@ -103,31 +103,27 @@ public class BasicChannelService implements ChannelService
     }
 
     private ChannelDto toDto(Channel channel) {
-        Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId()).stream()
+        List<UUID> userIds = getUserIds(channel);
+        Instant lassMessageAt = getLastMessageAt(channel.getId()).orElse(null);
+
+        return ChannelDto.from(channel, userIds, lassMessageAt);
+    }
+
+    private Optional<Instant> getLastMessageAt(UUID channelId) {
+        return messageRepository.findAllByChannelId(channelId).stream()
                 .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
                 .map(Message::getCreatedAt)
                 .limit(1)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+    }
 
-        List<UUID> userIds = new ArrayList<>();
+    private List<UUID> getUserIds(Channel channel) {
         if (channel.getChannelType().equals(ChannelType.PRIVATE)) {
-            List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelId(channel.getId());
-
-            for (ReadStatus readStatus : readStatuses) {
-                userIds.add(readStatus.getUserId());
-            }
+            return readStatusRepository.findAllByChannelId(channel.getId()).stream()
+                    .map(ReadStatus::getUserId)
+                    .toList();
         }
 
-        return new ChannelDto(
-                channel.getId(),
-                channel.getChannelName(),
-                channel.getDescription(),
-                channel.getChannelType(),
-                userIds,
-                lastMessageAt,
-                channel.getCreatedAt(),
-                channel.getUpdatedAt()
-        );
+        return List.of();
     }
 }

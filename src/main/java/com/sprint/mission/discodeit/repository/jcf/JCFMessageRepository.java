@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ConditionalOnProperty(
         prefix = "discodeit.repository",
@@ -16,15 +17,7 @@ import java.util.*;
 @Repository
 public class JCFMessageRepository implements MessageRepository
 {
-    private final Map<UUID, Message> data = new HashMap<>();
-
-    private JCFMessageRepository() {}
-
-    private static JCFMessageRepository instance;
-    public static JCFMessageRepository getInstance() {
-        if (instance == null) instance = new JCFMessageRepository();
-        return instance;
-    }
+    private final Map<UUID, Message> data = new ConcurrentHashMap<>();
 
     @Override
     public Message save(Message message) {

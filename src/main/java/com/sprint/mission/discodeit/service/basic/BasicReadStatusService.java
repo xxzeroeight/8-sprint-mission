@@ -47,20 +47,20 @@ public class BasicReadStatusService implements ReadStatusService
         ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(), readStatusCreateRequest.channelId(), lastReadAt);
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
-        return toDto(savedReadStatus);
+        return ReadStatusDto.from(savedReadStatus);
     }
 
     @Override
     public ReadStatusDto find(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
-                .map(readStatus -> toDto(readStatus))
+                .map(readStatus -> ReadStatusDto.from(readStatus))
                 .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
     }
 
     @Override
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
-                .map(readStatus -> toDto(readStatus))
+                .map(readStatus -> ReadStatusDto.from(readStatus))
                 .toList();
     }
 
@@ -72,7 +72,7 @@ public class BasicReadStatusService implements ReadStatusService
         readStatus.update(readStatusUpdateRequest.updateLastReadAt());
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
-        return toDto(savedReadStatus);
+        return ReadStatusDto.from(savedReadStatus);
     }
 
     @Override
@@ -82,16 +82,5 @@ public class BasicReadStatusService implements ReadStatusService
         }
 
         readStatusRepository.deleteById(readStatusId);
-    }
-
-    private ReadStatusDto toDto(ReadStatus readStatus) {
-        return new ReadStatusDto(
-                readStatus.getId(),
-                readStatus.getUserId(),
-                readStatus.getChannelId(),
-                readStatus.getCreatedAt(),
-                readStatus.getUpdatedAt(),
-                readStatus.getLastReadAt()
-        );
     }
 }

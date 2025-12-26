@@ -5,7 +5,11 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ConditionalOnProperty(
         prefix = "discodeit.repository",
@@ -16,9 +20,7 @@ import java.util.*;
 @Repository
 public class JCFBinaryContentRepository implements BinaryContentRepository
 {
-    private final Map<UUID, BinaryContent> data = new HashMap<>();
-
-    public JCFBinaryContentRepository() {}
+    private final Map<UUID, BinaryContent> data = new ConcurrentHashMap<>();
 
     @Override
     public BinaryContent save(BinaryContent binaryContent) {

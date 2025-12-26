@@ -24,7 +24,7 @@ public class BasicUserStatusService implements UserStatusService
     private final UserRepository userRepository;
 
     @Override
-    public UserStatus create(UserStatusCreateRequest userStatusCreateRequest) {
+    public UserStatusDto create(UserStatusCreateRequest userStatusCreateRequest) {
         if (!userRepository.existsById(userStatusCreateRequest.userId())) {
             throw UserNotFoundException.byId(userStatusCreateRequest.userId());
         }
@@ -34,29 +34,34 @@ public class BasicUserStatusService implements UserStatusService
         }
 
         UserStatus userStatus = new UserStatus(userStatusCreateRequest.userId(), userStatusCreateRequest.lastActiveAt());
+        UserStatus savedUserStatus = userStatusRepository.save(userStatus);
 
-        return userStatusRepository.save(userStatus);
+        return UserStatusDto.from(savedUserStatus);
     }
 
     @Override
-    public UserStatus find(UUID userStatusId) {
+    public UserStatusDto find(UUID userStatusId) {
         return userStatusRepository.findById(userStatusId)
+                .map(UserStatusDto::from)
                 .orElseThrow(() -> UserStatusNotFoundException.byId(userStatusId));
     }
 
     @Override
-    public List<UserStatus> findAll() {
-        return userStatusRepository.findAll().stream().toList();
+    public List<UserStatusDto> findAll() {
+        return userStatusRepository.findAll().stream()
+                .map(UserStatusDto::from)
+                .toList();
     }
 
     @Override
-    public UserStatus update(UUID userStatusId, UserStatusUpdateRequest userStatusUpdateRequest) {
+    public UserStatusDto update(UUID userStatusId, UserStatusUpdateRequest userStatusUpdateRequest) {
         UserStatus userStatus = userStatusRepository.findById(userStatusId)
                 .orElseThrow(() -> UserStatusNotFoundException.byId(userStatusId));
 
         userStatus.update(userStatusUpdateRequest.updateLastActiveAt());
+        UserStatus savedUserStatus = userStatusRepository.save(userStatus);
 
-        return userStatusRepository.save(userStatus);
+        return UserStatusDto.from(savedUserStatus);
     }
 
     @Override
@@ -67,7 +72,7 @@ public class BasicUserStatusService implements UserStatusService
         userStatus.update(userStatusUpdateRequest.updateLastActiveAt());
         UserStatus savedUserStatus = userStatusRepository.save(userStatus);
 
-        return toDto(savedUserStatus);
+        return UserStatusDto.from(savedUserStatus);
     }
 
     @Override
@@ -77,15 +82,5 @@ public class BasicUserStatusService implements UserStatusService
         }
 
         userStatusRepository.deleteById(userStatusId);
-    }
-
-    private UserStatusDto toDto(UserStatus userStatus) {
-        return new UserStatusDto(
-                userStatus.getId(),
-                userStatus.getUserId(),
-                userStatus.getCreatedAt(),
-                userStatus.getUpdatedAt(),
-                userStatus.getLastActiveAt()
-        );
     }
 }

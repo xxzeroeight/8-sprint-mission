@@ -62,20 +62,20 @@ public class BasicMessageService implements MessageService
 
         Message savedMessage = messageRepository.save(message);
 
-        return toDto(savedMessage);
+        return MessageDto.from(savedMessage);
     }
 
     @Override
     public MessageDto findById(UUID messageId) {
         return messageRepository.findById(messageId)
-                .map(message -> toDto(message))
+                .map(message -> MessageDto.from(message))
                 .orElseThrow(() -> MessageNotFoundException.byId(messageId));
     }
 
     @Override
     public List<MessageDto> findAllByChannelId(UUID channelId) {
         return messageRepository.findAllByChannelId(channelId).stream()
-                .map(message -> toDto(message))
+                .map(message -> MessageDto.from(message))
                 .toList();
     }
 
@@ -87,7 +87,7 @@ public class BasicMessageService implements MessageService
         message.update(messageUpdateRequest.updateContent());
         Message savedMessage = messageRepository.save(message);
 
-        return toDto(savedMessage);
+        return MessageDto.from(savedMessage);
     }
 
     @Override
@@ -99,17 +99,5 @@ public class BasicMessageService implements MessageService
                 .forEach(messageAttachmentId -> binaryContentRepository.deleteById(messageAttachmentId));
 
         messageRepository.deleteById(messageId);
-    }
-
-    private MessageDto toDto(Message message) {
-        return new MessageDto(
-                message.getId(),
-                message.getChannelId(),
-                message.getAuthorId(),
-                message.getAttachmentIds(),
-                message.getContent(),
-                message.getCreatedAt(),
-                message.getUpdatedAt()
-        );
     }
 }

@@ -31,8 +31,12 @@ public class Channel implements Serializable
     }
 
     public void update(String channelName, String description) {
-        if (channelName != null) this.channelName = channelName;
-        if (description != null) this.description = description;
+        if (channelName != null) {
+            this.channelName = channelName;
+        }
+        if (description != null) {
+            this.description = description;
+        }
 
         this.updatedAt = Instant.now();
     }

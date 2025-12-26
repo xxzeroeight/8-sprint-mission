@@ -29,20 +29,20 @@ public class BasicBinaryContentService implements BinaryContentService
 
         BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
 
-        return toDto(savedBinaryContent);
+        return BinaryContentDto.from(savedBinaryContent);
     }
 
     @Override
     public BinaryContentDto find(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
-                .map(binaryContent -> toDto(binaryContent))
+                .map(binaryContent -> BinaryContentDto.from(binaryContent))
                 .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
     }
 
     @Override
     public List<BinaryContentDto> findAllByIds(List<UUID> binaryContentIds) {
         return binaryContentRepository.findAllByIds(binaryContentIds).stream()
-                .map(binaryContent -> toDto(binaryContent))
+                .map(binaryContent -> BinaryContentDto.from(binaryContent))
                 .toList();
     }
 
@@ -53,16 +53,5 @@ public class BasicBinaryContentService implements BinaryContentService
         }
 
         binaryContentRepository.deleteById(binaryContentId);
-    }
-
-    private BinaryContentDto toDto(BinaryContent binaryContent) {
-        return new BinaryContentDto(
-                binaryContent.getId(),
-                binaryContent.getFileName(),
-                binaryContent.getContentType(),
-                binaryContent.getSize(),
-                binaryContent.getBytes(),
-                binaryContent.getCreatedAt()
-        );
     }
 }

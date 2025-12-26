@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.entity;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.enums.ChannelType;
 
 import java.time.Instant;
@@ -15,4 +16,17 @@ public record ChannelDto(
         Instant lastMessageAt,
         Instant createdAt,
         Instant udpatedAt
-) {}
+) {
+    public static ChannelDto from(Channel channel, List<UUID> userIds, Instant lastMessageAt) {
+        return new ChannelDto(
+                channel.getId(),
+                channel.getChannelName(),
+                channel.getDescription(),
+                channel.getChannelType(),
+                userIds,
+                lastMessageAt,
+                channel.getCreatedAt(),
+                channel.getUpdatedAt()
+        );
+    }
+}
