@@ -27,14 +27,14 @@ public class MessageController
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> cretaeMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
-                                                         @RequestPart(value = "messageImages", required = false) MultipartFile messageImages) throws IOException
+                                                         @RequestPart(value = "attachments", required = false) MultipartFile attachments) throws IOException
     {
         List<BinaryContentCreateRequest> binaryContentCreateRequest = new ArrayList<>();
-        if (messageImages != null) {
+        if (attachments != null) {
             binaryContentCreateRequest = List.of(new BinaryContentCreateRequest(
-                    messageImages.getOriginalFilename(),
-                    messageImages.getContentType(),
-                    messageImages.getBytes()
+                    attachments.getOriginalFilename(),
+                    attachments.getContentType(),
+                    attachments.getBytes()
             ));
         }
 
@@ -44,8 +44,8 @@ public class MessageController
                 .body(MessageResponse.from(message));
     }
 
-    @GetMapping("/{channelId}")
-    public ResponseEntity<List<MessageResponse>> getMessagesByChannelId(@PathVariable UUID channelId)
+    @GetMapping
+    public ResponseEntity<List<MessageResponse>> getMessagesByChannelId(@RequestParam("channelId") UUID channelId)
     {
         List<MessageDto> messages = messageService.findAllByChannelId(channelId);
 

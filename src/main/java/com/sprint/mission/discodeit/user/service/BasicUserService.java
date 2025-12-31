@@ -83,12 +83,12 @@ public class BasicUserService implements UserService
 
     @Override
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
-        if (userRepository.existsByUsername(userUpdateRequest.updateUsername())) {
-            throw DuplicateUserException.byUsername(userUpdateRequest.updateUsername());
+        if (userRepository.existsByUsername(userUpdateRequest.newUsername())) {
+            throw DuplicateUserException.byUsername(userUpdateRequest.newUsername());
         }
 
-        if (userRepository.existsByEmail(userUpdateRequest.updateEmail())) {
-            throw DuplicateUserException.byEmail(userUpdateRequest.updateEmail());
+        if (userRepository.existsByEmail(userUpdateRequest.newEmail())) {
+            throw DuplicateUserException.byEmail(userUpdateRequest.newEmail());
         }
 
         User user = userRepository.findById(userId)
@@ -106,7 +106,7 @@ public class BasicUserService implements UserService
             profilId = binaryContentRepository.save(binaryContent).getId();
         }
 
-        user.update(userUpdateRequest.updateUsername(), userUpdateRequest.updatePassword(), userUpdateRequest.updateEmail(), profilId);
+        user.update(userUpdateRequest.newUsername(), userUpdateRequest.newPassword(), userUpdateRequest.newEmail(), profilId);
         userRepository.save(user);
 
         Boolean online = getOnlineStatus(user.getId());

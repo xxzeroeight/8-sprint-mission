@@ -1,20 +1,19 @@
 package com.sprint.mission.discodeit.readstatus.service;
 
+import com.sprint.mission.discodeit.channel.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
+import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.dto.domain.ReadStatusDto;
 import com.sprint.mission.discodeit.readstatus.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.readstatus.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
-import com.sprint.mission.discodeit.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.readstatus.exception.DuplicateReadStatusException;
 import com.sprint.mission.discodeit.readstatus.exception.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.user.exception.UserNotFoundException;
-import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.readstatus.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,9 +40,7 @@ public class BasicReadStatusService implements ReadStatusService
             throw new DuplicateReadStatusException("이미 해당 채널의 읽음 상태가 존재합니다.");
         }
 
-        Instant lastReadAt = readStatusCreateRequest.lastReadAt() != null ? readStatusCreateRequest.lastReadAt() : Instant.now();
-
-        ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(), readStatusCreateRequest.channelId(), lastReadAt);
+        ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(), readStatusCreateRequest.channelId(), readStatusCreateRequest.lastReadAt());
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
         return ReadStatusDto.from(savedReadStatus);
@@ -68,7 +65,7 @@ public class BasicReadStatusService implements ReadStatusService
         ReadStatus readStatus = readStatusRepository.findById(readStatusId)
                 .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
 
-        readStatus.update(readStatusUpdateRequest.updateLastReadAt());
+        readStatus.update(readStatusUpdateRequest.newLastReadAt());
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
         return ReadStatusDto.from(savedReadStatus);

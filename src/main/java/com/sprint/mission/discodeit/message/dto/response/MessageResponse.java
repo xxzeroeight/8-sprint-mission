@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.message.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sprint.mission.discodeit.message.dto.domain.MessageDto;
 
 import java.time.Instant;
@@ -14,9 +13,7 @@ public record MessageResponse(
         List<UUID> attachmentIds,
         String content,
 
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant createdAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant updatedAt
 ) {
     public static MessageResponse from(MessageDto message) {

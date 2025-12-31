@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.user.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sprint.mission.discodeit.user.dto.domain.UserDto;
 
 import java.time.Instant;
@@ -13,9 +12,7 @@ public record UserResponse(
         String email,
         boolean online,
 
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant createdAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant updatedAt
 ) {
     public static UserResponse from(UserDto user) {

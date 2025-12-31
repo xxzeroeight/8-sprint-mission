@@ -39,8 +39,8 @@ public class ChannelController
                 .body(ChannelResponse.from(channel));
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<ChannelResponse>> getAllChannelsByUserId(@PathVariable UUID userId)
+    @GetMapping
+    public ResponseEntity<List<ChannelResponse>> getAllChannelsByUserId(@RequestParam("userId") UUID userId)
     {
         List<ChannelDto> channels = channelService.findAllByUserId(userId);
 

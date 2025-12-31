@@ -32,14 +32,14 @@ public class UserController
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(@RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
-                                                   @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException
+                                                   @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-        if (profileImage != null) {
+        if (profile != null) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getOriginalFilename(),
-                    profileImage.getContentType(),
-                    profileImage.getBytes()
+                    profile.getOriginalFilename(),
+                    profile.getContentType(),
+                    profile.getBytes()
             ));
         }
 
@@ -73,14 +73,14 @@ public class UserController
     @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId,
                                                    @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
-                                                   @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException
+                                                   @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-        if (profileImage != null) {
+        if (profile != null) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getOriginalFilename(),
-                    profileImage.getContentType(),
-                    profileImage.getBytes()
+                    profile.getOriginalFilename(),
+                    profile.getContentType(),
+                    profile.getBytes()
             ));
         }
 
@@ -98,7 +98,7 @@ public class UserController
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PatchMapping("/{userId}/status")
+    @PatchMapping("/{userId}/userStatus")
     public ResponseEntity<UserStatusResponse> updateUserOnlineStatusByUserId(@PathVariable UUID userId,
                                                                              @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
     {

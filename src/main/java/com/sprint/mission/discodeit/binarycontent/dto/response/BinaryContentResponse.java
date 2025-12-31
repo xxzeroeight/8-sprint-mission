@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.binarycontent.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sprint.mission.discodeit.binarycontent.dto.domain.BinaryContentDto;
 
 import java.time.Instant;
@@ -12,20 +11,19 @@ public record BinaryContentResponse(
         String fileName,
         String contentType,
         Long size,
-        String base64Bytes,
+        String bytes,
 
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant createdAt
 ) {
     public static BinaryContentResponse from(BinaryContentDto binaryContent) {
-        String base64Bytes = Base64.getEncoder().encodeToString(binaryContent.bytes());
+        String bytes = Base64.getEncoder().encodeToString(binaryContent.bytes());
 
         return new BinaryContentResponse(
                 binaryContent.id(),
                 binaryContent.fileName(),
                 binaryContent.contentType(),
                 binaryContent.size(),
-                base64Bytes,
+                bytes,
                 binaryContent.createdAt()
         );
     }

@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.channel.service;
 
+import com.sprint.mission.discodeit.channel.domain.Channel;
+import com.sprint.mission.discodeit.channel.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.channel.dto.domain.ChannelDto;
 import com.sprint.mission.discodeit.channel.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.channel.domain.Channel;
-import com.sprint.mission.discodeit.message.domain.Message;
-import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
-import com.sprint.mission.discodeit.channel.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.channel.exception.ChannelUpdateNotAllowedException;
 import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
+import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.repository.MessageRepository;
+import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.repository.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class BasicChannelService implements ChannelService
     @Override
     public ChannelDto create(PublicChannelCreateRequest publicChannelCreateRequest) {
         Channel channel = new Channel(
-                publicChannelCreateRequest.channelName(),
+                publicChannelCreateRequest.name(),
                 publicChannelCreateRequest.description(),
                 ChannelType.PUBLIC
         );
@@ -48,7 +48,7 @@ public class BasicChannelService implements ChannelService
         Channel channel = new Channel(null, null, ChannelType.PRIVATE);
         Channel createdChannel = channelRepository.save(channel);
 
-        List<UUID> userIds = privateChannelCreateRequest.userIds();
+        List<UUID> userIds = privateChannelCreateRequest.participantIds();
         for (UUID userId : userIds) {
             ReadStatus readStatus = new ReadStatus(userId, createdChannel.getId(), Instant.MIN);
             readStatusRepository.save(readStatus);
