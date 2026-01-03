@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.user;
 
-import com.sprint.mission.discodeit.user.dto.domain.UserDto;
-import com.sprint.mission.discodeit.userstatus.dto.domain.UserStatusDto;
 import com.sprint.mission.discodeit.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.userstatus.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
-import com.sprint.mission.discodeit.userstatus.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.user.service.UserService;
+import com.sprint.mission.discodeit.userstatus.dto.domain.UserStatusDto;
+import com.sprint.mission.discodeit.userstatus.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.userstatus.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.userstatus.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
-public class UserController
+public class UserController implements UserSwaggerApi
 {
     private final UserService userService;
     private final UserStatusService userStatusService;
@@ -99,8 +99,8 @@ public class UserController
     }
 
     @PatchMapping("/{userId}/userStatus")
-    public ResponseEntity<UserStatusResponse> updateUserOnlineStatusByUserId(@PathVariable UUID userId,
-                                                                             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
+    public ResponseEntity<UserStatusResponse> updateStatus(@PathVariable UUID userId,
+                                                           @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
     {
         UserStatusDto userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
 
