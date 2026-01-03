@@ -70,7 +70,7 @@ public class UserController implements UserSwaggerApi
                 .body(responses);
     }
 
-    @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId,
                                                    @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
                                                    @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException

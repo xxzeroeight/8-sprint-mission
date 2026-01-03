@@ -52,7 +52,7 @@ public class ChannelController implements ChannelSwaggerApi
                 .body(channelResponses);
     }
 
-    @PatchMapping("/{channelId}")
+    @PutMapping("/{channelId}")
     public ResponseEntity<ChannelResponse> updatePublicChannel(@PathVariable UUID channelId,
                                                                @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
     {
