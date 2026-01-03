@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.message.service;
 
-import com.sprint.mission.discodeit.message.dto.domain.MessageDto;
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.channel.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
+import com.sprint.mission.discodeit.message.domain.Message;
+import com.sprint.mission.discodeit.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
-import com.sprint.mission.discodeit.message.domain.Message;
-import com.sprint.mission.discodeit.channel.exception.DuplicateChannelException;
 import com.sprint.mission.discodeit.message.exception.MessageNotFoundException;
-import com.sprint.mission.discodeit.user.exception.DuplicateUserException;
-import com.sprint.mission.discodeit.binarycontent.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.message.repository.MessageRepository;
+import com.sprint.mission.discodeit.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,11 +31,11 @@ public class BasicMessageService implements MessageService
     @Override
     public MessageDto create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
         if (!channelRepository.existsById(messageCreateRequest.channelId())) {
-            throw DuplicateChannelException.byId(messageCreateRequest.channelId());
+            throw ChannelNotFoundException.byId(messageCreateRequest.channelId());
         }
 
         if (!userRepository.existsById(messageCreateRequest.authorId())) {
-            throw DuplicateUserException.byId(messageCreateRequest.authorId());
+            throw UserNotFoundException.byId(messageCreateRequest.authorId());
         }
 
         List<UUID> binaryContentIds = binaryContentCreateRequests.stream()

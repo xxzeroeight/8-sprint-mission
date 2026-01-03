@@ -21,12 +21,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
-public class MessageController
+public class MessageController implements MessageSwaggerApi
 {
     private final MessageService messageService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MessageResponse> cretaeMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+    public ResponseEntity<MessageResponse> createMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
                                                          @RequestPart(value = "attachments", required = false) MultipartFile attachments) throws IOException
     {
         List<BinaryContentCreateRequest> binaryContentCreateRequest = new ArrayList<>();
@@ -45,7 +45,7 @@ public class MessageController
     }
 
     @GetMapping
-    public ResponseEntity<List<MessageResponse>> getMessagesByChannelId(@RequestParam("channelId") UUID channelId)
+    public ResponseEntity<List<MessageResponse>> getAllMessages(@RequestParam("channelId") UUID channelId)
     {
         List<MessageDto> messages = messageService.findAllByChannelId(channelId);
 
@@ -68,7 +68,7 @@ public class MessageController
     }
 
     @DeleteMapping("{messageId}")
-    public ResponseEntity<Void> delete(@PathVariable UUID messageId)
+    public ResponseEntity<Void> deleteMessage(@PathVariable UUID messageId)
     {
         messageService.delete(messageId);
 
