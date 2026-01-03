@@ -14,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/binaryContents")
-public class BinaryContentController
+public class BinaryContentController implements BinaryContentSwaggerApi
 {
     private final BinaryContentService binaryContentService;
 
