@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/readStatuses")
-public class ReadStatusController
+public class ReadStatusController implements ReadStatusSwaggerApi
 {
     private final ReadStatusService readStatusService;
 
@@ -40,7 +40,7 @@ public class ReadStatusController
     }
 
     @GetMapping
-    public ResponseEntity<List<ReadStatusResponse>> getReadStatusByUserId(@RequestParam("userId") UUID userId)
+    public ResponseEntity<List<ReadStatusResponse>> getReadStatuses(@RequestParam("userId") UUID userId)
     {
         List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
 
