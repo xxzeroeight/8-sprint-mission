@@ -27,15 +27,17 @@ public class MessageController implements MessageSwaggerApi
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> createMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
-                                                         @RequestPart(value = "attachments", required = false) MultipartFile attachments) throws IOException
+                                                         @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) throws IOException
     {
         List<BinaryContentCreateRequest> binaryContentCreateRequest = new ArrayList<>();
         if (attachments != null) {
-            binaryContentCreateRequest = List.of(new BinaryContentCreateRequest(
-                    attachments.getOriginalFilename(),
-                    attachments.getContentType(),
-                    attachments.getBytes()
-            ));
+            for (MultipartFile file : attachments) {
+                binaryContentCreateRequest.add(new BinaryContentCreateRequest(
+                        file.getOriginalFilename(),
+                        file.getContentType(),
+                        file.getBytes()
+                ));
+            }
         }
 
         MessageDto message = messageService.create(messageCreateRequest, binaryContentCreateRequest);

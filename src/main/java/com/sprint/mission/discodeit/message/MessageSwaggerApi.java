@@ -43,7 +43,7 @@ public interface MessageSwaggerApi
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) MessageCreateRequest messageCreateRequest,
             @Parameter(
                     description = "Messsage 이미지(JSON)",
-                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile attachments
+                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> attachments
     ) throws IOException;
 
     // getMessage
