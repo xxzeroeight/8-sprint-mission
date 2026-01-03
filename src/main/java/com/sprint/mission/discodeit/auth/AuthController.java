@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController
+public class AuthController implements AuthSwaggerApi
 {
     private final AuthService authService;
 
