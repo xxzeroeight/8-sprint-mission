@@ -15,7 +15,7 @@ public class User implements Serializable
     private UUID profileId;
 
     private String username;
-    private transient String password;
+    private String password;
     private String email;
 
     private final Instant createdAt;
@@ -40,6 +40,9 @@ public class User implements Serializable
         }
         if (profileId != null) {
             this.profileId = profileId;
+        }
+        if (password != null) {
+            this.password = password;
         }
 
         this.updatedAt = Instant.now();

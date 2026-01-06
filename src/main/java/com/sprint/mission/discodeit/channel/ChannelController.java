@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/channels")
-public class ChannelController
+public class ChannelController implements ChannelSwaggerApi
 {
     private final ChannelService channelService;
 
@@ -39,8 +39,8 @@ public class ChannelController
                 .body(ChannelResponse.from(channel));
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<ChannelResponse>> getAllChannelsByUserId(@PathVariable UUID userId)
+    @GetMapping
+    public ResponseEntity<List<ChannelResponse>> getAllChannels(@RequestParam("userId") UUID userId)
     {
         List<ChannelDto> channels = channelService.findAllByUserId(userId);
 
@@ -52,7 +52,7 @@ public class ChannelController
                 .body(channelResponses);
     }
 
-    @PatchMapping("/{channelId}")
+    @PutMapping("/{channelId}")
     public ResponseEntity<ChannelResponse> updatePublicChannel(@PathVariable UUID channelId,
                                                                @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
     {

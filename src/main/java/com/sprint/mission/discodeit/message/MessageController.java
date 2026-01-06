@@ -21,21 +21,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
-public class MessageController
+public class MessageController implements MessageSwaggerApi
 {
     private final MessageService messageService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MessageResponse> cretaeMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
-                                                         @RequestPart(value = "messageImages", required = false) MultipartFile messageImages) throws IOException
+    public ResponseEntity<MessageResponse> createMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+                                                         @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) throws IOException
     {
         List<BinaryContentCreateRequest> binaryContentCreateRequest = new ArrayList<>();
-        if (messageImages != null) {
-            binaryContentCreateRequest = List.of(new BinaryContentCreateRequest(
-                    messageImages.getOriginalFilename(),
-                    messageImages.getContentType(),
-                    messageImages.getBytes()
-            ));
+        if (attachments != null) {
+            for (MultipartFile file : attachments) {
+                binaryContentCreateRequest.add(new BinaryContentCreateRequest(
+                        file.getOriginalFilename(),
+                        file.getContentType(),
+                        file.getBytes()
+                ));
+            }
         }
 
         MessageDto message = messageService.create(messageCreateRequest, binaryContentCreateRequest);
@@ -44,8 +46,8 @@ public class MessageController
                 .body(MessageResponse.from(message));
     }
 
-    @GetMapping("/{channelId}")
-    public ResponseEntity<List<MessageResponse>> getMessagesByChannelId(@PathVariable UUID channelId)
+    @GetMapping
+    public ResponseEntity<List<MessageResponse>> getAllMessages(@RequestParam("channelId") UUID channelId)
     {
         List<MessageDto> messages = messageService.findAllByChannelId(channelId);
 
@@ -68,7 +70,7 @@ public class MessageController
     }
 
     @DeleteMapping("{messageId}")
-    public ResponseEntity<Void> delete(@PathVariable UUID messageId)
+    public ResponseEntity<Void> deleteMessage(@PathVariable UUID messageId)
     {
         messageService.delete(messageId);
 

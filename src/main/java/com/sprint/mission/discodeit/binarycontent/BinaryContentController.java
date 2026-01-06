@@ -13,8 +13,8 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/binary-contents")
-public class BinaryContentController
+@RequestMapping("/api/binaryContents")
+public class BinaryContentController implements BinaryContentSwaggerApi
 {
     private final BinaryContentService binaryContentService;
 

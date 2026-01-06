@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.user;
 
-import com.sprint.mission.discodeit.user.dto.domain.UserDto;
-import com.sprint.mission.discodeit.userstatus.dto.domain.UserStatusDto;
 import com.sprint.mission.discodeit.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.user.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.userstatus.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.user.dto.response.UserResponse;
-import com.sprint.mission.discodeit.userstatus.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.user.service.UserService;
+import com.sprint.mission.discodeit.userstatus.dto.domain.UserStatusDto;
+import com.sprint.mission.discodeit.userstatus.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.userstatus.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.userstatus.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,21 +25,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
-public class UserController
+public class UserController implements UserSwaggerApi
 {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(@RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
-                                                   @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException
+                                                   @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-        if (profileImage != null) {
+        if (profile != null) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getOriginalFilename(),
-                    profileImage.getContentType(),
-                    profileImage.getBytes()
+                    profile.getOriginalFilename(),
+                    profile.getContentType(),
+                    profile.getBytes()
             ));
         }
 
@@ -70,17 +70,17 @@ public class UserController
                 .body(responses);
     }
 
-    @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId,
                                                    @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
-                                                   @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException
+                                                   @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
-        if (profileImage != null) {
+        if (profile != null) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
-                    profileImage.getOriginalFilename(),
-                    profileImage.getContentType(),
-                    profileImage.getBytes()
+                    profile.getOriginalFilename(),
+                    profile.getContentType(),
+                    profile.getBytes()
             ));
         }
 
@@ -98,9 +98,9 @@ public class UserController
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PatchMapping("/{userId}/status")
-    public ResponseEntity<UserStatusResponse> updateUserOnlineStatusByUserId(@PathVariable UUID userId,
-                                                                             @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
+    @PatchMapping("/{userId}/userStatus")
+    public ResponseEntity<UserStatusResponse> updateStatus(@PathVariable UUID userId,
+                                                           @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
     {
         UserStatusDto userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
 

@@ -15,8 +15,8 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/read-status")
-public class ReadStatusController
+@RequestMapping("/api/readStatuses")
+public class ReadStatusController implements ReadStatusSwaggerApi
 {
     private final ReadStatusService readStatusService;
 
@@ -29,20 +29,20 @@ public class ReadStatusController
                 .body(ReadStatusResponse.from(readStatus));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ReadStatusResponse> updateReadStatus(@PathVariable UUID id,
+    @PatchMapping("/{readStatusId}")
+    public ResponseEntity<ReadStatusResponse> updateReadStatus(@PathVariable UUID readStatusId,
                                                                @RequestBody ReadStatusUpdateRequest readStatusUpdateRequest)
     {
-        ReadStatusDto readStatus = readStatusService.update(id, readStatusUpdateRequest);
+        ReadStatusDto readStatus = readStatusService.update(readStatusId, readStatusUpdateRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ReadStatusResponse.from(readStatus));
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<List<ReadStatusResponse>> getReadStatusByUserId(@PathVariable UUID id)
+    @GetMapping
+    public ResponseEntity<List<ReadStatusResponse>> getReadStatuses(@RequestParam("userId") UUID userId)
     {
-        List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(id);
+        List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
 
         List<ReadStatusResponse> readStatusResponses = readStatuses.stream()
                 .map(ReadStatusResponse::from)

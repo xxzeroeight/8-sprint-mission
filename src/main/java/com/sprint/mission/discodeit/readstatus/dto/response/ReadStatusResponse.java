@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.readstatus.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sprint.mission.discodeit.readstatus.dto.domain.ReadStatusDto;
 
 import java.time.Instant;
@@ -11,11 +10,8 @@ public record ReadStatusResponse(
         UUID userId,
         UUID channelId,
 
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant createdAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant updatedAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         Instant lastReadAt
 ) {
     public static ReadStatusResponse from(ReadStatusDto readStatus) {

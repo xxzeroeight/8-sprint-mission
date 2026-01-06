@@ -31,6 +31,8 @@ public class UserStatus implements Serializable
         if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
             this.lastActiveAt = lastActiveAt;
         }
+
+        this.updatedAt = Instant.now();
     }
 
     public Boolean isOnline() {

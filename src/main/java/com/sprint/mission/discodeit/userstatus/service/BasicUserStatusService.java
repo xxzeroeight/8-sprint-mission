@@ -57,7 +57,7 @@ public class BasicUserStatusService implements UserStatusService
         UserStatus userStatus = userStatusRepository.findById(userStatusId)
                 .orElseThrow(() -> UserStatusNotFoundException.byId(userStatusId));
 
-        userStatus.update(userStatusUpdateRequest.updateLastActiveAt());
+        userStatus.update(userStatusUpdateRequest.newLastActiveAt());
         UserStatus savedUserStatus = userStatusRepository.save(userStatus);
 
         return UserStatusDto.from(savedUserStatus);
@@ -68,7 +68,7 @@ public class BasicUserStatusService implements UserStatusService
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> UserStatusNotFoundException.byId(userId));
 
-        userStatus.update(userStatusUpdateRequest.updateLastActiveAt());
+        userStatus.update(userStatusUpdateRequest.newLastActiveAt());
         UserStatus savedUserStatus = userStatusRepository.save(userStatus);
 
         return UserStatusDto.from(savedUserStatus);
