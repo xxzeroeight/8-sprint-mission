@@ -1,0 +1,67 @@
+package com.sprint.mission.discodeit.domain.user.repository;
+
+import com.sprint.mission.discodeit.domain.user.domain.User;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+@ConditionalOnProperty(
+        prefix = "discodeit.repository",
+        name = "type",
+        havingValue = "jcf",
+        matchIfMissing = true
+)
+@Repository
+public class JCFUserRepository implements UserRepository
+{
+    private final Map<UUID, User> data = new ConcurrentHashMap<>();
+
+    @Override
+    public User save(User user) {
+        data.put(user.getId(), user);
+        return user;
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        User user = data.get(id);
+
+        return Optional.ofNullable(user);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return findAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
+    }
+
+    @Override
+    public List<User> findAll() {
+        return new ArrayList<>(data.values());
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return data.containsKey(id);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        data.remove(id);
+    }
+}
