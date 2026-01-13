@@ -1,55 +1,41 @@
 package com.sprint.mission.discodeit.domain.message.domain;
 
+import com.sprint.mission.discodeit.domain.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.domain.channel.domain.Channel;
+import com.sprint.mission.discodeit.domain.user.domain.User;
 import lombok.Getter;
 
-import java.io.Serializable;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
-public class Message implements Serializable
+public class Message extends BaseUpdatableEntity
 {
-    private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final UUID channelId;
-    private final UUID authorId;
-    private List<UUID> attachmentIds;
-
     private String content;
 
-    private final Instant createdAt;
-    private Instant updatedAt;
+    private final Channel channel;
+    private final User author;
+    private final List<BinaryContent> attachments = new ArrayList<>();
 
-    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds) {
-        this.id = UUID.randomUUID();
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.attachmentIds = attachmentIds;
+    // User, Channel이 있어야 존재가능.
+    public Message(Channel channel, User author, String content) {
+        this.channel = channel;
+        this.author = author;
         this.content = content;
-        this.createdAt = Instant.now();
-        this.updatedAt = createdAt;
     }
 
     public void update(String content) {
         if (content != null) {
             this.content = content;
         }
-
-        this.updatedAt = Instant.now();
     }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", channelId=" + channelId +
-                ", authorId=" + authorId +
-                ", attachmentIds=" + attachmentIds +
-                ", content='" + content + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+    public void addAttachment(BinaryContent attachment) {
+        this.attachments.add(attachment);
+    }
+
+    public void removeAttachment(BinaryContent attachment) {
+        this.attachments.remove(attachment);
     }
 }

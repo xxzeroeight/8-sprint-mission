@@ -1,30 +1,24 @@
 package com.sprint.mission.discodeit.domain.readstatus.domain;
 
+import com.sprint.mission.discodeit.domain.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.domain.channel.domain.Channel;
+import com.sprint.mission.discodeit.domain.user.domain.User;
 import lombok.Getter;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
-public class ReadStatus implements Serializable
+public class ReadStatus extends BaseUpdatableEntity
 {
-    private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final UUID userId;
-    private final UUID channelId;
-
-    private Instant createdAt;
-    private Instant updatedAt;
     private Instant lastReadAt;
 
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.channelId = channelId;
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
+    private final User user;
+    private final Channel channel;
+
+    // User, Channel이 있어야 존재가능.
+    public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+        this.user = user;
+        this.channel = channel;
         this.lastReadAt = lastReadAt;
     }
 

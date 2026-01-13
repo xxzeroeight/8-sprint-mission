@@ -1,63 +1,49 @@
 package com.sprint.mission.discodeit.domain.user.domain;
 
+import com.sprint.mission.discodeit.domain.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.domain.userstatus.domain.UserStatus;
 import lombok.Getter;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
-
 @Getter
-public class User implements Serializable
+public class User extends BaseUpdatableEntity
 {
-    private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private UUID profileId;
-
     private String username;
     private String password;
     private String email;
 
-    private final Instant createdAt;
-    private Instant updatedAt;
+    private UserStatus userStatus;
+    private BinaryContent profile;
 
-    public User(String username, String password, String email, UUID profileId) {
-        this.id = UUID.randomUUID();
-        this.profileId = profileId;
+    public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.createdAt = Instant.now();
-        this.updatedAt = createdAt;
     }
 
-    public void update(String username, String password, String email, UUID profileId) {
+    public void update(String username, String password, String email) {
         if (username != null) {
             this.username = username;
         }
         if (email != null) {
             this.email = email;
         }
-        if (profileId != null) {
-            this.profileId = profileId;
-        }
         if (password != null) {
             this.password = password;
         }
-
-        this.updatedAt = Instant.now();
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", profileId=" + profileId +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+    // 양방향 1:1 (무한루프 방지)
+    public void setUserStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
+
+        if (userStatus != null && userStatus.getUser() != this) {
+            this.userStatus.setUser(this);
+        }
+    }
+
+    // 1:0 관계.
+    public void setProfile(BinaryContent profile) {
+        this.profile = profile;
     }
 }
