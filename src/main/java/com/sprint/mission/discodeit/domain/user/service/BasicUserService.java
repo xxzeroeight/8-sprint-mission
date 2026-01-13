@@ -1,21 +1,19 @@
 package com.sprint.mission.discodeit.domain.user.service;
 
-import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.user.domain.User;
+import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
-import com.sprint.mission.discodeit.domain.user.domain.User;
-import com.sprint.mission.discodeit.domain.userstatus.domain.UserStatus;
 import com.sprint.mission.discodeit.domain.user.exception.DuplicateUserException;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
-import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.domain.userstatus.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,9 +23,9 @@ import java.util.UUID;
 public class BasicUserService implements UserService
 {
     private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
 
+    @Transactional
     @Override
     public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
         if (userRepository.existsByEmail(userCreateRequest.email())) {
@@ -38,49 +36,39 @@ public class BasicUserService implements UserService
             throw DuplicateUserException.byUsername(userCreateRequest.username());
         }
 
-        UUID profileId = null;
-        if (binaryContentCreateRequest.isPresent()) {
-            BinaryContent binaryContent = new BinaryContent(
-                    binaryContentCreateRequest.get().fileName(),
-                    (long) binaryContentCreateRequest.get().bytes().length,
-                    binaryContentCreateRequest.get().contentType(),
-                    binaryContentCreateRequest.get().bytes()
-            );
+        BinaryContent profile = createProfile(binaryContentCreateRequest);
 
-            profileId = binaryContentRepository.save(binaryContent).getId();
-        }
-
-        User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profileId);
+        User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profile);
         User createdUser = userRepository.save(user);
 
-        UserStatus userStatus = new UserStatus(createdUser.getId(), Instant.now());
-        userStatusRepository.save(userStatus);
-
-        Boolean online = getOnlineStatus(createdUser.getId());
+        Boolean online = getOnlineStatus(createdUser);
 
         return UserDto.from(createdUser, online);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDto findById(UUID userId) {
         return userRepository.findById(userId)
                 .map(user -> {
-                    Boolean online = getOnlineStatus(user.getId());
+                    Boolean online = getOnlineStatus(user);
                     return UserDto.from(user, online);
                 })
                 .orElseThrow(() -> UserNotFoundException.byId(userId));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserDto> findAll() {
         return userRepository.findAll().stream()
                 .map(user -> {
-                    Boolean online = getOnlineStatus(user.getId());
+                    Boolean online = getOnlineStatus(user);
                     return UserDto.from(user, online);
                 })
                 .toList();
     }
 
+    @Transactional
     @Override
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
         if (userRepository.existsByUsername(userUpdateRequest.newUsername())) {
@@ -94,42 +82,46 @@ public class BasicUserService implements UserService
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> UserNotFoundException.byId(userId));
 
-        UUID profilId = null;
+        BinaryContent profile = createProfile(binaryContentCreateRequest);
+        user.update(userUpdateRequest.newUsername(), userUpdateRequest.newPassword(), userUpdateRequest.newEmail(), profile);
+
+        Boolean online = getOnlineStatus(user);
+
+        return UserDto.from(user, online);
+    }
+
+    @Transactional
+    @Override
+    public void delete(UUID userId) {
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> UserNotFoundException.byId(userId));
+
+        // pofile 먼저 삭제.
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
+        }
+
+        userRepository.deleteById(userId);
+    }
+
+    private Boolean getOnlineStatus(User user) {
+        return user.getUserStatus().isOnline(); // 객체 그래프 탐색. (user와 userstatus는 cascade관계이므로 null값이 올 수 없음.)
+    }
+
+    private BinaryContent createProfile(Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+        BinaryContent profile = null;
+
         if (binaryContentCreateRequest.isPresent()) {
-            BinaryContent binaryContent = new BinaryContent(
+            profile = new BinaryContent(
                     binaryContentCreateRequest.get().fileName(),
                     (long) binaryContentCreateRequest.get().bytes().length,
                     binaryContentCreateRequest.get().contentType(),
                     binaryContentCreateRequest.get().bytes()
             );
 
-            profilId = binaryContentRepository.save(binaryContent).getId();
+            binaryContentRepository.save(profile);
         }
 
-        user.update(userUpdateRequest.newUsername(), userUpdateRequest.newPassword(), userUpdateRequest.newEmail(), profilId);
-        userRepository.save(user);
-
-        Boolean online = getOnlineStatus(user.getId());
-
-        return UserDto.from(user, online);
-    }
-
-    @Override
-    public void delete(UUID userId) {
-        User user = userRepository.findById(userId)
-                        .orElseThrow(() -> UserNotFoundException.byId(userId));
-
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId());
-        }
-
-        userStatusRepository.deleteByUserId(userId);
-        userRepository.delete(userId);
-    }
-
-    private Boolean getOnlineStatus(UUID userId) {
-        return userStatusRepository.findByUserId(userId)
-                .map(UserStatus::isOnline)
-                .orElse(null);
+        return profile;
     }
 }

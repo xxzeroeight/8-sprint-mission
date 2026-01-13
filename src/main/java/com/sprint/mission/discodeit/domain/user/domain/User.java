@@ -32,13 +32,15 @@ public class User extends BaseUpdatableEntity
     @JoinColumn(name = "profile_id")
     private BinaryContent profile;
 
-    public User(String username, String password, String email) {
+    public User(String username, String password, String email, BinaryContent profile) {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.profile = profile;
+        this.userStatus = new UserStatus(this);
     }
 
-    public void update(String username, String password, String email) {
+    public void update(String username, String password, String email, BinaryContent profile) {
         if (username != null) {
             this.username = username;
         }
@@ -47,6 +49,9 @@ public class User extends BaseUpdatableEntity
         }
         if (password != null) {
             this.password = password;
+        }
+        if (profile != null) {
+            this.profile = profile;
         }
     }
 
