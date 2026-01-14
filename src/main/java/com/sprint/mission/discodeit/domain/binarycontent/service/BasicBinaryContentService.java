@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryConte
 import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ public class BasicBinaryContentService implements BinaryContentService
 {
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentMapper binaryContentMapper;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Transactional
     @Override
@@ -26,11 +28,12 @@ public class BasicBinaryContentService implements BinaryContentService
         BinaryContent binaryContent = new BinaryContent(
                 binaryContentCreateRequest.fileName(),
                 (long) binaryContentCreateRequest.bytes().length,
-                binaryContentCreateRequest.contentType(),
-                binaryContentCreateRequest.bytes()
+                binaryContentCreateRequest.contentType()
         );
 
         BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
+
+        binaryContentStorage.put(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
 
         return binaryContentMapper.toDto(savedBinaryContent);
     }

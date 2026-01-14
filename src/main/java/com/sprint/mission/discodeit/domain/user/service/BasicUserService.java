@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.domain.user.service;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
@@ -25,6 +26,7 @@ public class BasicUserService implements UserService
 {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
     private final UserMapper userMapper;
 
     @Transactional
@@ -97,19 +99,17 @@ public class BasicUserService implements UserService
     }
 
     private BinaryContent createProfile(Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
-        BinaryContent profile = null;
-
-        if (binaryContentCreateRequest.isPresent()) {
-            profile = new BinaryContent(
-                    binaryContentCreateRequest.get().fileName(),
-                    (long) binaryContentCreateRequest.get().bytes().length,
-                    binaryContentCreateRequest.get().contentType(),
-                    binaryContentCreateRequest.get().bytes()
+        return binaryContentCreateRequest.map(binaryContent -> {
+            BinaryContent profile = new BinaryContent(
+                    binaryContent.fileName(),
+                    (long) binaryContent.bytes().length,
+                    binaryContent.contentType()
             );
 
-            binaryContentRepository.save(profile);
-        }
+            BinaryContent savedBinartContent = binaryContentRepository.save(profile);
+            binaryContentStorage.put(savedBinartContent.getId(), binaryContent.bytes());
 
-        return profile;
+            return savedBinartContent;
+        }).orElse(null);
     }
 }

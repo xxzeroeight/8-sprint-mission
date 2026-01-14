@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.domain.message.service;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
@@ -30,6 +31,7 @@ public class BasicMessageService implements MessageService
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
+    private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentRepository binaryContentRepository;
     private final MessageMapper messageMapper;
 
@@ -42,22 +44,11 @@ public class BasicMessageService implements MessageService
         User author = userRepository.findById(messageCreateRequest.authorId())
                 .orElseThrow(() -> UserNotFoundException.byId(messageCreateRequest.authorId()));
 
-        List<BinaryContent> binaryContents = binaryContentCreateRequests.stream()
-                .map(binaryContentCreateRequest -> new BinaryContent(
-                        binaryContentCreateRequest.fileName(),
-                        (long) binaryContentCreateRequest.bytes().length,
-                        binaryContentCreateRequest.contentType(),
-                        binaryContentCreateRequest.bytes()
-                ))
+        List<BinaryContent> savedBinaryContents = binaryContentCreateRequests.stream()
+                .map(this::createBinaryContent)
                 .toList();
 
-        List<BinaryContent> savedBinaryContents = binaryContentRepository.saveAll(binaryContents);
-
-        Message message = new Message(
-                channel,
-                author,
-                messageCreateRequest.content()
-        );
+        Message message = new Message(channel, author, messageCreateRequest.content());
 
         savedBinaryContents.forEach(message::addAttachment);
 
@@ -104,5 +95,18 @@ public class BasicMessageService implements MessageService
                 .forEach(attachment -> binaryContentRepository.deleteById(attachment.getId()));
 
         messageRepository.deleteById(messageId);
+    }
+
+    private BinaryContent createBinaryContent(BinaryContentCreateRequest binaryContentCreateRequest) {
+        BinaryContent binaryContent = new BinaryContent(
+                binaryContentCreateRequest.fileName(),
+                (long) binaryContentCreateRequest.bytes().length,
+                binaryContentCreateRequest.contentType()
+        );
+
+        BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
+        binaryContentStorage.put(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
+
+        return savedBinaryContent;
     }
 }

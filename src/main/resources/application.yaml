@@ -21,9 +21,9 @@ spring:
       ddl-auto: create
 
 discodeit:
-  repository:
-    type: jcf # 주석처리(jcf) || "jcf" || "file"
-    file-directory: rdata
+  storage:
+    local:
+      root-path: ./uploads
 
 logging:
   level:

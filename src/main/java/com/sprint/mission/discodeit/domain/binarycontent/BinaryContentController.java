@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.domain.binarycontent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.service.BinaryContentService;
+import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class BinaryContentController implements BinaryContentSwaggerApi
 {
     private final BinaryContentService binaryContentService;
+    private final BinaryContentStorage binaryContentStorage;
 
     @GetMapping("/{binaryContentId}")
     public ResponseEntity<BinaryContentResponse> getBinaryContent(@PathVariable UUID binaryContentId)
@@ -38,5 +40,13 @@ public class BinaryContentController implements BinaryContentSwaggerApi
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(binaryContentResponses);
+    }
+
+    @GetMapping("/{binaryContentId}/download")
+    public ResponseEntity<?> downloadBinaryContent(@PathVariable UUID binaryContentId)
+    {
+        BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
+
+        return binaryContentStorage.download(binaryContentDto);
     }
 }
