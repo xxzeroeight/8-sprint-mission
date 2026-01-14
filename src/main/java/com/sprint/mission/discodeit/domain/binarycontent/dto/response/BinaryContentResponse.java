@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.domain.binarycontent.dto.response;
 
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 
-import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -11,9 +10,7 @@ public record BinaryContentResponse(
         String fileName,
         String contentType,
         Long size,
-        String bytes,
-
-        Instant createdAt
+        String bytes
 ) {
     public static BinaryContentResponse from(BinaryContentDto binaryContent) {
         String bytes = Base64.getEncoder().encodeToString(binaryContent.bytes());
@@ -23,8 +20,7 @@ public record BinaryContentResponse(
                 binaryContent.fileName(),
                 binaryContent.contentType(),
                 binaryContent.size(),
-                bytes,
-                binaryContent.createdAt()
+                bytes
         );
     }
 }

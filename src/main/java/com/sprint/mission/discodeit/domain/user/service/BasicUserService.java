@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.domain.user.exception.DuplicateUserException;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class BasicUserService implements UserService
 {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final UserMapper userMapper;
 
     @Transactional
     @Override
@@ -41,19 +43,14 @@ public class BasicUserService implements UserService
         User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profile);
         User createdUser = userRepository.save(user);
 
-        Boolean online = getOnlineStatus(createdUser);
-
-        return UserDto.from(createdUser, online);
+        return userMapper.toDto(createdUser);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserDto findById(UUID userId) {
         return userRepository.findById(userId)
-                .map(user -> {
-                    Boolean online = getOnlineStatus(user);
-                    return UserDto.from(user, online);
-                })
+                .map(user -> userMapper.toDto(user))
                 .orElseThrow(() -> UserNotFoundException.byId(userId));
     }
 
@@ -61,10 +58,7 @@ public class BasicUserService implements UserService
     @Override
     public List<UserDto> findAll() {
         return userRepository.findAll().stream()
-                .map(user -> {
-                    Boolean online = getOnlineStatus(user);
-                    return UserDto.from(user, online);
-                })
+                .map(user -> userMapper.toDto(user))
                 .toList();
     }
 
@@ -85,9 +79,7 @@ public class BasicUserService implements UserService
         BinaryContent profile = createProfile(binaryContentCreateRequest);
         user.update(userUpdateRequest.newUsername(), userUpdateRequest.newPassword(), userUpdateRequest.newEmail(), profile);
 
-        Boolean online = getOnlineStatus(user);
-
-        return UserDto.from(user, online);
+        return userMapper.toDto(user);
     }
 
     @Transactional
@@ -102,10 +94,6 @@ public class BasicUserService implements UserService
         }
 
         userRepository.deleteById(userId);
-    }
-
-    private Boolean getOnlineStatus(User user) {
-        return user.getUserStatus().isOnline(); // 객체 그래프 탐색. (user와 userstatus는 cascade관계이므로 null값이 올 수 없음.)
     }
 
     private BinaryContent createProfile(Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {

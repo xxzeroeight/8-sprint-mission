@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.message.exception.MessageNotFoundException;
+import com.sprint.mission.discodeit.domain.message.mapper.MessageMapper;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
@@ -30,6 +31,7 @@ public class BasicMessageService implements MessageService
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final MessageMapper messageMapper;
 
     @Transactional
     @Override
@@ -61,14 +63,14 @@ public class BasicMessageService implements MessageService
 
         Message savedMessage = messageRepository.save(message);
 
-        return MessageDto.from(savedMessage);
+        return messageMapper.toDto(savedMessage);
     }
 
     @Transactional(readOnly = true)
     @Override
     public MessageDto findById(UUID messageId) {
         return messageRepository.findById(messageId)
-                .map(message -> MessageDto.from(message))
+                .map(message -> messageMapper.toDto(message))
                 .orElseThrow(() -> MessageNotFoundException.byId(messageId));
     }
 
@@ -76,7 +78,7 @@ public class BasicMessageService implements MessageService
     @Override
     public List<MessageDto> findAllByChannelId(UUID channelId) {
         return messageRepository.findAllByChannelId(channelId).stream()
-                .map(message -> MessageDto.from(message))
+                .map(message -> messageMapper.toDto(message))
                 .toList();
     }
 
@@ -89,7 +91,7 @@ public class BasicMessageService implements MessageService
         message.update(messageUpdateRequest.updateContent());
         Message savedMessage = messageRepository.save(message);
 
-        return MessageDto.from(savedMessage);
+        return messageMapper.toDto(savedMessage);
     }
 
     @Transactional

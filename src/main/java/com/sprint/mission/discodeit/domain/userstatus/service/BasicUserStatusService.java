@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.domain.userstatus.domain.UserStatus;
 import com.sprint.mission.discodeit.domain.userstatus.dto.domain.UserStatusDto;
 import com.sprint.mission.discodeit.domain.userstatus.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.domain.userstatus.exception.UserStatusNotFoundException;
+import com.sprint.mission.discodeit.domain.userstatus.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.domain.userstatus.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class BasicUserStatusService implements UserStatusService
 {
     private final UserStatusRepository userStatusRepository;
     private final UserRepository userRepository;
+    private final UserStatusMapper userStatusMapper;
 
     // UserRepository.findById()로 User -> UserStatus로 접근할 수 있으므로 사실상 UserService로 통합 가능함.
     @Transactional
@@ -28,6 +30,6 @@ public class BasicUserStatusService implements UserStatusService
 
         userStatus.update(userStatusUpdateRequest.newLastActiveAt());
 
-        return UserStatusDto.from(userStatus);
+        return userStatusMapper.toDto(userStatus);
     }
 }

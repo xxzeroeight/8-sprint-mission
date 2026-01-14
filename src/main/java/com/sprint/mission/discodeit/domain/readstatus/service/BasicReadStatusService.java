@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusCrea
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.exception.DuplicateReadStatusException;
 import com.sprint.mission.discodeit.domain.readstatus.exception.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.domain.readstatus.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
@@ -27,6 +28,7 @@ public class BasicReadStatusService implements ReadStatusService
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
+    private final ReadStatusMapper readStatusMapper;
 
     @Transactional
     @Override
@@ -45,14 +47,14 @@ public class BasicReadStatusService implements ReadStatusService
         ReadStatus readStatus = new ReadStatus(author, channel, readStatusCreateRequest.lastReadAt());
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
-        return ReadStatusDto.from(savedReadStatus);
+        return readStatusMapper.toDto(savedReadStatus);
     }
 
     @Transactional(readOnly = true)
     @Override
     public ReadStatusDto find(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
-                .map(readStatus -> ReadStatusDto.from(readStatus))
+                .map(readStatus -> readStatusMapper.toDto(readStatus))
                 .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
     }
 
@@ -60,7 +62,7 @@ public class BasicReadStatusService implements ReadStatusService
     @Override
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
-                .map(readStatus -> ReadStatusDto.from(readStatus))
+                .map(readStatus -> readStatusMapper.toDto(readStatus))
                 .toList();
     }
 
@@ -73,7 +75,7 @@ public class BasicReadStatusService implements ReadStatusService
         readStatus.update(readStatusUpdateRequest.newLastReadAt());
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
-        return ReadStatusDto.from(savedReadStatus);
+        return readStatusMapper.toDto(savedReadStatus);
     }
 
     @Transactional

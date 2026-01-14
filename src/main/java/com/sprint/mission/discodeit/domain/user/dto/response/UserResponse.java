@@ -1,29 +1,24 @@
 package com.sprint.mission.discodeit.domain.user.dto.response;
 
+import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public record UserResponse(
         UUID id,
-        UUID profileId,
+        BinaryContentDto profile,
         String username,
         String email,
-        boolean online,
-
-        Instant createdAt,
-        Instant updatedAt
+        Boolean online
 ) {
-    public static UserResponse from(UserDto user) {
+    public static UserResponse from(UserDto userDto) {
         return new UserResponse(
-                user.id(),
-                user.profileId(),
-                user.username(),
-                user.email(),
-                user.online(),
-                user.createdAt(),
-                user.updatedAt()
+                userDto.id(),
+                userDto.profile(),
+                userDto.username(),
+                userDto.email(),
+                userDto.online()
         );
     }
 }

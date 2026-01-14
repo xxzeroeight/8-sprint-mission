@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelCrea
 import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelUpdateNotAllowedException;
+import com.sprint.mission.discodeit.domain.channel.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.message.domain.Message;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
@@ -33,6 +34,7 @@ public class BasicChannelService implements ChannelService
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final ChannelMapper channelMapper;
 
     @Transactional
     @Override
@@ -45,7 +47,7 @@ public class BasicChannelService implements ChannelService
 
         Channel savedChannel = channelRepository.save(channel);
 
-        return ChannelDto.from(savedChannel, List.of(), null);
+        return channelMapper.toDto(savedChannel, List.of(), null);
     }
 
     @Transactional
@@ -62,7 +64,7 @@ public class BasicChannelService implements ChannelService
             readStatusRepository.save(readStatus);
         }
 
-        return ChannelDto.from(createdChannel, users, null);
+        return channelMapper.toDto(createdChannel, users, null);
     }
 
     @Transactional(readOnly = true)
@@ -117,7 +119,7 @@ public class BasicChannelService implements ChannelService
         List<User> users = getUsers(channel);
         Instant lassMessageAt = getLastMessageAt(channel.getId()).orElse(null);
 
-        return ChannelDto.from(channel, users, lassMessageAt);
+        return channelMapper.toDto(channel, users, lassMessageAt);
     }
 
     private Optional<Instant> getLastMessageAt(UUID channelId) {

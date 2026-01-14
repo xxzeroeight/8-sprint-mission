@@ -10,8 +10,6 @@ public record ReadStatusResponse(
         UUID userId,
         UUID channelId,
 
-        Instant createdAt,
-        Instant updatedAt,
         Instant lastReadAt
 ) {
     public static ReadStatusResponse from(ReadStatusDto readStatus) {
@@ -19,8 +17,6 @@ public record ReadStatusResponse(
                 readStatus.id(),
                 readStatus.userId(),
                 readStatus.channelId(),
-                readStatus.createdAt(),
-                readStatus.updatedAt(),
                 readStatus.lasdReadAt()
         );
     }
