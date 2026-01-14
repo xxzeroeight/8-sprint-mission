@@ -14,7 +14,6 @@ import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.user.domain.User;
-import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -56,15 +55,14 @@ public class BasicChannelService implements ChannelService
         Channel createdChannel = channelRepository.save(channel);
 
         List<UUID> userIds = privateChannelCreateRequest.participantIds();
-        for (UUID userId : userIds) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> UserNotFoundException.byId(userId));
+        List<User> users = userRepository.findAllById(userIds);
 
+        for (User user : users) {
             ReadStatus readStatus = new ReadStatus(user, createdChannel, channel.getCreatedAt());
             readStatusRepository.save(readStatus);
         }
 
-        return ChannelDto.from(createdChannel, userIds, null);
+        return ChannelDto.from(createdChannel, users, null);
     }
 
     @Transactional(readOnly = true)
@@ -116,10 +114,10 @@ public class BasicChannelService implements ChannelService
     }
 
     private ChannelDto toDto(Channel channel) {
-        List<UUID> userIds = getUserIds(channel);
+        List<User> users = getUsers(channel);
         Instant lassMessageAt = getLastMessageAt(channel.getId()).orElse(null);
 
-        return ChannelDto.from(channel, userIds, lassMessageAt);
+        return ChannelDto.from(channel, users, lassMessageAt);
     }
 
     private Optional<Instant> getLastMessageAt(UUID channelId) {
@@ -130,11 +128,13 @@ public class BasicChannelService implements ChannelService
                 .findFirst();
     }
 
-    private List<UUID> getUserIds(Channel channel) {
+    private List<User> getUsers(Channel channel) {
         if (channel.getType().equals(ChannelType.PRIVATE)) {
-            return readStatusRepository.findAllByChannelId(channel.getId()).stream()
+            List<UUID> userIds = readStatusRepository.findAllByChannelId(channel.getId()).stream()
                     .map(readStatus -> readStatus.getUser().getId())
                     .toList();
+
+            return userRepository.findAllById(userIds);
         }
 
         return List.of();

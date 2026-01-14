@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.domain.channel.dto.domain;
 
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.channel.domain.enums.ChannelType;
+import com.sprint.mission.discodeit.domain.user.domain.User;
+import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 
 import java.time.Instant;
 import java.util.List;
@@ -9,24 +11,22 @@ import java.util.UUID;
 
 public record ChannelDto(
         UUID id,
-        String channelName,
+        String name,
         String description,
         ChannelType channelType,
-        List<UUID> userIds,
-        Instant lastMessageAt,
-        Instant createdAt,
-        Instant udpatedAt
+        List<UserDto> participants,
+        Instant lastMessageAt
 ) {
-    public static ChannelDto from(Channel channel, List<UUID> userIds, Instant lastMessageAt) {
+    public static ChannelDto from(Channel channel, List<User> users, Instant lastMessageAt) {
         return new ChannelDto(
                 channel.getId(),
-                channel.getChannelName(),
+                channel.getName(),
                 channel.getDescription(),
-                channel.getChannelType(),
-                userIds,
-                lastMessageAt,
-                channel.getCreatedAt(),
-                channel.getUpdatedAt()
+                channel.getType(),
+                users.stream()
+                        .map(user -> UserDto.from(user, user.getUserStatus().isOnline()))
+                        .toList(),
+                lastMessageAt
         );
     }
 }

@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.domain.binarycontent.dto.domain;
 
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public record BinaryContentDto(
@@ -10,8 +9,7 @@ public record BinaryContentDto(
         String fileName,
         String contentType,
         Long size,
-        byte[] bytes,
-        Instant createdAt
+        byte[] bytes
 ) {
     public static BinaryContentDto from(BinaryContent binaryContent) {
         return new BinaryContentDto(
@@ -19,8 +17,7 @@ public record BinaryContentDto(
                 binaryContent.getFileName(),
                 binaryContent.getContentType(),
                 binaryContent.getSize(),
-                binaryContent.getBytes(),
-                binaryContent.getCreatedAt()
+                binaryContent.getBytes()
         );
     }
 }
