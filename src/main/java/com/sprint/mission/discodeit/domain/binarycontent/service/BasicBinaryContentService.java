@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.domain.binarycontent.service;
 
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +18,7 @@ public class BasicBinaryContentService implements BinaryContentService
 {
     private final BinaryContentRepository binaryContentRepository;
 
+    @Transactional
     @Override
     public BinaryContentDto create(BinaryContentCreateRequest binaryContentCreateRequest) {
         BinaryContent binaryContent = new BinaryContent(
@@ -31,6 +33,7 @@ public class BasicBinaryContentService implements BinaryContentService
         return BinaryContentDto.from(savedBinaryContent);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BinaryContentDto find(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
@@ -38,6 +41,7 @@ public class BasicBinaryContentService implements BinaryContentService
                 .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BinaryContentDto> findAllByIds(List<UUID> binaryContentIds) {
         return binaryContentRepository.findAllByIds(binaryContentIds).stream()
@@ -45,6 +49,7 @@ public class BasicBinaryContentService implements BinaryContentService
                 .toList();
     }
 
+    @Transactional
     @Override
     public void delete(UUID binaryContentId) {
         if (!binaryContentRepository.existsById(binaryContentId)) {
