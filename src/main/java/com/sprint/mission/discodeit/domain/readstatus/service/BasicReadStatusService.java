@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.readstatus.service;
 
+import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
@@ -9,10 +10,12 @@ import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusUpda
 import com.sprint.mission.discodeit.domain.readstatus.exception.DuplicateReadStatusException;
 import com.sprint.mission.discodeit.domain.readstatus.exception.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,27 +28,27 @@ public class BasicReadStatusService implements ReadStatusService
     private final UserRepository userRepository;
     private final ChannelRepository channelRepository;
 
+    @Transactional
     @Override
     public ReadStatusDto create(ReadStatusCreateRequest readStatusCreateRequest) {
-        if (!userRepository.existsById(readStatusCreateRequest.userId())) {
-            throw UserNotFoundException.byId(readStatusCreateRequest.userId());
-        }
+        User author = userRepository.findById(readStatusCreateRequest.userId())
+                .orElseThrow(() -> UserNotFoundException.byId(readStatusCreateRequest.userId()));
 
-        if (!channelRepository.existsById(readStatusCreateRequest.channelId())) {
-            throw ChannelNotFoundException.byId(readStatusCreateRequest.channelId());
-        }
+        Channel channel = channelRepository.findById(readStatusCreateRequest.channelId())
+                .orElseThrow(() -> ChannelNotFoundException.byId(readStatusCreateRequest.channelId()));
 
         if (readStatusRepository.findAllByUserId(readStatusCreateRequest.userId()).stream()
-                .anyMatch(status -> status.getChannelId().equals(readStatusCreateRequest.channelId()))) {
+                .anyMatch(status -> status.getChannel().getId().equals(readStatusCreateRequest.channelId()))) {
             throw new DuplicateReadStatusException("이미 해당 채널의 읽음 상태가 존재합니다.");
         }
 
-        ReadStatus readStatus = new ReadStatus(readStatusCreateRequest.userId(), readStatusCreateRequest.channelId(), readStatusCreateRequest.lastReadAt());
+        ReadStatus readStatus = new ReadStatus(author, channel, readStatusCreateRequest.lastReadAt());
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
         return ReadStatusDto.from(savedReadStatus);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ReadStatusDto find(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
@@ -53,6 +56,7 @@ public class BasicReadStatusService implements ReadStatusService
                 .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
@@ -60,6 +64,7 @@ public class BasicReadStatusService implements ReadStatusService
                 .toList();
     }
 
+    @Transactional
     @Override
     public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest readStatusUpdateRequest) {
         ReadStatus readStatus = readStatusRepository.findById(readStatusId)
@@ -71,6 +76,7 @@ public class BasicReadStatusService implements ReadStatusService
         return ReadStatusDto.from(savedReadStatus);
     }
 
+    @Transactional
     @Override
     public void delete(UUID readStatusId) {
         if (!readStatusRepository.existsById(readStatusId)) {
