@@ -10,7 +10,6 @@ import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundExce
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelUpdateNotAllowedException;
 import com.sprint.mission.discodeit.domain.channel.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
-import com.sprint.mission.discodeit.domain.message.domain.Message;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -123,11 +121,7 @@ public class BasicChannelService implements ChannelService
     }
 
     private Optional<Instant> getLastMessageAt(UUID channelId) {
-        return messageRepository.findAllByChannelId(channelId).stream()
-                .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
-                .map(Message::getCreatedAt)
-                .limit(1)
-                .findFirst();
+        return messageRepository.findLastMessageAtByChannelId(channelId);
     }
 
     private List<User> getUsers(Channel channel) {

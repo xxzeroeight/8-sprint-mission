@@ -13,7 +13,6 @@ public interface MessageService
 {
     MessageDto create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests);
     MessageDto findById(UUID messageId);
-    List<MessageDto> findAllByChannelId(UUID channelId);
     PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, int page);
     MessageDto update(UUID messageId, MessageUpdateRequest messageUpdateRequest);
     void delete(UUID messageId);

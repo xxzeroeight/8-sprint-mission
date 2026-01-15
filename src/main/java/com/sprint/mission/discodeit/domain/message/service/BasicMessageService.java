@@ -73,29 +73,12 @@ public class BasicMessageService implements MessageService
 
     @Transactional(readOnly = true)
     @Override
-    public List<MessageDto> findAllByChannelId(UUID channelId) {
-        return messageRepository.findAllByChannelId(channelId).stream()
-                .map(message -> messageMapper.toDto(message))
-                .toList();
-    }
-
-    // findAllByChannelId를 대체?
-    @Transactional(readOnly = true)
-    @Override
     public PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, int page) {
-        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
 
-        Page<Message> messagePage = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId, pageable);
-
-        List<MessageDto> messageDtos = messagePage.getContent().stream()
-                .map(messageMapper::toDto)
-                .toList();
-
-        Page<MessageDto> dtoPage = new PageImpl<>(
-                messageDtos,
-                pageable,
-                messagePage.getTotalElements()
-        );
+        Page<MessageDto> dtoPage = messageRepository
+                .findByChannelIdOrderByCreatedAtDesc(channelId, pageable)
+                .map(messageMapper::toDto);
 
         return pageResponseMapper.fromPage(dtoPage);
     }
