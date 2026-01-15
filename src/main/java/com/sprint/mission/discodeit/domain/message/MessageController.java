@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,9 +50,9 @@ public class MessageController implements MessageSwaggerApi
 
     @GetMapping
     public ResponseEntity<PageResponse<MessageResponse>> getAllMessages(@RequestParam("channelId") UUID channelId,
-                                                                        @RequestParam(defaultValue = "0") int page)
+                                                                        @RequestParam(required = false) Instant cursor)
     {
-        PageResponse<MessageDto> messages = messageService.findByChannelIdOrderByCreatedAtDesc(channelId, page);
+        PageResponse<MessageDto> messages = messageService.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, 0);
 
         List<MessageResponse> responses = messages.content().stream()
                 .map(MessageResponse::from)
@@ -59,10 +60,10 @@ public class MessageController implements MessageSwaggerApi
 
         PageResponse<MessageResponse> responsePage = PageResponse.of(
                 responses,
-                messages.page(),
+                messages.nextCursor(),
                 messages.size(),
                 messages.hasNext(),
-                messages.totalElements()
+                null
         );
 
         return ResponseEntity.status(HttpStatus.OK)

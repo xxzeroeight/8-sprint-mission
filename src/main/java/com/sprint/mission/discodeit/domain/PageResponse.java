@@ -4,18 +4,18 @@ import java.util.List;
 
 public record PageResponse<T>(
         List<T> content,
-        int page,
+        Object nextCursor,
         int size,
         boolean hasNext,
         Long totalElements
 ) {
     public static <T> PageResponse<T> of(
             List<T> content,
-            int number,
+            Object nextCursor,
             int size,
             boolean hasNext,
             Long totalElements
     ) {
-        return new PageResponse<T>(content, number, size, hasNext, totalElements);
+        return new PageResponse<>(content, nextCursor, size, hasNext, null);
     }
 }

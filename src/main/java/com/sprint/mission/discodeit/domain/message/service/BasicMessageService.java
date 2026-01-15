@@ -24,6 +24,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,14 +74,20 @@ public class BasicMessageService implements MessageService
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, int page) {
-        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
+    public PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, Instant cursor, int page) {
+        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE + 1, Sort.by("createdAt").descending());
 
-        Page<MessageDto> dtoPage = messageRepository
-                .findByChannelIdOrderByCreatedAtDesc(channelId, pageable)
-                .map(messageMapper::toDto);
+        Slice<Message> slice = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, pageable);
 
-        return pageResponseMapper.fromPage(dtoPage);
+        List<MessageDto> dtos = slice.getContent().stream()
+                .map(messageMapper::toDto)
+                .toList();
+
+        boolean hasNext = slice.hasNext();
+
+        Instant nextCursor = hasNext && !dtos.isEmpty() ? dtos.get(dtos.size() - 1).createdAt() : null;
+
+        return pageResponseMapper.fromSlice(dtos, nextCursor, hasNext);
     }
 
     @Transactional

@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ public interface MessageService
 {
     MessageDto create(MessageCreateRequest messageCreateRequest, List<BinaryContentCreateRequest> binaryContentCreateRequests);
     MessageDto findById(UUID messageId);
-    PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, int page);
+    PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, Instant cursor, int page);
     MessageDto update(UUID messageId, MessageUpdateRequest messageUpdateRequest);
     void delete(UUID messageId);
 }

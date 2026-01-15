@@ -12,11 +12,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,8 +59,8 @@ public interface MessageSwaggerApi
     })
     ResponseEntity<PageResponse<MessageResponse>> getAllMessages(
             @Parameter(description = "조회할 channle의 id") UUID channelId,
-            @Parameter(description = "페이지") int page
-    );
+            @Parameter(description = "페이징 커서 정보") Instant cursor
+            );
 
     // updateMessage
     @Operation(summary = "Message 수정")
