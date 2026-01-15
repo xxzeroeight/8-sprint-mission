@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.domain.message.service;
 
+import com.sprint.mission.discodeit.domain.PageResponse;
+import com.sprint.mission.discodeit.domain.PageResponseMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
@@ -18,6 +20,7 @@ import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +31,15 @@ import java.util.UUID;
 @Service
 public class BasicMessageService implements MessageService
 {
+    private static final int DEFAULT_PAGE_SIZE = 50;
+
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentRepository binaryContentRepository;
     private final MessageMapper messageMapper;
+    private final PageResponseMapper pageResponseMapper;
 
     @Transactional
     @Override
@@ -71,6 +77,27 @@ public class BasicMessageService implements MessageService
         return messageRepository.findAllByChannelId(channelId).stream()
                 .map(message -> messageMapper.toDto(message))
                 .toList();
+    }
+
+    // findAllByChannelId를 대체?
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, int page) {
+        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Message> messagePage = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId, pageable);
+
+        List<MessageDto> messageDtos = messagePage.getContent().stream()
+                .map(messageMapper::toDto)
+                .toList();
+
+        Page<MessageDto> dtoPage = new PageImpl<>(
+                messageDtos,
+                pageable,
+                messagePage.getTotalElements()
+        );
+
+        return pageResponseMapper.fromPage(dtoPage);
     }
 
     @Transactional
