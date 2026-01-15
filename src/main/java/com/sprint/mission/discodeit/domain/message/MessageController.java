@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.domain.message;
 
-import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
+import com.sprint.mission.discodeit.domain.PageResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.response.MessageResponse;
@@ -47,16 +48,25 @@ public class MessageController implements MessageSwaggerApi
     }
 
     @GetMapping
-    public ResponseEntity<List<MessageResponse>> getAllMessages(@RequestParam("channelId") UUID channelId)
+    public ResponseEntity<PageResponse<MessageResponse>> getAllMessages(@RequestParam("channelId") UUID channelId,
+                                                                        @RequestParam(defaultValue = "0") int page)
     {
-        List<MessageDto> messages = messageService.findAllByChannelId(channelId);
+        PageResponse<MessageDto> messages = messageService.findByChannelIdOrderByCreatedAtDesc(channelId, page);
 
-        List<MessageResponse> messagesResponses = messages.stream()
+        List<MessageResponse> responses = messages.content().stream()
                 .map(MessageResponse::from)
                 .toList();
 
+        PageResponse<MessageResponse> responsePage = PageResponse.of(
+                responses,
+                messages.page(),
+                messages.size(),
+                messages.hasNext(),
+                messages.totalElements()
+        );
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(messagesResponses);
+                .body(responsePage);
     }
 
     @PatchMapping("/{messageId}")

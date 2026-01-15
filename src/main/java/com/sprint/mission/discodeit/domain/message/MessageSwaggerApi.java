@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.message;
 
+import com.sprint.mission.discodeit.domain.PageResponse;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.response.MessageResponse;
@@ -54,8 +55,9 @@ public interface MessageSwaggerApi
                     content = @Content(schema = @Schema(implementation = MessageResponse.class))
             )
     })
-    ResponseEntity<List<MessageResponse>> getAllMessages(
-            @Parameter(description = "조회할 channle의 id") UUID channelId
+    ResponseEntity<PageResponse<MessageResponse>> getAllMessages(
+            @Parameter(description = "조회할 channle의 id") UUID channelId,
+            @Parameter(description = "페이지") int page
     );
 
     // updateMessage
