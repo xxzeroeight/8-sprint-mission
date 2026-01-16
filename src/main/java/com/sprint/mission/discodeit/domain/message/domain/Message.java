@@ -18,15 +18,15 @@ import java.util.List;
 @Entity
 public class Message extends BaseUpdatableEntity
 {
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "channel_id", nullable = false, foreignKey = @ForeignKey(name = "fk_messages_channel"))
     private Channel channel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", foreignKey = @ForeignKey(name = "fk_messages_author"))
     private User author;
 
     // 다대다 관계 (중간 테이블 사용)
@@ -39,24 +39,16 @@ public class Message extends BaseUpdatableEntity
     )
     private List<BinaryContent> attachments = new ArrayList<>();
 
-    // User, Channel이 있어야 존재가능.
-    public Message(Channel channel, User author, String content) {
+    public Message(Channel channel, User author, String content, List<BinaryContent> attachments) {
         this.channel = channel;
         this.author = author;
         this.content = content;
+        this.attachments = attachments;
     }
 
     public void update(String content) {
         if (content != null) {
             this.content = content;
         }
-    }
-
-    public void addAttachment(BinaryContent attachment) {
-        this.attachments.add(attachment);
-    }
-
-    public void removeAttachment(BinaryContent attachment) {
-        this.attachments.remove(attachment);
     }
 }

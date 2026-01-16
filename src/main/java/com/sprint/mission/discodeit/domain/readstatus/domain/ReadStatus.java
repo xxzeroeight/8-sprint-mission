@@ -12,22 +12,26 @@ import java.time.Instant;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "read_statuses")
+@Table(
+        name = "read_statuses",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_read_statuses_user_channel",
+                columnNames = {"user_id", "channel_id"}
+        ))
 @Entity
 public class ReadStatus extends BaseUpdatableEntity
 {
-    @Column(nullable = false)
+    @Column(name = "last_read_at", nullable = false)
     private Instant lastReadAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_read_statuses_user"))
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "channel_id", nullable = false, foreignKey = @ForeignKey(name = "fk_read_statuses_channel"))
     private Channel channel;
 
-    // User, Channel이 있어야 존재가능.
     public ReadStatus(User user, Channel channel, Instant lastReadAt) {
         this.user = user;
         this.channel = channel;

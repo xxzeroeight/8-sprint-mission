@@ -18,14 +18,13 @@ public class UserStatus extends BaseUpdatableEntity
 {
     private static final int ONLINE_TIMEOUT = 5;
 
-    @Column(nullable = false)
+    @Column(name = "last_active_at", nullable = false)
     private Instant lastActiveAt;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_user_statuses_user"))
     private User user;
 
-    // User가 있어야 존재가능.
     public UserStatus(User user) {
         this.user = user;
         this.lastActiveAt = Instant.now();
@@ -41,14 +40,5 @@ public class UserStatus extends BaseUpdatableEntity
         Instant instant = Instant.now().minus(Duration.ofMinutes(ONLINE_TIMEOUT));
 
         return lastActiveAt.isAfter(instant);
-    }
-
-    // 양방향 1:1 (무한루프 방지)
-    public void setUser(User user) {
-        this.user = user;
-
-        if (user != null && user.getUserStatus() != this) {
-            user.setUserStatus(this);
-        }
     }
 }

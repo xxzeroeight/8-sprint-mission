@@ -14,13 +14,13 @@ import lombok.NoArgsConstructor;
 @Entity
 public class BinaryContent extends BaseEntity
 {
-    @Column(nullable = false)
+    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
-    @Column(nullable = false)
+    @Column(name = "size", nullable = false)
     private Long size;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "content_type", nullable = false, length = 100)
     private String contentType;
 
     public BinaryContent(String fileName, Long size, String contentType) {

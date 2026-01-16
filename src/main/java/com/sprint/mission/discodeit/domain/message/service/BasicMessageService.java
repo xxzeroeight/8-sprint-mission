@@ -55,9 +55,7 @@ public class BasicMessageService implements MessageService
                 .map(this::createBinaryContent)
                 .toList();
 
-        Message message = new Message(channel, author, messageCreateRequest.content());
-
-        savedBinaryContents.forEach(message::addAttachment);
+        Message message = new Message(channel, author, messageCreateRequest.content(), savedBinaryContents);
 
         Message savedMessage = messageRepository.save(message);
 
