@@ -95,9 +95,8 @@ public class BasicMessageService implements MessageService
                 .orElseThrow(() -> MessageNotFoundException.byId(messageId));
 
         message.update(messageUpdateRequest.updateContent());
-        Message savedMessage = messageRepository.save(message);
 
-        return messageMapper.toDto(savedMessage);
+        return messageMapper.toDto(message);
     }
 
     @Transactional
@@ -106,10 +105,9 @@ public class BasicMessageService implements MessageService
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> MessageNotFoundException.byId(messageId));
 
-        message.getAttachments()
-                .forEach(attachment -> binaryContentRepository.deleteById(attachment.getId()));
+        binaryContentRepository.deleteAll(message.getAttachments());
 
-        messageRepository.deleteById(messageId);
+        messageRepository.delete(message);
     }
 
     private BinaryContent createBinaryContent(BinaryContentCreateRequest binaryContentCreateRequest) {

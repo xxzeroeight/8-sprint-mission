@@ -15,7 +15,8 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
-        default_batch_fetch_size: 100
+        # 웬만한 N+1문제 해결
+        # default_batch_fetch_size: 100
     show-sql: true
     open-in-view: false # true: PC를 언제까지 유지할지
     hibernate:

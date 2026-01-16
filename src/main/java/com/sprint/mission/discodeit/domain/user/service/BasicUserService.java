@@ -95,21 +95,19 @@ public class BasicUserService implements UserService
             binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
-        userRepository.deleteById(userId);
+        userRepository.delete(user);
     }
 
     private BinaryContent createProfile(Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
         return binaryContentCreateRequest.map(binaryContent -> {
-            BinaryContent profile = new BinaryContent(
-                    binaryContent.fileName(),
-                    (long) binaryContent.bytes().length,
-                    binaryContent.contentType()
-            );
-
-            BinaryContent savedBinartContent = binaryContentRepository.save(profile);
-            binaryContentStorage.put(savedBinartContent.getId(), binaryContent.bytes());
-
-            return savedBinartContent;
-        }).orElse(null);
+                BinaryContent profile = binaryContentRepository.save(
+                        new BinaryContent(
+                                binaryContent.fileName(),
+                                (long) binaryContent.bytes().length,
+                                binaryContent.contentType())
+                );
+                binaryContentStorage.put(profile.getId(), binaryContent.bytes());
+                return profile;
+            }).orElse(null);
     }
 }

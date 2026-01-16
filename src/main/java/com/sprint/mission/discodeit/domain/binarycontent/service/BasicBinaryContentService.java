@@ -57,10 +57,9 @@ public class BasicBinaryContentService implements BinaryContentService
     @Transactional
     @Override
     public void delete(UUID binaryContentId) {
-        if (!binaryContentRepository.existsById(binaryContentId)) {
-            throw BinaryContentNotFoundException.byId(binaryContentId);
-        }
+        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+                .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
 
-        binaryContentRepository.deleteById(binaryContentId);
+        binaryContentRepository.delete(binaryContent);
     }
 }

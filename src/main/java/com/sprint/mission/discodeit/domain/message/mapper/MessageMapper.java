@@ -4,12 +4,27 @@ import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMap
 import com.sprint.mission.discodeit.domain.message.domain.Message;
 import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class, BinaryContentMapper.class})
-public interface MessageMapper
+@Component
+@RequiredArgsConstructor
+public class MessageMapper
 {
-    @Mapping(target = "channelId", source = "channel.id")
-    MessageDto toDto(Message message);
+    private BinaryContentMapper binaryContentMapper;
+    private UserMapper userMapper;
+
+    public MessageDto toDto(Message message) {
+        return new MessageDto(
+                message.getId(),
+                message.getChannel().getId(),
+                userMapper.toDto(message.getAuthor()),
+                message.getAttachments().stream()
+                        .map(binaryContentMapper::toDto)
+                        .toList(),
+                message.getContent(),
+                message.getCreatedAt(),
+                message.getUpdatedAt()
+        );
+    }
 }

@@ -3,9 +3,9 @@ package com.sprint.mission.discodeit.domain.message.repository;
 import com.sprint.mission.discodeit.domain.message.domain.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -20,18 +20,19 @@ public interface MessageRepository extends JpaRepository<Message, UUID>
         WHERE m.channel.id = :channelId
         """
     )
-    Optional<Instant> findLastMessageAtByChannelId(UUID channelId);
+    Optional<Instant> findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
 
-    @EntityGraph(attributePaths = {"author.profile", "author.userStatus"})
     @Query(
         """
         SELECT m
         FROM Message m
+        JOIN FETCH m.author a
+        LEFT JOIN FETCH a.profile
+        LEFT JOIN FETCH a.userStatus
         WHERE m.channel.id = :channelId
-        AND (:cursor IS NULL OR m.createdAt < :cursor)
         ORDER BY m.createdAt DESC
         """)
-    Slice<Message> findByChannelIdOrderByCreatedAtDesc(UUID channelId, Instant cursor, Pageable pageable);
+    Slice<Message> findByChannelIdOrderByCreatedAtDesc(@Param("channelId") UUID channelId, Instant cursor, Pageable pageable);
 
     void deleteAllByChannelId(UUID channelId);
 }

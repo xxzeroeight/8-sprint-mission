@@ -45,9 +45,8 @@ public class BasicReadStatusService implements ReadStatusService
         }
 
         ReadStatus readStatus = new ReadStatus(author, channel, readStatusCreateRequest.lastReadAt());
-        ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
-        return readStatusMapper.toDto(savedReadStatus);
+        return readStatusMapper.toDto(readStatus);
     }
 
     @Transactional(readOnly = true)
@@ -81,10 +80,9 @@ public class BasicReadStatusService implements ReadStatusService
     @Transactional
     @Override
     public void delete(UUID readStatusId) {
-        if (!readStatusRepository.existsById(readStatusId)) {
-            throw ReadStatusNotFoundException.byId(readStatusId);
-        }
+        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+                        .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
 
-        readStatusRepository.deleteById(readStatusId);
+        readStatusRepository.delete(readStatus);
     }
 }
