@@ -1,3 +1,11 @@
+CREATE SCHEMA IF NOT EXISTS discodeit AUTHORIZATION discodeit_user;
+GRANT USAGE ON SCHEMA discodeit TO discodeit_user;
+GRANT CREATE ON SCHEMA discodeit TO discodeit_user;
+ALTER ROLE discodeit_user SET SEARCH_PATH TO discodeit, public;
+SET SEARCH_PATH to discodeit, public;
+
+CREATE TYPE channel_type AS ENUM ('PUBLIC', 'PRIVATE');
+
 CREATE TABLE binary_contents (
      id UUID PRIMARY KEY,
      created_at TIMESTAMPTZ NOT NULL,
@@ -26,7 +34,7 @@ CREATE TABLE channels
     description VARCHAR(500),
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ,
-    type VARCHAR(10) NOT NULL CHECK (type IN ('PUBLIC', 'PRIVATE'))
+    type channel_type NOT NULL
 );
 
 CREATE TABLE messages
@@ -65,7 +73,7 @@ CREATE TABLE read_statuses
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     channel_id UUID NOT NULL,
-    last_reat_at TIMESTAMPTZ NOT NULL,
+    last_read_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ,
     CONSTRAINT fk_read_statuses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
