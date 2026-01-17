@@ -59,7 +59,8 @@ public interface MessageSwaggerApi
     })
     ResponseEntity<PageResponse<MessageResponse>> getAllMessages(
             @Parameter(description = "조회할 channle의 id") UUID channelId,
-            @Parameter(description = "페이징 커서 정보") Instant cursor
+            @Parameter(description = "페이징 커서 정보") Instant cursor,
+            @Parameter(description = "페이징 정보") Pageable pageable
             );
 
     // updateMessage

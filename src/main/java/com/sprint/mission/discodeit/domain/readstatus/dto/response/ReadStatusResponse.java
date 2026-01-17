@@ -17,7 +17,7 @@ public record ReadStatusResponse(
                 readStatus.id(),
                 readStatus.userId(),
                 readStatus.channelId(),
-                readStatus.lasdReadAt()
+                readStatus.lastReadAt()
         );
     }
 }

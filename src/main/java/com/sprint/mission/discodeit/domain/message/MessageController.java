@@ -8,6 +8,9 @@ import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequ
 import com.sprint.mission.discodeit.domain.message.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,9 +53,10 @@ public class MessageController implements MessageSwaggerApi
 
     @GetMapping
     public ResponseEntity<PageResponse<MessageResponse>> getAllMessages(@RequestParam("channelId") UUID channelId,
-                                                                        @RequestParam(required = false) Instant cursor)
+                                                                        @RequestParam(required = false) Instant cursor,
+                                                                        @PageableDefault(size = 50, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable)
     {
-        PageResponse<MessageDto> messages = messageService.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, 0);
+        PageResponse<MessageDto> messages = messageService.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, pageable);
 
         List<MessageResponse> responses = messages.content().stream()
                 .map(MessageResponse::from)

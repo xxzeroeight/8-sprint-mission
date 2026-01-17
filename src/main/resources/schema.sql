@@ -30,7 +30,7 @@ CREATE TABLE users
 CREATE TABLE channels
 (
     id UUID PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100),
     description VARCHAR(500),
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ,
@@ -73,7 +73,7 @@ CREATE TABLE read_statuses
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     channel_id UUID NOT NULL,
-    last_read_at TIMESTAMPTZ NOT NULL,
+    last_read_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ,
     CONSTRAINT fk_read_statuses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

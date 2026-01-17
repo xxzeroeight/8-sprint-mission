@@ -32,8 +32,6 @@ import java.util.UUID;
 @Service
 public class BasicMessageService implements MessageService
 {
-    private static final int DEFAULT_PAGE_SIZE = 50;
-
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
@@ -72,18 +70,23 @@ public class BasicMessageService implements MessageService
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, Instant cursor, int page) {
-        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE + 1, Sort.by("createdAt").descending());
+    public PageResponse<MessageDto> findByChannelIdOrderByCreatedAtDesc(UUID channelId, Instant cursor, Pageable pageable) {
+        Pageable cursorPageable = PageRequest.of(0, pageable.getPageSize() + 1, Sort.by("createdAt").descending());
 
-        Slice<Message> slice = messageRepository.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, pageable);
+        Slice<Message> slice = cursor == null
+                ? messageRepository.findFirstPageByChannelId(channelId, cursorPageable)
+                : messageRepository.findNextPageByChannelId(channelId, cursor, cursorPageable);
 
-        List<MessageDto> dtos = slice.getContent().stream()
+        List<MessageDto> dtos = slice
                 .map(messageMapper::toDto)
                 .toList();
 
-        boolean hasNext = slice.hasNext();
+        boolean hasNext = dtos.size() > pageable.getPageSize();
+        List<MessageDto> content = hasNext ? dtos.subList(0, pageable.getPageSize()) : dtos;
 
-        Instant nextCursor = hasNext && !dtos.isEmpty() ? dtos.get(dtos.size() - 1).createdAt() : null;
+        Instant nextCursor = hasNext ? content.get(content.size() - 1).createdAt() : null;
+
+        Slice<MessageDto> dtoSlice = new SliceImpl<>(content, pageable, hasNext);
 
         return pageResponseMapper.fromSlice(dtos, nextCursor, hasNext);
     }

@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 public class Channel extends BaseUpdatableEntity
 {
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", length = 100)
     private String name;
 
     @Column(name = "description", length = 500)
@@ -29,10 +29,10 @@ public class Channel extends BaseUpdatableEntity
     @Column(name = "type", nullable = false)
     private ChannelType type;
 
-    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Message> messages =  new ArrayList<>();
 
-    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ReadStatus> readStatuses = new ArrayList<>();
 
     public Channel(String name, String description, ChannelType type) {

@@ -41,12 +41,3 @@ public class ChannelMapper
         );
     }
 }
-//
-//UUID id,
-//
-//String name,
-//String description,
-//ChannelType type,
-//List<UserDto> participants,
-//
-//Instant lastMessageAt

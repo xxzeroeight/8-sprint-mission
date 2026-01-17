@@ -25,9 +25,9 @@ public class UserStatus extends BaseUpdatableEntity
     @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_user_statuses_user"))
     private User user;
 
-    public UserStatus(User user) {
+    public UserStatus(User user, Instant lastActiveAt) {
         this.user = user;
-        this.lastActiveAt = Instant.now();
+        this.lastActiveAt = lastActiveAt;
     }
 
     public void update(Instant lastActiveAt) {

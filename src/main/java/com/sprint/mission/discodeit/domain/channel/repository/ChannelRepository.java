@@ -11,14 +11,14 @@ import java.util.UUID;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID>
 {
-    // 기존: Service에서 필터링 -> 처음부터 DB에서 필터링.
     @Query(
         """
         SELECT DISTINCT c
         FROM Channel c
-        LEFT JOIN c.readStatuses rs
-        where c.type = :channelType
-        OR rs.user.id = :userId
+        JOIN FETCH c.readStatuses rs
+        JOIN FETCH rs.user
+        WHERE c.type = :channelType
+        AND rs.user.id = :userId
         """)
     List<Channel> findAllPublicChannels(@Param("channelType") ChannelType type, @Param("userId") UUID userId);
 }

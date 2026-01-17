@@ -21,7 +21,7 @@ import java.time.Instant;
 @Entity
 public class ReadStatus extends BaseUpdatableEntity
 {
-    @Column(name = "last_read_at", nullable = false)
+    @Column(name = "last_read_at")
     private Instant lastReadAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

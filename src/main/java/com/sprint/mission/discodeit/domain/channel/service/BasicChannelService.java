@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.channel.service;
 
+import com.sprint.mission.discodeit.domain.BaseEntity;
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.channel.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.domain.channel.dto.domain.ChannelDto;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -71,15 +71,17 @@ public class BasicChannelService implements ChannelService
     @Override
     public ChannelDto find(UUID channelId) {
         return channelRepository.findById(channelId)
-                .map(channel -> toDto(channel))
+                .map(channelMapper::toDto)
                 .orElseThrow(() -> ChannelNotFoundException.byId(channelId));
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        return channelRepository.findAllPublicChannels(ChannelType.PUBLIC, userId).stream()
-                .map(this::toDto)
+        List<Channel> channels = channelRepository.findAllPublicChannels(ChannelType.PUBLIC, userId);
+
+        return channels.stream()
+                .map(channelMapper::toDto)
                 .toList();
     }
 
@@ -105,33 +107,5 @@ public class BasicChannelService implements ChannelService
                 .orElseThrow(() -> ChannelNotFoundException.byId(channelId));
 
         channelRepository.delete(channel);
-    }
-
-    private ChannelDto toDto(Channel channel) {
-        List<UserDto> users = getUsers(channel);
-        Instant lastMessageAt = getLastMessageAt(channel.getId()).orElse(null);
-
-        return new ChannelDto(
-                channel.getId(),
-                channel.getName(),
-                channel.getDescription(),
-                channel.getType(),
-                users,
-                lastMessageAt
-        );
-    }
-
-    private Optional<Instant> getLastMessageAt(UUID channelId) {
-        return messageRepository.findLastMessageAtByChannelId(channelId);
-    }
-
-    private List<UserDto> getUsers(Channel channel) {
-        if (!channel.getType().equals(ChannelType.PRIVATE)) {
-            return List.of();
-        }
-
-        return channel.getReadStatuses().stream()
-                .map(readStatus -> userMapper.toDto(readStatus.getUser()))
-                .toList();
     }
 }
