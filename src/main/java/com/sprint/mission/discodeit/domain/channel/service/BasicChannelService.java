@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.domain.channel.service;
 
-import com.sprint.mission.discodeit.domain.BaseEntity;
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.channel.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.domain.channel.dto.domain.ChannelDto;
@@ -14,7 +13,6 @@ import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
@@ -22,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,9 +75,7 @@ public class BasicChannelService implements ChannelService
     @Transactional(readOnly = true)
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        List<Channel> channels = channelRepository.findAllPublicChannels(ChannelType.PUBLIC, userId);
-
-        return channels.stream()
+        return channelRepository.findAllAccessibleByUserId(userId).stream()
                 .map(channelMapper::toDto)
                 .toList();
     }
