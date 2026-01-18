@@ -45,8 +45,9 @@ public class BasicReadStatusService implements ReadStatusService
         }
 
         ReadStatus readStatus = new ReadStatus(author, channel, readStatusCreateRequest.lastReadAt());
+        ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
 
-        return readStatusMapper.toDto(readStatus);
+        return readStatusMapper.toDto(savedReadStatus);
     }
 
     @Transactional(readOnly = true)
