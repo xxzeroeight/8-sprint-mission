@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain;
+package com.sprint.mission.discodeit.global.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.user.domain;
 
-import com.sprint.mission.discodeit.domain.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.global.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.domain.userstatus.domain.UserStatus;

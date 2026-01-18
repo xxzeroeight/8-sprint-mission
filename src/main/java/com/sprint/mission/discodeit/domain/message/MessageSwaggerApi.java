@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.message;
 
-import com.sprint.mission.discodeit.domain.PageResponse;
+import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.response.MessageResponse;

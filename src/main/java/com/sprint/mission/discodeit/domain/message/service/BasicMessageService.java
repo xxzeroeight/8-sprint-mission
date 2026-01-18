@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.message.service;
 
-import com.sprint.mission.discodeit.domain.PageResponse;
-import com.sprint.mission.discodeit.domain.PageResponseMapper;
+import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
+import com.sprint.mission.discodeit.domain.message.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;

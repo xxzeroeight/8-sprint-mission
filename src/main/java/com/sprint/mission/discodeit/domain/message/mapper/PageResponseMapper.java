@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.domain;
+package com.sprint.mission.discodeit.domain.message.mapper;
 
+import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 

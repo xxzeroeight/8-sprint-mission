@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.readstatus.domain;
 
-import com.sprint.mission.discodeit.domain.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.global.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import jakarta.persistence.*;

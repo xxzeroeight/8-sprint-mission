@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.channel.domain;
 
-import com.sprint.mission.discodeit.domain.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.global.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.channel.domain.enums.ChannelType;
 import com.sprint.mission.discodeit.domain.message.domain.Message;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;

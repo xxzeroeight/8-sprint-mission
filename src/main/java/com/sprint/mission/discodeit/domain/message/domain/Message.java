@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.message.domain;
 
-import com.sprint.mission.discodeit.domain.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.global.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.user.domain.User;
