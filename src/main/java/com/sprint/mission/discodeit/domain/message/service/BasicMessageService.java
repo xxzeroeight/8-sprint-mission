@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.domain.message.service;
 
-import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
-import com.sprint.mission.discodeit.domain.message.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
@@ -13,8 +11,10 @@ import com.sprint.mission.discodeit.domain.message.domain.Message;
 import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.domain.message.mapper.MessageMapper;
+import com.sprint.mission.discodeit.domain.message.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
@@ -86,9 +86,7 @@ public class BasicMessageService implements MessageService
 
         Instant nextCursor = hasNext ? content.get(content.size() - 1).createdAt() : null;
 
-        Slice<MessageDto> dtoSlice = new SliceImpl<>(content, pageable, hasNext);
-
-        return pageResponseMapper.fromSlice(dtos, nextCursor, hasNext);
+        return pageResponseMapper.fromSlice(content, nextCursor, hasNext);
     }
 
     @Transactional
@@ -121,7 +119,7 @@ public class BasicMessageService implements MessageService
         );
 
         BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
-        binaryContentStorage.put(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
+        binaryContentStorage.save(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
 
         return savedBinaryContent;
     }

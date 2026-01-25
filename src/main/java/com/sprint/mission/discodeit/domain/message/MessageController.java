@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.domain.message;
 
-import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -58,20 +58,8 @@ public class MessageController implements MessageSwaggerApi
     {
         PageResponse<MessageDto> messages = messageService.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, pageable);
 
-        List<MessageResponse> responses = messages.content().stream()
-                .map(MessageResponse::from)
-                .toList();
-
-        PageResponse<MessageResponse> responsePage = PageResponse.of(
-                responses,
-                messages.nextCursor(),
-                messages.size(),
-                messages.hasNext(),
-                null
-        );
-
         return ResponseEntity.status(HttpStatus.OK)
-                .body(responsePage);
+                .body(toResponsePage(messages));
     }
 
     @PatchMapping("/{messageId}")
@@ -90,5 +78,19 @@ public class MessageController implements MessageSwaggerApi
         messageService.delete(messageId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    private PageResponse<MessageResponse> toResponsePage(PageResponse<MessageDto> messageDtoPageResponse) {
+        List<MessageResponse> responses = messageDtoPageResponse.content().stream()
+                .map(MessageResponse::from)
+                .toList();
+
+        return PageResponse.of(
+                responses,
+                messageDtoPageResponse.nextCursor(),
+                responses.size(),
+                messageDtoPageResponse.hasNext(),
+                null
+        );
     }
 }

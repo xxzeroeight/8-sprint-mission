@@ -3,14 +3,18 @@ package com.sprint.mission.discodeit.domain.binarycontent.service;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.domain.binarycontent.dto.response.BinaryContentDownloadResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +37,7 @@ public class BasicBinaryContentService implements BinaryContentService
 
         BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
 
-        binaryContentStorage.put(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
+        binaryContentStorage.save(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
 
         return binaryContentMapper.toDto(savedBinaryContent);
     }
@@ -61,5 +65,19 @@ public class BasicBinaryContentService implements BinaryContentService
                 .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
 
         binaryContentRepository.delete(binaryContent);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public BinaryContentDownloadResponse download(UUID binaryContentId) {
+        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+                .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
+
+        BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);
+        InputStream inputStream = binaryContentStorage.openStream(binaryContentDto.id());
+
+        Resource resource = new InputStreamResource(inputStream);
+
+        return BinaryContentDownloadResponse.from(resource, binaryContentDto);
     }
 }

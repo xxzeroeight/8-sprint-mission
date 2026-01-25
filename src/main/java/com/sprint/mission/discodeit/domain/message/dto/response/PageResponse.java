@@ -9,6 +9,17 @@ public record PageResponse<T>(
         boolean hasNext,
         Long totalElements
 ) {
+    // cursor
+    public static <T> PageResponse<T> of(
+            List<T> content,
+            Object nextCursor,
+            int size,
+            boolean hasNext
+    ) {
+        return new PageResponse<>(content, nextCursor, size, hasNext, null);
+    }
+
+    // offset
     public static <T> PageResponse<T> of(
             List<T> content,
             Object nextCursor,
@@ -16,6 +27,6 @@ public record PageResponse<T>(
             boolean hasNext,
             Long totalElements
     ) {
-        return new PageResponse<>(content, nextCursor, size, hasNext, null);
+        return new PageResponse<>(content, nextCursor, size, hasNext, totalElements);
     }
 }

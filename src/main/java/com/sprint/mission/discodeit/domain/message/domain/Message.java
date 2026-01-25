@@ -29,14 +29,8 @@ public class Message extends BaseUpdatableEntity
     @JoinColumn(name = "author_id", foreignKey = @ForeignKey(name = "fk_messages_author"))
     private User author;
 
-    // 다대다 관계 (중간 테이블 사용)
-    // 중간테이블(순수 관계만): 자체 ID X, 복합키 O
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "message_attachments",
-            joinColumns = @JoinColumn(name = "message_id"),
-            inverseJoinColumns = @JoinColumn(name = "attachment_id")
-    )
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "message_id")
     private List<BinaryContent> attachments = new ArrayList<>();
 
     public Message(Channel channel, User author, String content, List<BinaryContent> attachments) {

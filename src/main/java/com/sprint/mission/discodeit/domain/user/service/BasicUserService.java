@@ -108,7 +108,7 @@ public class BasicUserService implements UserService
                                 (long) binaryContent.bytes().length,
                                 binaryContent.contentType())
                 );
-                binaryContentStorage.put(profile.getId(), binaryContent.bytes());
+                binaryContentStorage.save(profile.getId(), binaryContent.bytes());
                 return profile;
             }).orElse(null);
     }
