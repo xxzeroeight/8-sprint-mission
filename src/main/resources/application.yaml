@@ -2,7 +2,38 @@ spring:
   application:
     name: discodeit
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: ${POSTGRESQL_ROOT}
+    password: ${POSTGRESQL_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        default_schema: discodeit
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+        default_batch_fetch_size: 100 # global
+    show-sql: false # logging이랑 겹침.
+    open-in-view: false # true: PC를 언제까지 유지할지
+    hibernate:
+      ddl-auto: validate
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+
 discodeit:
-  repository:
-    type: jcf # 주석처리(jcf) || "jcf" || "file"
-    file-directory: rdata
+  storage:
+    local:
+      root-path: ./uploads
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.jdbc.bind: trace
