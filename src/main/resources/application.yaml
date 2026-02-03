@@ -31,3 +31,4 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.jdbc.bind: trace
+    root: info

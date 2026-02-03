@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelUpda
 import com.sprint.mission.discodeit.domain.channel.dto.response.ChannelResponse;
 import com.sprint.mission.discodeit.domain.channel.service.ChannelService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/channels")
@@ -24,7 +26,11 @@ public class ChannelController implements ChannelSwaggerApi
     @PostMapping("/public")
     public ResponseEntity<ChannelResponse> createPublicChannel(@RequestBody PublicChannelCreateRequest publicChannelCreateRequest)
     {
+        log.debug("채널 생성 시작(공개): name={}, description=={}", publicChannelCreateRequest.name(), publicChannelCreateRequest.description());
+
         ChannelDto channel = channelService.create(publicChannelCreateRequest);
+
+        log.info("채널 생성 완료(공개): channelId={}", channel.id());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ChannelResponse.from(channel));
@@ -33,7 +39,11 @@ public class ChannelController implements ChannelSwaggerApi
     @PostMapping("/private")
     public ResponseEntity<ChannelResponse> createPrivateChannel(@RequestBody PrivateChannelCreateRequest privateChannelCreateRequest)
     {
+        log.debug("채널 생성 시작(비공개): paticipants={}", privateChannelCreateRequest.participantIds());
+
         ChannelDto channel = channelService.create(privateChannelCreateRequest);
+
+        log.info("채널 생성 완료(비공개): channelId={}", channel.id());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ChannelResponse.from(channel));
@@ -42,11 +52,15 @@ public class ChannelController implements ChannelSwaggerApi
     @GetMapping
     public ResponseEntity<List<ChannelResponse>> getAllChannels(@RequestParam("userId") UUID userId)
     {
+        log.debug("사용자 참여 채널 조회 시작:  userId={}", userId);
+
         List<ChannelDto> channels = channelService.findAllByUserId(userId);
 
         List<ChannelResponse> channelResponses = channels.stream()
                 .map(ChannelResponse::from)
                 .toList();
+
+        log.debug("사용자 참여 채널 조회 완료: userId={}", userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(channelResponses);
@@ -56,7 +70,11 @@ public class ChannelController implements ChannelSwaggerApi
     public ResponseEntity<ChannelResponse> updatePublicChannel(@PathVariable UUID channelId,
                                                                @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
     {
+        log.debug("채널 정보 수정 시작: channelId={}, name={}, description={}", channelId, publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());
+
         ChannelDto channel = channelService.update(channelId, publicChannelUpdateRequest);
+
+        log.info("채널 정보 수정 완료: channelId={}", channelId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ChannelResponse.from(channel));
@@ -65,7 +83,11 @@ public class ChannelController implements ChannelSwaggerApi
     @DeleteMapping("/{channelId}")
     public ResponseEntity<Void> deleteChannel(@PathVariable UUID channelId)
     {
+        log.debug("채널 삭제 시작: channelId={}", channelId);
+
         channelService.delete(channelId);
+
+        log.info("채널 삭제 완료: channelId={}", channelId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

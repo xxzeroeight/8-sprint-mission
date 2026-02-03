@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMap
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicBinaryContentService implements BinaryContentService
@@ -29,6 +31,8 @@ public class BasicBinaryContentService implements BinaryContentService
     @Transactional
     @Override
     public BinaryContentDto create(BinaryContentCreateRequest binaryContentCreateRequest) {
+        log.debug("바이너리 컨텐츠 생성 처리 시작: fileName={}", binaryContentCreateRequest.fileName());
+
         BinaryContent binaryContent = new BinaryContent(
                 binaryContentCreateRequest.fileName(),
                 (long) binaryContentCreateRequest.bytes().length,
@@ -39,6 +43,8 @@ public class BasicBinaryContentService implements BinaryContentService
 
         binaryContentStorage.save(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
 
+        log.debug("바이너리 컨텐츠 생성 처리 완료: binaryContentId={}", savedBinaryContent.getId());
+
         return binaryContentMapper.toDto(savedBinaryContent);
     }
 
@@ -47,7 +53,10 @@ public class BasicBinaryContentService implements BinaryContentService
     public BinaryContentDto find(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
                 .map(binaryContent -> binaryContentMapper.toDto(binaryContent))
-                .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 바이너리 컨텐츠(단건 조회): binaryContentId={}", binaryContentId);
+                    return BinaryContentNotFoundException.byId(binaryContentId);
+                });
     }
 
     @Transactional(readOnly = true)
@@ -62,7 +71,10 @@ public class BasicBinaryContentService implements BinaryContentService
     @Override
     public void delete(UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-                .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 바이너리 컨텐츠(삭제): binaryContentId={}", binaryContentId);
+                    return BinaryContentNotFoundException.byId(binaryContentId);
+                });
 
         binaryContentRepository.delete(binaryContent);
     }
@@ -70,13 +82,20 @@ public class BasicBinaryContentService implements BinaryContentService
     @Transactional(readOnly = true)
     @Override
     public BinaryContentDownloadResponse download(UUID binaryContentId) {
+        log.debug("바이너리 컨텐츠 다운로드 처리 시작: binaryContentId={}", binaryContentId);
+
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-                .orElseThrow(() -> BinaryContentNotFoundException.byId(binaryContentId));
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 바이너리 컨텐츠(다운로드):  binaryContentId={}", binaryContentId);
+                    return BinaryContentNotFoundException.byId(binaryContentId);
+                });
 
         BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);
         InputStream inputStream = binaryContentStorage.openStream(binaryContentDto.id());
 
         Resource resource = new InputStreamResource(inputStream);
+
+        log.debug("바이너리 컨텐츠 다운로드 처리 완료: binaryContentId={}", binaryContentDto.id());
 
         return BinaryContentDownloadResponse.from(resource, binaryContentDto);
     }
