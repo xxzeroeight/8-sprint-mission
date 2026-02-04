@@ -17,7 +17,9 @@ public enum ErrorCode
     DUPLICATE_CHANNEL("이미 존재하는 채널입니다.", HttpStatus.CONFLICT),
     DUPLICATE_READSTATUS("이미 해당 채널의 읽음 상태가 존재합니다.", HttpStatus.CONFLICT),
 
-    PRIVATE_CHANNEL_UPDATE("비공개 채널은 수정할 수 없습니다.", HttpStatus.FORBIDDEN);
+    PRIVATE_CHANNEL_UPDATE("비공개 채널은 수정할 수 없습니다.", HttpStatus.FORBIDDEN),
+
+    PASSWORD_MISMATCH("비밀번호 또는 아이디가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
 
     private final int status;
     private final String message;
