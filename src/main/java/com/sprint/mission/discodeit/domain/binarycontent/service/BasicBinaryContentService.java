@@ -55,7 +55,7 @@ public class BasicBinaryContentService implements BinaryContentService
                 .map(binaryContent -> binaryContentMapper.toDto(binaryContent))
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 바이너리 컨텐츠(단건 조회): binaryContentId={}", binaryContentId);
-                    return BinaryContentNotFoundException.byId(binaryContentId);
+                    return new BinaryContentNotFoundException(binaryContentId);
                 });
     }
 
@@ -73,7 +73,7 @@ public class BasicBinaryContentService implements BinaryContentService
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 바이너리 컨텐츠(삭제): binaryContentId={}", binaryContentId);
-                    return BinaryContentNotFoundException.byId(binaryContentId);
+                    return new BinaryContentNotFoundException(binaryContentId);
                 });
 
         binaryContentRepository.delete(binaryContent);
@@ -87,7 +87,7 @@ public class BasicBinaryContentService implements BinaryContentService
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 바이너리 컨텐츠(다운로드):  binaryContentId={}", binaryContentId);
-                    return BinaryContentNotFoundException.byId(binaryContentId);
+                    return new BinaryContentNotFoundException(binaryContentId);
                 });
 
         BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);

@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.domain.user.exception.DuplicateUserException;
+import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
@@ -40,12 +40,12 @@ public class BasicUserService implements UserService
 
         if (userRepository.existsByEmail(userCreateRequest.email())) {
             log.warn("이미 사용중인 이메일(생성): email={}", userCreateRequest.email());
-            throw DuplicateUserException.byEmail(userCreateRequest.email());
+            throw new UserAlreadyExistsException(userCreateRequest.email());
         }
 
         if (userRepository.existsByUsername(userCreateRequest.username())) {
             log.warn("이미 사용중인 닉네임(생성): username={}", userCreateRequest.username());
-            throw DuplicateUserException.byUsername(userCreateRequest.username());
+            throw new UserAlreadyExistsException(userCreateRequest.username());
         }
 
         BinaryContent profile = createProfile(binaryContentCreateRequest);
@@ -65,7 +65,7 @@ public class BasicUserService implements UserService
                 .map(user -> userMapper.toDto(user))
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 사용자(단건 조회): userId={}", userId);
-                    return UserNotFoundException.byId(userId);
+                    return new UserNotFoundException(userId);
                 });
     }
 
@@ -83,18 +83,18 @@ public class BasicUserService implements UserService
         log.debug("사용자 정보 수정 시작: userId={}, username={}, email={}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
         if (userRepository.existsByUsername(userUpdateRequest.newUsername())) {
             log.warn("이미 사용중인 닉네임(수정): username={}", userUpdateRequest.newUsername());
-            throw DuplicateUserException.byUsername(userUpdateRequest.newUsername());
+            throw new UserAlreadyExistsException(userUpdateRequest.newUsername());
         }
 
         if (userRepository.existsByEmail(userUpdateRequest.newEmail())) {
             log.warn("이미 사용중인 이메일(수정): email={}", userUpdateRequest.newEmail());
-            throw DuplicateUserException.byEmail(userUpdateRequest.newEmail());
+            throw new UserAlreadyExistsException(userUpdateRequest.newEmail());
         }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 사용자(수정): userId={}", userId);
-                    return UserNotFoundException.byId(userId);
+                    return new UserNotFoundException(userId);
                 });
 
         BinaryContent profile = createProfile(binaryContentCreateRequest);
@@ -113,7 +113,7 @@ public class BasicUserService implements UserService
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> {
                             log.warn("존재하지 않는 사용자(삭제): userId={}", userId);
-                            return UserNotFoundException.byId(userId);
+                            return new UserNotFoundException(userId);
                         });
 
         // pofile 먼저 삭제.

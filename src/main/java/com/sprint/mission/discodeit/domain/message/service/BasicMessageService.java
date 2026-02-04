@@ -21,7 +21,10 @@ import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,13 +53,13 @@ public class BasicMessageService implements MessageService
         Channel channel = channelRepository.findById(messageCreateRequest.channelId())
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 채널(생성): channelId={}", messageCreateRequest.channelId());
-                    return ChannelNotFoundException.byId(messageCreateRequest.channelId());
+                    return new ChannelNotFoundException(messageCreateRequest.channelId());
                 });
 
         User author = userRepository.findById(messageCreateRequest.authorId())
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 사용자(생성): authorId={}", messageCreateRequest.authorId());
-                    return UserNotFoundException.byId(messageCreateRequest.authorId());
+                    return new UserNotFoundException(messageCreateRequest.authorId());
                 });
 
         List<BinaryContent> savedBinaryContents = binaryContentCreateRequests.stream()
@@ -78,7 +81,7 @@ public class BasicMessageService implements MessageService
                 .map(message -> messageMapper.toDto(message))
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 메시지(단건 조회): messageId={}", messageId);
-                    return MessageNotFoundException.byId(messageId);
+                    return new MessageNotFoundException(messageId);
                 });
     }
 
@@ -115,7 +118,7 @@ public class BasicMessageService implements MessageService
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 메시지(수정): messageId={}", messageId);
-                    return MessageNotFoundException.byId(messageId);
+                    return new MessageNotFoundException(messageId);
                 });
 
         message.update(messageUpdateRequest.updateContent());
@@ -133,7 +136,7 @@ public class BasicMessageService implements MessageService
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 메시지(삭제): messageId={}", messageId);
-                    return MessageNotFoundException.byId(messageId);
+                    return new MessageNotFoundException(messageId);
                 });
 
         binaryContentRepository.deleteAll(message.getAttachments());

@@ -6,9 +6,9 @@ import com.sprint.mission.discodeit.global.exception.ReadStatusException;
 import java.util.Map;
 import java.util.UUID;
 
-public class ReadStatusNotFoundException extends ReadStatusException
+public class ReadStatusAlreadyExistsException extends ReadStatusException
 {
-    public ReadStatusNotFoundException(UUID readStatusId) {
-        super(ErrorCode.READSTATUS_NOT_FOUND, Map.of("readStatus", readStatusId));
+    public ReadStatusAlreadyExistsException(UUID channelId, UUID userId) {
+        super(ErrorCode.DUPLICATE_READSTATUS, Map.of("channel", channelId, "user", userId));
     }
 }

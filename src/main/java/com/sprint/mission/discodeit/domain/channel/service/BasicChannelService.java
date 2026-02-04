@@ -65,7 +65,7 @@ public class BasicChannelService implements ChannelService
                 .map(userId -> userRepository.findById(userId)
                         .orElseThrow(() -> {
                             log.warn("존재하지 않는 사용자: userId={}", userId);
-                            return UserNotFoundException.byId(userId);
+                            return new UserNotFoundException(userId);
                         }))
                 .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
                 .forEach(channel.getReadStatuses()::add);
@@ -84,7 +84,7 @@ public class BasicChannelService implements ChannelService
                 .map(channelMapper::toDto)
                 .orElseThrow(() -> {
                     log.warn("존재하지 않는 채널(단건 조회): channelId={}", channelId);
-                    return ChannelNotFoundException.byId(channelId);
+                    return new ChannelNotFoundException(channelId);
                 });
     }
 
@@ -104,12 +104,12 @@ public class BasicChannelService implements ChannelService
        Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> {
                     log.warn("존재 하지 않는 채널(수정): channelId={}", channelId);
-                    return ChannelNotFoundException.byId(channelId);
+                    return new ChannelNotFoundException(channelId);
                 });
 
        if (channel.getType().equals(ChannelType.PRIVATE)) {
            log.warn("비공개 채널 수정 시도: channnelId={}", channelId);
-           throw ChannelUpdateNotAllowedException.forPrivateChannel("비밀 채널은 변경할 수 없습니다.");
+           throw new ChannelUpdateNotAllowedException(channelId);
        }
 
        channel.update(publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());
@@ -127,7 +127,7 @@ public class BasicChannelService implements ChannelService
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> {
                     log.warn("존재 하지 않는 채널(삭제): channelId={}", channelId);
-                    return ChannelNotFoundException.byId(channelId);
+                    return new ChannelNotFoundException(channelId);
                 });
 
         channelRepository.delete(channel);

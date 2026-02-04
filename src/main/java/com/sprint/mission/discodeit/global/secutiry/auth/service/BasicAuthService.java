@@ -22,7 +22,7 @@ public class BasicAuthService implements AuthService
     @Override
     public UserDto login(LoginRequest loginRequest) {
         User user = userRepository.findByUsername(loginRequest.username())
-                .orElseThrow(() -> UserNotFoundException.byUsername(loginRequest.username()));
+                .orElseThrow(() -> new UserNotFoundException(loginRequest.username()));
 
         if (!user.getPassword().equals(loginRequest.password())) {
             throw InvalidPasswordException.incorrect();
