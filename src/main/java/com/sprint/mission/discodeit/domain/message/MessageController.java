@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequ
 import com.sprint.mission.discodeit.domain.message.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.service.MessageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +34,7 @@ public class MessageController implements MessageSwaggerApi
     private final MessageService messageService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MessageResponse> createMessage(@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+    public ResponseEntity<MessageResponse> createMessage(@Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
                                                          @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) throws IOException
     {
         log.debug("메시지 생성 시작(정보): authorId={}, channelId={}, content={}", messageCreateRequest.authorId(), messageCreateRequest.channelId(), messageCreateRequest.content());
@@ -76,7 +77,7 @@ public class MessageController implements MessageSwaggerApi
 
     @PatchMapping("/{messageId}")
     public ResponseEntity<MessageResponse> updateMessage(@PathVariable UUID messageId,
-                                                         @RequestBody MessageUpdateRequest messageUpdateRequest)
+                                                         @Valid @RequestBody MessageUpdateRequest messageUpdateRequest)
     {
         log.debug("메시지 정보 수정 시작: messageId={}, content={}", messageId, messageUpdateRequest.updateContent());
 

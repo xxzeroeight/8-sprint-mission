@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelCrea
 import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.domain.channel.dto.response.ChannelResponse;
 import com.sprint.mission.discodeit.domain.channel.service.ChannelService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class ChannelController implements ChannelSwaggerApi
     private final ChannelService channelService;
 
     @PostMapping("/public")
-    public ResponseEntity<ChannelResponse> createPublicChannel(@RequestBody PublicChannelCreateRequest publicChannelCreateRequest)
+    public ResponseEntity<ChannelResponse> createPublicChannel(@Valid @RequestBody PublicChannelCreateRequest publicChannelCreateRequest)
     {
         log.debug("채널 생성 시작(공개): name={}, description=={}", publicChannelCreateRequest.name(), publicChannelCreateRequest.description());
 
@@ -37,7 +38,7 @@ public class ChannelController implements ChannelSwaggerApi
     }
 
     @PostMapping("/private")
-    public ResponseEntity<ChannelResponse> createPrivateChannel(@RequestBody PrivateChannelCreateRequest privateChannelCreateRequest)
+    public ResponseEntity<ChannelResponse> createPrivateChannel(@Valid @RequestBody PrivateChannelCreateRequest privateChannelCreateRequest)
     {
         log.debug("채널 생성 시작(비공개): paticipants={}", privateChannelCreateRequest.participantIds());
 
@@ -68,7 +69,7 @@ public class ChannelController implements ChannelSwaggerApi
 
     @PutMapping("/{channelId}")
     public ResponseEntity<ChannelResponse> updatePublicChannel(@PathVariable UUID channelId,
-                                                               @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
+                                                               @Valid @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
     {
         log.debug("채널 정보 수정 시작: channelId={}, name={}, description={}", channelId, publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());
 

@@ -3,11 +3,15 @@ package com.sprint.mission.discodeit.global.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -33,6 +37,32 @@ public class GlobalExceptionHandler
                         Map.of(),
                         e.getClass().getSimpleName(),
                         HttpStatus.INTERNAL_SERVER_ERROR.value()
+                ));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        BindingResult bindingResult = e.getBindingResult();
+
+        // 필드명, 실제 입력된 값, 에러 메시지
+        bindingResult.getFieldErrors().forEach((error) -> {
+            log.warn("검증 실패: field={}, input={}, message={}", error.getField(), error.getRejectedValue(), error.getDefaultMessage());
+        });
+
+        Map<String, Object> details = bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        error -> error.getDefaultMessage() !=null ? error.getDefaultMessage() : "요청 데이터가 유효하지 않습니다."
+                ));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        "BAD_REQUEST",
+                        "요청 데이터가 유효하지 않습니다.",
+                        details,
+                        e.getClass().getSimpleName(),
+                        HttpStatus.BAD_REQUEST.value()
                 ));
     }
 }

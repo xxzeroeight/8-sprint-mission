@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.domain.userstatus.dto.domain.UserStatusDto;
 import com.sprint.mission.discodeit.domain.userstatus.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.domain.userstatus.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.domain.userstatus.service.UserStatusService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ public class UserController implements UserSwaggerApi
     private final UserStatusService userStatusService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> createUser(@RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
                                                    @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
         log.debug("사용자 생성 시작(정보): username={}, email={}", userCreateRequest.username(), userCreateRequest.email());
@@ -88,7 +89,7 @@ public class UserController implements UserSwaggerApi
 
     @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId,
-                                                   @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+                                                   @Valid @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
                                                    @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
         log.debug("사용자 정보 수정 시작(정보): userId={}, newUsername={}, newEmail={}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
@@ -126,7 +127,7 @@ public class UserController implements UserSwaggerApi
 
     @PatchMapping("/{userId}/userStatus")
     public ResponseEntity<UserStatusResponse> updateStatus(@PathVariable UUID userId,
-                                                           @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
+                                                           @Valid @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
     {
         log.debug("사용자 상태 수정 시작: userId={}, newLastActiveAt={}", userId, userStatusUpdateRequest.newLastActiveAt());
 
