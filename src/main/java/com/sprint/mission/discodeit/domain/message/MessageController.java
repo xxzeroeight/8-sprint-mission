@@ -89,7 +89,7 @@ public class MessageController implements MessageSwaggerApi
                 .body(MessageResponse.from(message));
     }
 
-    @DeleteMapping("{messageId}")
+    @DeleteMapping("/{messageId}")
     public ResponseEntity<Void> deleteMessage(@PathVariable UUID messageId)
     {
         log.debug("메시지 삭제 시작: messageId={}", messageId);
@@ -98,7 +98,7 @@ public class MessageController implements MessageSwaggerApi
 
         log.info("메시지 삭제 완료: messageId={}", messageId);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     private PageResponse<MessageResponse> toResponsePage(PageResponse<MessageDto> messageDtoPageResponse) {
