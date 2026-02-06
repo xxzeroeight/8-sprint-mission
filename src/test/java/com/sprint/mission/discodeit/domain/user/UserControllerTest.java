@@ -51,8 +51,8 @@ class UserControllerTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 가입 요청 시 201 CREATED를 반환한다")
-    void create_WithValidInput_ReturnsCreated() throws Exception {
+    @DisplayName("성공: 유저 생성 (201)")
+    void givenCreateRequest_whenMultipart_thenReturns201() throws Exception {
         // given
         UserCreateRequest userCreateRequest = new UserCreateRequest("test1", "test1@naver.com", "password1234");
         BinaryContentDto binaryContentDto = new BinaryContentDto(UUID.randomUUID(), "profile", "jpg", 3L);
@@ -93,8 +93,8 @@ class UserControllerTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 유저 상태 변경 요청 시 200 OK를 반환한다")
-    void update_WithValidInput_ReturnsOk() throws Exception {
+    @DisplayName("성공: 유저 상태 수정 (200)")
+    void givenUpdateRequest_whenPatch_thenReturns200() throws Exception {
         // given
         UserStatusUpdateRequest userStatusUpdateRequest = new UserStatusUpdateRequest(Instant.now());
         UserStatusDto userStatusDto = new UserStatusDto(userStatusId, userId, Instant.now());

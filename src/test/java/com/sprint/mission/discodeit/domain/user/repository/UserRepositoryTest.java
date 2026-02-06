@@ -30,8 +30,8 @@ class UserRepositoryTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 유저 객체를 저장하면 ID가 생성된다")
-    void save_WithValidInfo_AssignsId() {
+    @DisplayName("성공: 유저 저장")
+    void givenUser_whenSave_thenIdExists() {
         // given
         User test = new User("test3", "passwordTest3", null, null);
 
@@ -43,8 +43,8 @@ class UserRepositoryTest
     }
 
     @Test
-    @DisplayName("존재하는 사용자명으로 조회하면 생성된 유저 객체의 Username을 반환한다")
-    void findByEmail_ExistingEmail_ReturnsUsername() {
+    @DisplayName("성공: 유저 조회")
+    void givenUsername_whenFind_thenReturnsUser() {
         // given
 
 
@@ -56,8 +56,8 @@ class UserRepositoryTest
     }
 
     @Test
-    @DisplayName("존재하지 않는 사용자명으로 조회하면 빈 값이 반환된다")
-    void findByUsername_NonExistingUsername_ReturnsNull() {
+    @DisplayName("실패: 존재하지 않는 사용자명")
+    void givenUsername_whenFind_thenUserDoesNotExist() {
         // given
 
 
@@ -69,8 +69,8 @@ class UserRepositoryTest
     }
 
     @Test
-    @DisplayName("모든 사용자 객체의 개수를 반환한다")
-    void findAll_ExistingUser_RetuensUserCounts() {
+    @DisplayName("성공: 모든 유저 조회")
+    void given_whenFind_thenReturnsUsers() {
         // given
 
 

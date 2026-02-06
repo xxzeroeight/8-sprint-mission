@@ -41,8 +41,8 @@ class ChannelRepositoryTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 채널 객체를 저장하면 ID가 생성된다")
-    void save_WithValidInfo_AssignsId() {
+    @DisplayName("성공: 채널 저장")
+    void givenChannel_whenSave_thenIdExists() {
         // given
         Channel channel = new Channel("general", "general", ChannelType.PUBLIC);
 
@@ -55,8 +55,8 @@ class ChannelRepositoryTest
     }
 
     @Test
-    @DisplayName("존재하는 채널 ID로 조회하면 채널 정보를 반환한다")
-    void findById_ExistingId_ReturnsChannelInfo() {
+    @DisplayName("성공: 채널 조회")
+    void givenChannleId_whenFind_thenReturnsChannel() {
         // given
 
 
@@ -72,8 +72,8 @@ class ChannelRepositoryTest
     }
 
     @Test
-    @DisplayName("존재하지 않는 채널 ID로 조회하면 빈 값이 반환된다")
-    void findById_NonExistingId_ReturnsNull() {
+    @DisplayName("실패: 존재하지 않는 ID")
+    void givenChannelId_whenFind_thenChannelDoesNotExist() {
         // given
 
 
@@ -85,8 +85,8 @@ class ChannelRepositoryTest
     }
 
     @Test
-    @DisplayName("사용자가 참여 중인 모든 채널의 개수를 반환한다")
-    void findALl_ExistingChannel_ReturnsChannelCounts() {
+    @DisplayName("성공: 특정 사용자의 모든 채널 조회")
+    void givenUserId_whenFind_thenReturnsChannels() {
         // given
         Channel privateChannel =  channelRepository.save(new Channel("", "", ChannelType.PRIVATE));
         ReadStatus readStatus = readStatusRepository.save(new ReadStatus(user, privateChannel, privateChannel.getCreatedAt()));

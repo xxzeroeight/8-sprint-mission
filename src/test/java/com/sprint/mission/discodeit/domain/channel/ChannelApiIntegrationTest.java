@@ -37,8 +37,8 @@ public class ChannelApiIntegrationTest
     @Autowired private ChannelRepository channelRepository;
 
     @Test
-    @DisplayName("유효한 정보로 채널 생성 요청 시 201 CREATED를 반환한다")
-    void create_WithValidInfo_ReturnsCreated() throws Exception {
+    @DisplayName("성공: 채널 생성 및 DB 반영 확인")
+    void givenCreateRequest_whenPost_thenChannelCreatedInDb() throws Exception {
         // given
         PublicChannelCreateRequest publicChannelCreateRequest = new PublicChannelCreateRequest(
                 "general",
@@ -62,8 +62,8 @@ public class ChannelApiIntegrationTest
     }
 
     @Test
-    @DisplayName("존재하는 채널 ID로 채널 수정 요청 시 200 OK를 반환한다")
-    void update_ExistingId_ReturnsOk() throws Exception {
+    @DisplayName("성공: 채널 수정 및 DB 반영 확인")
+    void givenUpdateRequest_whenPut_thenChannelUpdatedInDb() throws Exception {
         // given
         Channel channel = channelRepository.save(new Channel("general", "general", ChannelType.PUBLIC));
         PublicChannelUpdateRequest publicChannelUpdateRequest = new PublicChannelUpdateRequest("tess1", "test1");

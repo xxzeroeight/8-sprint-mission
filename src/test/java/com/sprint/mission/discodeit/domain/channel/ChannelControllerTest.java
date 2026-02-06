@@ -48,8 +48,8 @@ class ChannelControllerTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 채널 생성 요청 시 201 CREATED를 반환한다")
-    void create_WithValidInput_ReturnsCreated() throws Exception {
+    @DisplayName("성공: 채널 생성 (201)")
+    void givenCreateRequest_whenPost_thenReturns201() throws Exception {
         // given
         PublicChannelCreateRequest publicChannelCreateRequest = new PublicChannelCreateRequest("general", "general");
 
@@ -70,8 +70,8 @@ class ChannelControllerTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 채널 수정 요성 시 200 OK를 반환한다")
-    void update_WithValidInput_ReturnsOk() throws Exception {
+    @DisplayName("성공: 채널 수정 (200)")
+    void givenUpdateRequest_whenPut_thenReturns200() throws Exception {
         // given
         PublicChannelUpdateRequest publicChannelUpdateRequest = new PublicChannelUpdateRequest("updated", "updated");
 
@@ -90,8 +90,8 @@ class ChannelControllerTest
     }
 
     @Test
-    @DisplayName("채널 데이터 삭제 요청 시 204 NO_CONTENT를 반환한다")
-    void delete_ExistingId_ReturnsNoContent() throws Exception {
+    @DisplayName("성공: 채널 삭제 (204)")
+    void givenId_whenDelete_thenReturns204() throws Exception {
         // given
 
 

@@ -43,8 +43,8 @@ class MessageRepositoryTest
     }
     
     @Test
-    @DisplayName("유효한 정보로 메시지 객체를 저장하면 ID가 생성된다")
-    void save_WithValidInfo_AssignsId() {
+    @DisplayName("성공: 메시지 저장")
+    void givenMessage_whenSave_thenReturnsMessage() {
         // given
         Message message = messageRepository.save(new Message(channel, user, "message", List.of()));
         
@@ -57,8 +57,8 @@ class MessageRepositoryTest
     }
 
     @Test
-    @DisplayName("채널의 첫 페이지 메시지 목록을 조회한다")
-    void findFirstPageByChannelId_ReturnsPagedMessages() {
+    @DisplayName("성공: 메시지 첫 페이지 조회")
+    void givenChannelId_whenFind_thenReturnsFirstSlice() {
         // given
         messageRepository.save(new Message(channel, user, "message1", List.of()));
         messageRepository.save(new Message(channel, user, "message2", List.of()));
@@ -78,8 +78,8 @@ class MessageRepositoryTest
     }
 
     @Test
-    @DisplayName("메시지 객체를 삭제한다")
-    void delete_ExistingId_DeletesSuccessfully() {
+    @DisplayName("성공: 메시지 삭제")
+    void givenMessageId_whenDelete_thenMessageDoesNotExist() {
         // given
         Message message = messageRepository.save(new Message(channel, user, "message1", List.of()));
         

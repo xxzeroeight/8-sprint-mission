@@ -44,8 +44,8 @@ public class UserApiIntegrationTest
     @Autowired private BinaryContentRepository binaryContentRepository;
 
     @Test
-    @DisplayName("유효한 정보(프로필 포함)로 사용자 생성 요청 시 201 CREATED를 반환한다")
-    void create_WithValidInfo_ReturnsCreated() throws Exception {
+    @DisplayName("성공: 유저 생성 및 DB 반영 확인")
+    void givenCreateRequest_whenMultipart_thenUserCreatedInDb() throws Exception {
         // given
         UserCreateRequest userCreateRequest = new UserCreateRequest("test1", "test1@naver.com", "password1234");
 
@@ -88,8 +88,8 @@ public class UserApiIntegrationTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 유저 상태 변경 요청 시 200 OK를 반환한다")
-    void update_WithValidInput_ReturnsOk() throws Exception {
+    @DisplayName("성공: 유저 상태 변경 및 DB 반영 확인")
+    void givenUpdateRequest_whenPatch_thenUserStatusUpdatedInDb() throws Exception {
         // given
         User user = userRepository.save(new User("xxzeroeight", "password1234", "xxzeroeight@naver.com", null));
         UserStatusUpdateRequest userStatusUpdateRequest = new UserStatusUpdateRequest(Instant.now());

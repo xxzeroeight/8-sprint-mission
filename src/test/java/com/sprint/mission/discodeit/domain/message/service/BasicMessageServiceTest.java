@@ -89,8 +89,8 @@ class BasicMessageServiceTest
     @DisplayName("Create Message")
     class Create {
         @Test
-        @DisplayName("유효한 정보(첨부파일 포함)로 메시지를 생성한다")
-        void create_WithValidInfo_ShouldSaveMessage() {
+        @DisplayName("성공: 메시지 생성")
+        void givenCreateRequest_whenCreate_thenMessageCreated() {
             // given
             UserDto userDto = new UserDto(user.getId(), null, "xxzeroeight", "xxzeroeight@naver.com", true);
 
@@ -136,8 +136,8 @@ class BasicMessageServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 채널 ID로 메시지를 생성하면 예외가 발생한다")
-        void findById_NonExistingId_ThrowsChannelNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 ID")
+        void givenNonExistingId_whenCreate_thenThrowsException() {
             // given
             MessageCreateRequest messageCreateRequest = new MessageCreateRequest(channelId, userId, "message");
 
@@ -161,8 +161,8 @@ class BasicMessageServiceTest
     @DisplayName("Update Message")
     class Update {
         @Test
-        @DisplayName("유효한 정보로 메시지 정보를 수정한다")
-        void update_WithValidInfo_UpdatesSuccessfully() {
+        @DisplayName("성공: 메시지 수정")
+        void givenUpdateRequest_whenUpdate_thenMessageUpdated() {
             // given
             Message message = new Message(channel, user, "message", List.of());
             given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
@@ -194,8 +194,8 @@ class BasicMessageServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 메시지 ID로 조회하면 예외가 발생한다")
-        void findById_NonExistingId_ThrowsMessageNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 ID")
+        void givenNonExistingId_whenUpdate_thenThrowsException() {
             // given
             MessageUpdateRequest messageUpdateRequest = new MessageUpdateRequest("updatedMessage");
 
@@ -215,8 +215,8 @@ class BasicMessageServiceTest
     @DisplayName("Delete Message")
     class Delete {
         @Test
-        @DisplayName("메시지를 삭제하면 데이터가 삭제된다")
-        void delete_ExistingId_RemovesSuccessfully() {
+        @DisplayName("성공: 메시지 삭제")
+        void givenDeleteId_whenDelete_thenMessageDeleted() {
             // given
             BinaryContent binaryContent1 = new BinaryContent("file1", 3L, "jpg");
             BinaryContent binaryContent2 = new BinaryContent("file2", 4L, "jpg");
@@ -234,8 +234,8 @@ class BasicMessageServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 메시지 ID로 삭제하면 예외가 발생한다")
-        void delete_NonExistingId_ThrowsMessageNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 ID")
+        void givenNonExistingId_whenDelete_thenThrowsException() {
             // given
             given(messageRepository.findById(messageId)).willReturn(Optional.empty());
 

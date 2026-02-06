@@ -43,8 +43,8 @@ public class MessageApiIntegrationTest
     @Autowired private ChannelRepository channelRepository;
 
     @Test
-    @DisplayName("유효한 정보(첨부파일 포함)로 메시지 생성 요청 시 201 CREATED를 반환한다")
-    void create_WithValidInfo_ReturnsCreated() throws Exception {
+    @DisplayName("성공: 메시지 생성 및 DB 반영 확인")
+    void givenCreateRequest_whenMultipart_thenMessageCreatedInDb() throws Exception {
         // given
         User user = userRepository.save(new User("test1", "password1234", "test1@naver.com", null));
         Channel channel = channelRepository.save(new Channel("general", "general", ChannelType.PUBLIC));
@@ -83,8 +83,8 @@ public class MessageApiIntegrationTest
     }
 
     @Test
-    @DisplayName("존재하는 메시지 ID로 메시지 삭제 요청 시 204 NO_CONTENT를 반환한다")
-    void delete_ExistingId_ReturnsNoContent() throws Exception {
+    @DisplayName("성공: 메시지 삭제 및 DB 반영 확인")
+    void givenId_whenDelete_thenMessageDeletedInDb() throws Exception {
         // given
         User user = userRepository.save(new User("test1", "password1234", "test1@naver.com", null));
         Channel channel = channelRepository.save(new Channel("general", "general", ChannelType.PUBLIC));

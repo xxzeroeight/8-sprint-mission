@@ -77,8 +77,8 @@ class BasicChannelServiceTest
     @DisplayName("Create Channel")
     class Create {
         @Test
-        @DisplayName("유효한 정보로 채널(공개)을 생성한다")
-        void createPublic_WithValidInfo_ShouldSaveChannel() {
+        @DisplayName("성공: 공개 채널 생성")
+        void givenPublicCreateRequest_whenCreate_thenChannelCreated() {
             // given
             given(channelRepository.save(any(Channel.class))).willReturn(channel);
             given(channelMapper.toDto(any(Channel.class))).willReturn(channelDto);
@@ -97,8 +97,8 @@ class BasicChannelServiceTest
         }
 
         @Test
-        @DisplayName("유효한 정보로 채널(비공개)을 생성한다")
-        void createPrivate_WithValidInfo_ShouldSaveChannel() {
+        @DisplayName("성공: 비공개 채널 생성")
+        void givenPrivateCreateRequest_whenCreate_thenChannelCreated() {
             // given
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
@@ -130,8 +130,8 @@ class BasicChannelServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 사용자ID로 채널을 생성하면 예외가 발생한다")
-        void findById_NonExistingId_ThrowsUserNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 ID")
+        void givenNonExistingId_whenCreate_thenThrowsException() {
             // given
             PrivateChannelCreateRequest privateChannelCreateRequest = new PrivateChannelCreateRequest(List.of(userId));
 
@@ -151,8 +151,8 @@ class BasicChannelServiceTest
     @DisplayName("Update Channel")
     class Update {
         @Test
-        @DisplayName("유효한 정보로 채널 정보를 수정한다")
-        void update_WithValidInfo_UpdatesSuccessfully() {
+        @DisplayName("성공: 채널 수정")
+        void givenUpdateRequest_whenUpdate_thenChannelUpdated() {
             // given
             PublicChannelUpdateRequest publicChannelUpdateRequest = new PublicChannelUpdateRequest("updatedChannelName", "updatedTestDescription");
 
@@ -175,8 +175,8 @@ class BasicChannelServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 채널 ID로 조회하면 예외가 발생한다")
-        void findById_NonExistingId_ThrowsChannelNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 ID")
+        void givenNonExistingId_whenUpdate_thenThrowsException() {
             // given
             PublicChannelUpdateRequest publicChannelUpdateRequest = new PublicChannelUpdateRequest("updatedChannelName", "updatedTestDescription");
 
@@ -196,8 +196,8 @@ class BasicChannelServiceTest
     @DisplayName("Delete Channel")
     class Delete {
         @Test
-        @DisplayName("채널을 삭제하면 데이터가 삭제된다")
-        void delete_ExistingId_RemovesSuccessfully() {
+        @DisplayName("성공: 채널 삭제")
+        void givenChannelId_whenDelete_thenChannelDeleted() {
             // given
             given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
 
@@ -210,8 +210,8 @@ class BasicChannelServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 채널 ID로 삭제하면 예외가 발생한다")
-        void delete_NonExistingId_ThrowsChannelNotFoundException() {
+        @DisplayName("실패: 채널 삭제")
+        void givenNonExistingId_whenDelete_thenThrowsException() {
             // given
             given(channelRepository.findById(channelId)).willReturn(Optional.empty());
 

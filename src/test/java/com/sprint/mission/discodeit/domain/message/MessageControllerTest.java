@@ -51,8 +51,8 @@ class MessageControllerTest
     }
 
     @Test
-    @DisplayName("유효한 정보로 메시지 생성 요청 시 201 Created를 반환한다")
-    void create_WithValidInput_ReturnsCreated() throws Exception {
+    @DisplayName("성공: 메시지 생성 (201)")
+    void givenCreateRequest_whenMultipart_thenReturn201() throws Exception {
         // given
         UserDto userDto = new UserDto(userId, null, "test1", "test1@naver.com", true);
         MessageDto messageDto = new MessageDto(messageId, channelId, userDto, List.of(), "message", Instant.now(), Instant.now());
@@ -79,8 +79,8 @@ class MessageControllerTest
     }
 
     @Test
-    @DisplayName("존재하지 않는 메시지 ID로 삭제 요청 시 에러를 반환한다")
-    void delete_NonExistingId_ReturnsMessageNotFoundException() throws Exception {
+    @DisplayName("실패: 존재하지 않는 ID (404)")
+    void givenId_whenDelete_thenReturns404() throws Exception {
         // given
         willThrow(new MessageNotFoundException(messageId)).given(messageService).delete(messageId);
 
@@ -95,8 +95,8 @@ class MessageControllerTest
     }
 
     @Test
-    @DisplayName("메시지 데이터 삭제 요청 시 204 NO_CONTENT를 반환한다")
-    void delete_ExistinId_ReturnsNoContent() throws Exception {
+    @DisplayName("성공: 메시지 삭제")
+    void givenId_whenDelete_thenReturns204() throws Exception {
         // given
 
 

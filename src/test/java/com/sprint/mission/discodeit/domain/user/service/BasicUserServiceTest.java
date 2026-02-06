@@ -75,8 +75,8 @@ class BasicUserServiceTest
     @DisplayName("Create User")
     class Create {
         @Test
-        @DisplayName("유효한 정보(프로필 포함)로 유저를 생성한다")
-        void create_WithValidInfo_SholudSaveUser() {
+        @DisplayName("성공: 유저 생성")
+        void givenCreateRequest_whenCreate_thenUserCreated() {
             // given
             given(userRepository.existsByEmail("xxzeroeight@naver.com")).willReturn(false);
             given(userRepository.existsByUsername("xxzeroeight")).willReturn(false);
@@ -110,8 +110,8 @@ class BasicUserServiceTest
         }
 
         @Test
-        @DisplayName("이미 존재하는 이메일로 가입 시도 시 예외가 발생한다")
-        void create_DuplicateEmail_ThrowsUserAlreadyExistsException() {
+        @DisplayName("실패: 중복 이메일")
+        void givenDuplicateEmail_whenCreate_thenThrowsException() {
             // given
             given(userRepository.existsByEmail(userCreateRequest.email())).willReturn(true);
 
@@ -131,8 +131,8 @@ class BasicUserServiceTest
     @DisplayName("Update User")
     class Update {
         @Test
-        @DisplayName("유효한 정보로 사용자 정보를 수정한다")
-        void update_WithValidInfo_UpdatesSuccessfully() {
+        @DisplayName("성공: 유저 수정")
+        void givenUpdateRequest_whenUpdate_thenUserUpdated() {
             // given
             UserUpdateRequest userUpdateRequest = new UserUpdateRequest("updatedUsername", "updatedEmail", "updatedPassword");
 
@@ -158,8 +158,8 @@ class BasicUserServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 ID로 조회하면 예외가 발생한다")
-        void findById_NonExistingId_ThrowsUserNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 ID")
+        void givenNonExistingId_whenUpdate_thenThrowsException() {
             // given
             UUID userId = UUID.randomUUID();
 
@@ -185,8 +185,8 @@ class BasicUserServiceTest
     @DisplayName("Delete User")
     class Delete {
         @Test
-        @DisplayName("사용자가 탈퇴하면 데이터가 삭제된다")
-        void delete_ExistingId_RemovesSuccessfully() {
+        @DisplayName("성공: 유저 삭제")
+        void givenUserId_whenDelete_thenUserDeleted() {
             // given
             given(userRepository.findById(any(UUID.class))).willReturn(Optional.of(user));
 
@@ -203,8 +203,8 @@ class BasicUserServiceTest
         }
 
         @Test
-        @DisplayName("존재하지 않는 ID로 삭제하면 예외가 발생한다")
-        void delete_NonExistingId_ThrowsUserNotFoundException() {
+        @DisplayName("실패: 존재하지 않는 ID")
+        void givenExistingId_whenDelete_thenThrowsException() {
             // given
             given(userRepository.findById(any(UUID.class))).willReturn(Optional.empty());
 
