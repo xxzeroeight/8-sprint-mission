@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
-    @ExceptionHandler(UserException.class)
+    @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException e) {
         log.error("DiscodeitException: code={}, message={}", e.getErrorCode(), e.getErrorCode().getMessage());
 
