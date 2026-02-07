@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <!-- 프로젝트 루트 경로 설정 -->
-    <property name="LOG_DIR" value="${user.dir}./logs" />
-
-    <!-- 로그 출력 패턴 -->
-    <property name="LOG_PATTERN" value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-36logger - %msg%n" />
+    <!-- 로그 패턴, 파일 경로 설정 -->
+    <property name="LOG_DIR" value="./logs/" />
+    <property name="LOG_PATTERN" value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{requestMethod} | %X{requestUri}] - %msg%n" />
 
     <!-- console appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -16,21 +14,34 @@
     <!-- file appendder -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/app.log</file>
-
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 매일 새 파일로 롤링 -->
             <fileNamePattern>${LOG_DIR}/app-%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- 30일간 보관 -->
+            <maxFileSize>10MB</maxFileSize>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
-
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
 
-    <root level="DEBUG">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-    </root>
+    <!-- dev 환경: DEBUG -->
+    <springProfile name="dev">
+        <logger name="org.hibernate.SQL" level="DEBUG" />
+        <logger name="com.sprint.mission.discodeit" level="DEBUG"/>
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
+
+    <!-- prod 환경: INFO -->
+    <springProfile name="prod">
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="com.sprint.mission.discodeit" level="INFO"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
 </configuration>
