@@ -3,6 +3,11 @@ spring:
     name: discodeit
   profiles:
     active: prod
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
 
 # actuator
 management:
