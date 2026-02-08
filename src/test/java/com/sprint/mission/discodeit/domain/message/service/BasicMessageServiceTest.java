@@ -67,16 +67,13 @@ class BasicMessageServiceTest
         userId = UUID.randomUUID();
         messageId = UUID.randomUUID();
 
-        String username = "xxzeroeight";
-        String email = "xxzeroeight@naver.com";
-
         bytes = "hello".getBytes();
         binaryContent = new BinaryContent("file", 3L, "jpg");
 
         channel = new Channel("channel", "description", ChannelType.PUBLIC);
-        user = new User(username, "password1234", email, null);
+        user = new User("xxzeroeight", "password1234", "xxzeroeight@naver.com", null);
 
-        userDto = new UserDto(UUID.randomUUID(), null,username,email, true);
+        userDto = new UserDto(UUID.randomUUID(), null,"xxzeroeight","xxzeroeight@naver.com", true);
         binaryContentDto = new BinaryContentDto(
                 binaryContent.getId(),
                 binaryContent.getFileName(),
@@ -154,6 +151,31 @@ class BasicMessageServiceTest
             then(binaryContentStorage).should(never()).save(any(), any());
             then(messageRepository).should(never()).save(any());
             then(messageMapper).should(never()).toDto(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Find Message")
+    class Find {
+        @Test
+        @DisplayName("성공: 메시지 조회")
+        void givenId_whenFind_thenMessageFound() {
+            // given
+            Message message = new Message(channel, user, "message", List.of(binaryContent));
+            MessageDto messageDto = new MessageDto(UUID.randomUUID(), channelId, null, List.of(), "message", Instant.now(), Instant.now());
+            
+            given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+            given(messageMapper.toDto(message)).willReturn(messageDto);
+
+            // when
+            MessageDto res = basicMessageService.findById(messageId);
+
+            // then
+            assertThat(res).isNotNull();
+            assertThat(res.id()).isEqualTo(messageDto.id());
+            
+            verify(messageRepository).findById(messageId);
+            verify(messageMapper).toDto(message);
         }
     }
 

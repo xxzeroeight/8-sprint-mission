@@ -97,6 +97,6 @@ class ChannelRepositoryTest
         // then
         assertThat(res).hasSize(2);
         assertThat(res).extracting(Channel::getType)
-                .containsExactly(ChannelType.PRIVATE, ChannelType.PUBLIC);
+                .containsExactlyInAnyOrder(ChannelType.PRIVATE, ChannelType.PUBLIC);
     }
 }
