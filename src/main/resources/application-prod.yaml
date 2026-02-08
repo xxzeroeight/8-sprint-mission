@@ -1,0 +1,37 @@
+server:
+  port: 80 # 443
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: ${POSTGRESQL_ROOT}
+    password: ${POSTGRESQL_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
+
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: discodeit
+
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:schema-prod.sql
+
+info:
+  config:
+    datasource:
+      url: "PROTECTED"
+    jpa:
+      ddl-auto: "PROTECTED"
+    storage:
+      path: "PROTECTED"
