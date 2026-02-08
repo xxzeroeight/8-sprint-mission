@@ -75,3 +75,5 @@ CREATE TABLE read_statuses
     CONSTRAINT fk_read_statuses_channel FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
     CONSTRAINT uk_read_statuses_user_channel UNIQUE (user_id, channel_id)
 );
+
+CREATE INDEX idx_messages_channel_created ON messages(channel_id, created_at DESC);
