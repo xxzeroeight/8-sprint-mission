@@ -17,7 +17,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID>
         SELECT m FROM Message m
         LEFT JOIN FETCH m.author a
         LEFT JOIN FETCH a.profile
-        LEFT JOIN FETCH a.userStatus
         WHERE m.channel.id = :channelId
         ORDER BY m.createdAt DESC
         """)
@@ -28,7 +27,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID>
         SELECT m FROM Message m
         LEFT JOIN FETCH m.author a
         LEFT JOIN FETCH a.profile
-        LEFT JOIN FETCH a.userStatus
         WHERE m.channel.id = :channelId
         AND m.createdAt < :cursor
         ORDER BY m.createdAt DESC
