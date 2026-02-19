@@ -37,11 +37,11 @@ public class UserController implements UserSwaggerApi
     public ResponseEntity<UserResponse> createUser(@Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
                                                    @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
-        log.debug("사용자 생성 시작(정보): username={}, email={}", userCreateRequest.username(), userCreateRequest.email());
+        log.debug("사용자 생성 시작(정보): username={}", userCreateRequest.username());
 
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
         if (profile != null) {
-            log.debug("사용자 생성 시작(프로필): fileName={}", profile.getOriginalFilename());
+            log.debug("사용자 생성 시작(프로필): contentType={}", profile.getContentType());
 
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
                     profile.getOriginalFilename(),
@@ -51,8 +51,6 @@ public class UserController implements UserSwaggerApi
         }
 
         UserDto user = userService.create(userCreateRequest, binaryContentCreateRequest);
-
-        log.info("사용자 생성 완료: userId={}", user.id());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(UserResponse.from(user));
@@ -64,8 +62,6 @@ public class UserController implements UserSwaggerApi
         log.debug("사용자 조회(단건) 시작: userId={}", userId);
 
         UserDto user = userService.findById(userId);
-
-        log.debug("사용자 조회(단건) 완료: userId={}", userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserResponse.from(user));
@@ -81,8 +77,6 @@ public class UserController implements UserSwaggerApi
                 .map(UserResponse::from)
                 .toList();
 
-        log.debug("사용자 조회(다건) 완료");
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(responses);
     }
@@ -92,11 +86,11 @@ public class UserController implements UserSwaggerApi
                                                    @Valid @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
                                                    @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException
     {
-        log.debug("사용자 정보 수정 시작(정보): userId={}, newUsername={}, newEmail={}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
+        log.debug("사용자 정보 수정 시작(정보): userId={}, newUsername={}", userId, userUpdateRequest.newUsername());
 
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
         if (profile != null) {
-            log.debug("사용자 정보 수정 시작(이미지): fileName={}", profile.getOriginalFilename());
+            log.debug("사용자 정보 수정 시작(이미지): contentType={}", profile.getContentType());
 
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
                     profile.getOriginalFilename(),
@@ -106,8 +100,6 @@ public class UserController implements UserSwaggerApi
         }
 
         UserDto user = userService.update(userId, userUpdateRequest, binaryContentCreateRequest);
-
-        log.info("사용자 정보 수정 완료: userId={}", user.id());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserResponse.from(user));
@@ -120,8 +112,6 @@ public class UserController implements UserSwaggerApi
 
         userService.delete(userId);
 
-        log.info("사용자 삭제 완료: userId={}", userId);
-
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -132,8 +122,6 @@ public class UserController implements UserSwaggerApi
         log.debug("사용자 상태 수정 시작: userId={}, newLastActiveAt={}", userId, userStatusUpdateRequest.newLastActiveAt());
 
         UserStatusDto userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
-
-        log.info("사용자 상태 수정 완료: userId={}", userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserStatusResponse.from(userStatus));

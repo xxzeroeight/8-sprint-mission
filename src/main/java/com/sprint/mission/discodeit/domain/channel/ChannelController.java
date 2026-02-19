@@ -31,8 +31,6 @@ public class ChannelController implements ChannelSwaggerApi
 
         ChannelDto channel = channelService.create(publicChannelCreateRequest);
 
-        log.info("채널 생성 완료(공개): channelId={}", channel.id());
-
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ChannelResponse.from(channel));
     }
@@ -43,8 +41,6 @@ public class ChannelController implements ChannelSwaggerApi
         log.debug("채널 생성 시작(비공개): paticipants={}", privateChannelCreateRequest.participantIds());
 
         ChannelDto channel = channelService.create(privateChannelCreateRequest);
-
-        log.info("채널 생성 완료(비공개): channelId={}", channel.id());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ChannelResponse.from(channel));
@@ -61,8 +57,6 @@ public class ChannelController implements ChannelSwaggerApi
                 .map(ChannelResponse::from)
                 .toList();
 
-        log.debug("사용자 참여 채널 조회 완료: userId={}", userId);
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(channelResponses);
     }
@@ -75,8 +69,6 @@ public class ChannelController implements ChannelSwaggerApi
 
         ChannelDto channel = channelService.update(channelId, publicChannelUpdateRequest);
 
-        log.info("채널 정보 수정 완료: channelId={}", channelId);
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ChannelResponse.from(channel));
     }
@@ -87,8 +79,6 @@ public class ChannelController implements ChannelSwaggerApi
         log.debug("채널 삭제 시작: channelId={}", channelId);
 
         channelService.delete(channelId);
-
-        log.info("채널 삭제 완료: channelId={}", channelId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

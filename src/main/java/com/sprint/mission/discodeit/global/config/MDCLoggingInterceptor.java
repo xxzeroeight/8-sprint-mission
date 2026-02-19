@@ -2,7 +2,8 @@ package com.sprint.mission.discodeit.global.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jboss.logging.MDC;
+
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 public class MDCLoggingInterceptor implements HandlerInterceptor
 {
     public static final String REQUEST_ID = "requestId";
-    public static final String REQUEST_ID_HEADER = "Discodeit-Request-Id";
+    public static final String REQUEST_ID_HEADER = "X-Request-ID";
     public static final String REQUEST_METHOD = "requestMethod";
     public static final String REQUEST_URI = "requestUri";
 

@@ -33,8 +33,6 @@ public class BinaryContentController implements BinaryContentSwaggerApi
 
         BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
 
-        log.debug("바이너리 컨텐츠 조회(단건) 완료: binaryContentId={}", binaryContent.id());
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BinaryContentResponse.from(binaryContent));
     }
@@ -50,8 +48,6 @@ public class BinaryContentController implements BinaryContentSwaggerApi
                 .map(BinaryContentResponse::from)
                 .toList();
 
-        log.debug("바이너리 컨텐츠 조회(다건) 완료: count={}", binaryContentResponses.size());
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(binaryContentResponses);
     }
@@ -62,8 +58,6 @@ public class BinaryContentController implements BinaryContentSwaggerApi
         log.debug("바이너리 컨텐츠 다운로드 시작: binaryContentId={}", binaryContentId);
 
         BinaryContentDownloadResponse file = binaryContentService.download(binaryContentId);
-
-        log.debug("바이너리 컨텐츠 다운로드 완료: binaryContentId={}", binaryContentId);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(file.contentType()))

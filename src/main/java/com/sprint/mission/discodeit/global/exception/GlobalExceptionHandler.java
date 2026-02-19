@@ -19,7 +19,7 @@ public class GlobalExceptionHandler
 {
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException e) {
-        log.error("DiscodeitException: code={}, message={}", e.getErrorCode(), e.getErrorCode().getMessage());
+        log.warn("DiscodeitException: code={}, message={}", e.getErrorCode(), e.getErrorCode().getMessage());
 
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(ErrorResponse.from(e));

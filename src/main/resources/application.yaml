@@ -53,7 +53,7 @@ info:
     name: Discodeit
     version: 1.7.0
     java-version: 17
-    spring-boot-version: 4.0.1
+    spring-boot-version: 3.5.9
   config:
     datasource:
       url: ${spring.datasource.url}
@@ -64,5 +64,5 @@ info:
       type: local
       path: ${discodeit.storage.local.root-path}
     multipart:
-      max-file-size: ${management.servlet.multipart.max-file-size:10MB}
-      max-request-size: ${management.servlet.multipart.max-request-size:30MB}
+      max-file-size: ${spring.servlet.multipart.max-file-size:10MB}
+      max-request-size: ${spring.servlet.multipart.max-request-size:30MB}

@@ -37,7 +37,7 @@ public class MessageController implements MessageSwaggerApi
     public ResponseEntity<MessageResponse> createMessage(@Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
                                                          @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) throws IOException
     {
-        log.debug("메시지 생성 시작(정보): authorId={}, channelId={}, content={}", messageCreateRequest.authorId(), messageCreateRequest.channelId(), messageCreateRequest.content());
+        log.debug("메시지 생성 시작(정보): authorId={}, channelId={}", messageCreateRequest.authorId(), messageCreateRequest.channelId());
 
         List<BinaryContentCreateRequest> binaryContentCreateRequest = new ArrayList<>();
         if (attachments != null) {
@@ -54,8 +54,6 @@ public class MessageController implements MessageSwaggerApi
 
         MessageDto message = messageService.create(messageCreateRequest, binaryContentCreateRequest);
 
-        log.info("메시지 생성 완료: messageId={}", message.id());
-
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(MessageResponse.from(message));
     }
@@ -69,8 +67,6 @@ public class MessageController implements MessageSwaggerApi
 
         PageResponse<MessageDto> messages = messageService.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, pageable);
 
-        log.debug("메시지 조회(다건) 완료: count={}", messages.size());
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(toResponsePage(messages));
     }
@@ -79,11 +75,9 @@ public class MessageController implements MessageSwaggerApi
     public ResponseEntity<MessageResponse> updateMessage(@PathVariable UUID messageId,
                                                          @Valid @RequestBody MessageUpdateRequest messageUpdateRequest)
     {
-        log.debug("메시지 정보 수정 시작: messageId={}, content={}", messageId, messageUpdateRequest.updateContent());
+        log.debug("메시지 정보 수정 시작: messageId={}", messageId);
 
         MessageDto message = messageService.update(messageId, messageUpdateRequest);
-
-        log.info("메시지 정보 수정 완료: messageId={}", message.id());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(MessageResponse.from(message));
@@ -95,8 +89,6 @@ public class MessageController implements MessageSwaggerApi
         log.debug("메시지 삭제 시작: messageId={}", messageId);
 
         messageService.delete(messageId);
-
-        log.info("메시지 삭제 완료: messageId={}", messageId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

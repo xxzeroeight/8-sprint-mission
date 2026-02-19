@@ -43,7 +43,7 @@ public class BasicBinaryContentService implements BinaryContentService
 
         binaryContentStorage.save(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
 
-        log.debug("바이너리 컨텐츠 생성 처리 완료: binaryContentId={}", savedBinaryContent.getId());
+        log.info("바이너리 컨텐츠 생성 처리 완료: binaryContentId={}", savedBinaryContent.getId());
 
         return binaryContentMapper.toDto(savedBinaryContent);
     }
@@ -53,10 +53,7 @@ public class BasicBinaryContentService implements BinaryContentService
     public BinaryContentDto find(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
                 .map(binaryContent -> binaryContentMapper.toDto(binaryContent))
-                .orElseThrow(() -> {
-                    log.warn("존재하지 않는 바이너리 컨텐츠(단건 조회): binaryContentId={}", binaryContentId);
-                    return new BinaryContentNotFoundException(binaryContentId);
-                });
+                .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
     }
 
     @Transactional(readOnly = true)
@@ -71,10 +68,7 @@ public class BasicBinaryContentService implements BinaryContentService
     @Override
     public void delete(UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-                .orElseThrow(() -> {
-                    log.warn("존재하지 않는 바이너리 컨텐츠(삭제): binaryContentId={}", binaryContentId);
-                    return new BinaryContentNotFoundException(binaryContentId);
-                });
+                .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
 
         binaryContentRepository.delete(binaryContent);
     }
@@ -85,17 +79,14 @@ public class BasicBinaryContentService implements BinaryContentService
         log.debug("바이너리 컨텐츠 다운로드 처리 시작: binaryContentId={}", binaryContentId);
 
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-                .orElseThrow(() -> {
-                    log.warn("존재하지 않는 바이너리 컨텐츠(다운로드):  binaryContentId={}", binaryContentId);
-                    return new BinaryContentNotFoundException(binaryContentId);
-                });
+                .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
 
         BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);
         InputStream inputStream = binaryContentStorage.openStream(binaryContentDto.id());
 
         Resource resource = new InputStreamResource(inputStream);
 
-        log.debug("바이너리 컨텐츠 다운로드 처리 완료: binaryContentId={}", binaryContentDto.id());
+        log.info("바이너리 컨텐츠 다운로드 처리 완료: binaryContentId={}", binaryContentDto.id());
 
         return BinaryContentDownloadResponse.from(resource, binaryContentDto);
     }
