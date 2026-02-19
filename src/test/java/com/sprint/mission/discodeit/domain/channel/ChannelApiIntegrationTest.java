@@ -81,7 +81,8 @@ public class ChannelApiIntegrationTest
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("tess1"));
 
-        Optional<Channel> findedChannel = channelRepository.findById(channel.getId());
-        assertThat(findedChannel.get().getName()).isEqualTo("tess1");
+        Optional<Channel> foundedChannel = channelRepository.findById(channel.getId());
+        assertThat(foundedChannel).isPresent();
+        assertThat(foundedChannel.get().getName()).isEqualTo("tess1");
     }
 }

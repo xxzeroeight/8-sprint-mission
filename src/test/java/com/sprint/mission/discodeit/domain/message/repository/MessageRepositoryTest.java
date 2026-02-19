@@ -52,7 +52,7 @@ class MessageRepositoryTest
         Optional<Message> res = messageRepository.findById(message.getId());
         
         // then
-        assertThat(res.isPresent());
+        assertThat(res).isPresent();
         assertThat(res.get().getContent()).isEqualTo("message");
     }
 
