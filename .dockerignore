@@ -10,3 +10,8 @@ build/
 *.md
 Dockerfile
 .dockerignore
+
+.env
+.logs/
+out/
+uploads/
