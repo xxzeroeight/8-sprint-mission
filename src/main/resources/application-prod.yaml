@@ -5,11 +5,6 @@ spring:
     password: ${POSTGRESQL_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-  boot:
-    admin:
-      client:
-        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
-
   jpa:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
