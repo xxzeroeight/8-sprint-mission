@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.domain.readstatus.dto.domain.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.domain.readstatus.exception.DuplicateReadStatusException;
+import com.sprint.mission.discodeit.domain.readstatus.exception.ReadStatusAlreadyExistsException;
 import com.sprint.mission.discodeit.domain.readstatus.exception.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.domain.readstatus.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
@@ -34,14 +34,14 @@ public class BasicReadStatusService implements ReadStatusService
     @Override
     public ReadStatusDto create(ReadStatusCreateRequest readStatusCreateRequest) {
         User author = userRepository.findById(readStatusCreateRequest.userId())
-                .orElseThrow(() -> UserNotFoundException.byId(readStatusCreateRequest.userId()));
+                .orElseThrow(() -> new UserNotFoundException(readStatusCreateRequest.userId()));
 
         Channel channel = channelRepository.findById(readStatusCreateRequest.channelId())
-                .orElseThrow(() -> ChannelNotFoundException.byId(readStatusCreateRequest.channelId()));
+                .orElseThrow(() -> new ChannelNotFoundException(readStatusCreateRequest.channelId()));
 
         if (readStatusRepository.findAllByUserId(readStatusCreateRequest.userId()).stream()
                 .anyMatch(status -> status.getChannel().getId().equals(readStatusCreateRequest.channelId()))) {
-            throw new DuplicateReadStatusException("이미 해당 채널의 읽음 상태가 존재합니다.");
+            throw new ReadStatusAlreadyExistsException(readStatusCreateRequest.channelId(), readStatusCreateRequest.userId());
         }
 
         ReadStatus readStatus = new ReadStatus(author, channel, readStatusCreateRequest.lastReadAt());
@@ -55,7 +55,7 @@ public class BasicReadStatusService implements ReadStatusService
     public ReadStatusDto find(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
                 .map(readStatus -> readStatusMapper.toDto(readStatus))
-                .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
+                .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +70,7 @@ public class BasicReadStatusService implements ReadStatusService
     @Override
     public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest readStatusUpdateRequest) {
         ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-                .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
+                .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
 
         readStatus.update(readStatusUpdateRequest.newLastReadAt());
         ReadStatus savedReadStatus = readStatusRepository.save(readStatus);
@@ -82,7 +82,7 @@ public class BasicReadStatusService implements ReadStatusService
     @Override
     public void delete(UUID readStatusId) {
         ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-                        .orElseThrow(() -> ReadStatusNotFoundException.byId(readStatusId));
+                        .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
 
         readStatusRepository.delete(readStatus);
     }

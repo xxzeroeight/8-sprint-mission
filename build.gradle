@@ -1,11 +1,48 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.12'
+	id 'org.springframework.boot' version '3.5.9'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("jacocoTestCoverageVerification", JacocoCoverageVerification) {
+    dependsOn test
+
+    violationRules {
+        rule {
+            element = 'CLASS'
+            includes = ['com.sprint.mission.discodeit.domain.**.service.Basic*Service']
+            limit {
+                counter = 'INSTRUCTION'
+                value   = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn tasks.named("jacocoTestCoverageVerification")
+}
+
+ext {
+    springBootAdminVersion = "3.5.7"
 }
 
 group = 'com.sprint.mission'
-version = '0.0.1-SNAPSHOT'
+version = '1.7.0'
 description = 'Demo project for Spring Boot'
 
 java {
@@ -27,15 +64,24 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.mapstruct:mapstruct:1.6.3'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'de.codecentric:spring-boot-admin-starter-client'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
     runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+}
+dependencyManagement {
+    imports {
+        mavenBom "de.codecentric:spring-boot-admin-dependencies:$springBootAdminVersion"
+    }
 }
 
 tasks.named('test') {

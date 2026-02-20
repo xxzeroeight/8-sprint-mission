@@ -1,16 +1,14 @@
 package com.sprint.mission.discodeit.domain.channel.exception;
 
-import com.sprint.mission.discodeit.global.exception.NotFoundException;
+import com.sprint.mission.discodeit.global.exception.ChannelException;
+import com.sprint.mission.discodeit.global.exception.ErrorCode;
 
+import java.util.Map;
 import java.util.UUID;
 
-public class ChannelNotFoundException extends NotFoundException
+public class ChannelNotFoundException extends ChannelException
 {
-    public ChannelNotFoundException(String message) {
-        super(message);
-    }
-
-    public static ChannelNotFoundException byId(UUID id) {
-        return new ChannelNotFoundException("채널을 찾을 수 없습니다: ID=" + id);
+    public ChannelNotFoundException(UUID channelId) {
+        super(ErrorCode.CHANNEL_NOT_FOUND, Map.of("channel", channelId));
     }
 }

@@ -1,16 +1,14 @@
 package com.sprint.mission.discodeit.domain.userstatus.exception;
 
-import com.sprint.mission.discodeit.global.exception.NotFoundException;
+import com.sprint.mission.discodeit.global.exception.ErrorCode;
+import com.sprint.mission.discodeit.global.exception.UserStatusException;
 
+import java.util.Map;
 import java.util.UUID;
 
-public class UserStatusNotFoundException extends NotFoundException
+public class UserStatusNotFoundException extends UserStatusException
 {
-    public UserStatusNotFoundException(String message) {
-        super(message);
-    }
-
-    public static UserStatusNotFoundException byId(UUID id) {
-        return new UserStatusNotFoundException("유저 상태를 찾을 수 없습니다: ID=" + id);
+    public UserStatusNotFoundException(UUID userId) {
+        super(ErrorCode.USERSTATUS_NOT_FOUND, Map.of("user", userId));
     }
 }

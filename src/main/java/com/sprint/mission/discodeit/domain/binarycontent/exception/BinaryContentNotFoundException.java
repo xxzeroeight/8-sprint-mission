@@ -1,16 +1,14 @@
 package com.sprint.mission.discodeit.domain.binarycontent.exception;
 
-import com.sprint.mission.discodeit.global.exception.NotFoundException;
+import com.sprint.mission.discodeit.global.exception.BinaryContentException;
+import com.sprint.mission.discodeit.global.exception.ErrorCode;
 
+import java.util.Map;
 import java.util.UUID;
 
-public class BinaryContentNotFoundException extends NotFoundException
+public class BinaryContentNotFoundException extends BinaryContentException
 {
-    public BinaryContentNotFoundException(String message) {
-        super(message);
-    }
-
-    public static BinaryContentNotFoundException byId(UUID id) {
-        return new BinaryContentNotFoundException("첨부 파일이 존재하지 않습니다: ID=" + id);
+    public BinaryContentNotFoundException(UUID binaryContentId) {
+        super(ErrorCode.BINARY_CONTENT_NOT_FOUND, Map.of("binaryContent", binaryContentId));
     }
 }

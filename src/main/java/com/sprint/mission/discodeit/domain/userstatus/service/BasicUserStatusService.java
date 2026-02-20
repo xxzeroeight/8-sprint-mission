@@ -26,7 +26,7 @@ public class BasicUserStatusService implements UserStatusService
     @Override
     public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest userStatusUpdateRequest) {
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> UserStatusNotFoundException.byId(userId));
+                .orElseThrow(() -> new UserStatusNotFoundException(userId));
 
         userStatus.update(userStatusUpdateRequest.newLastActiveAt());
 

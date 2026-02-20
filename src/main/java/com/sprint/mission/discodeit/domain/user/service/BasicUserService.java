@@ -8,12 +8,13 @@ import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.domain.user.exception.DuplicateUserException;
+import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import com.sprint.mission.discodeit.domain.userstatus.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService
@@ -34,18 +36,22 @@ public class BasicUserService implements UserService
     @Transactional
     @Override
     public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+        log.debug("사용자 생성 처리 시작: email={}, username={}", userCreateRequest.email(), userCreateRequest.username());
+
         if (userRepository.existsByEmail(userCreateRequest.email())) {
-            throw DuplicateUserException.byEmail(userCreateRequest.email());
+            throw new UserAlreadyExistsException(userCreateRequest.email());
         }
 
         if (userRepository.existsByUsername(userCreateRequest.username())) {
-            throw DuplicateUserException.byUsername(userCreateRequest.username());
+            throw new UserAlreadyExistsException(userCreateRequest.username());
         }
 
         BinaryContent profile = createProfile(binaryContentCreateRequest);
 
         User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profile);
         User createdUser = userRepository.save(user);
+
+        log.info("사용자 생성 처리 완료: userId={}", createdUser.getId());
 
         return userMapper.toDto(createdUser);
     }
@@ -55,7 +61,8 @@ public class BasicUserService implements UserService
     public UserDto findById(UUID userId) {
         return userRepository.findById(userId)
                 .map(user -> userMapper.toDto(user))
-                .orElseThrow(() -> UserNotFoundException.byId(userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
     }
 
     @Transactional(readOnly = true)
@@ -69,19 +76,23 @@ public class BasicUserService implements UserService
     @Transactional
     @Override
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
+        log.debug("사용자 정보 수정 시작: userId={}, username={}, email={}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
+
         if (userRepository.existsByUsername(userUpdateRequest.newUsername())) {
-            throw DuplicateUserException.byUsername(userUpdateRequest.newUsername());
+            throw new UserAlreadyExistsException(userUpdateRequest.newUsername());
         }
 
         if (userRepository.existsByEmail(userUpdateRequest.newEmail())) {
-            throw DuplicateUserException.byEmail(userUpdateRequest.newEmail());
+            throw new UserAlreadyExistsException(userUpdateRequest.newEmail());
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> UserNotFoundException.byId(userId));
+                .orElseThrow(() ->  new UserNotFoundException(userId));
 
         BinaryContent profile = createProfile(binaryContentCreateRequest);
         user.update(userUpdateRequest.newUsername(), userUpdateRequest.newPassword(), userUpdateRequest.newEmail(), profile);
+
+        log.info("사용자 정보 수정 완료: userId={}, username={}, email={}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
 
         return userMapper.toDto(user);
     }
@@ -89,8 +100,10 @@ public class BasicUserService implements UserService
     @Transactional
     @Override
     public void delete(UUID userId) {
+        log.debug("사용자 삭제 처리 시작: userId={}", userId);
+
         User user = userRepository.findById(userId)
-                        .orElseThrow(() -> UserNotFoundException.byId(userId));
+                        .orElseThrow(() -> new UserNotFoundException(userId));
 
         // pofile 먼저 삭제.
         if (user.getProfile() != null) {
@@ -98,6 +111,8 @@ public class BasicUserService implements UserService
         }
 
         userRepository.delete(user);
+
+        log.info("사용자 삭제 처리 완료: userId={}", userId);
     }
 
     private BinaryContent createProfile(Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
