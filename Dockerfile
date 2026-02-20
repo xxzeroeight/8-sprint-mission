@@ -2,9 +2,18 @@ FROM amazoncorretto:17
 
 WORKDIR /app
 
-COPY . .
+RUN yum install -y curl
 
-RUN ./gradlew build
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
+
+COPY src src
+
+RUN ./gradlew build -x test --no-daemon
 
 EXPOSE 80
 
