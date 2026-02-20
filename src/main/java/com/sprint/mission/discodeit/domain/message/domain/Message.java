@@ -29,8 +29,14 @@ public class Message extends BaseUpdatableEntity
     @JoinColumn(name = "author_id", foreignKey = @ForeignKey(name = "fk_messages_author"))
     private User author;
 
+    // ddl-auto: validate
+    // 스키마의 message_attachments와 일치
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "message_id")
+    @JoinTable(
+            name = "message_attachments",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "attachment_id")
+    )
     private List<BinaryContent> attachments = new ArrayList<>();
 
     public Message(Channel channel, User author, String content, List<BinaryContent> attachments) {
