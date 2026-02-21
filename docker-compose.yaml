@@ -55,6 +55,9 @@ services:
     ports:
       - "${APP_PORT}:${SERVER_PORT}"
 
+    env_file:
+      - .env
+
     volumes:
       - app_data:/app/uploads
 
