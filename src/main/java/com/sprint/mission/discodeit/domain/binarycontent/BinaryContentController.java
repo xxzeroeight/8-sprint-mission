@@ -1,16 +1,12 @@
 package com.sprint.mission.discodeit.domain.binarycontent;
 
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
-import com.sprint.mission.discodeit.domain.binarycontent.dto.response.BinaryContentDownloadResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.service.BinaryContentService;
 import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,17 +49,12 @@ public class BinaryContentController implements BinaryContentSwaggerApi
     }
 
     @GetMapping("/{binaryContentId}/download")
-    public ResponseEntity<Resource> download(@PathVariable UUID binaryContentId)
+    public ResponseEntity<?> downloadBinaryContents(@PathVariable UUID binaryContentId)
     {
         log.debug("바이너리 컨텐츠 다운로드 시작: binaryContentId={}", binaryContentId);
 
-        BinaryContentDownloadResponse file = binaryContentService.download(binaryContentId);
+        BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(file.contentType()))
-                .contentLength(file.size())
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.fileName() + "\"")
-                .body(file.resource());
+        return binaryContentStorage.download(binaryContentDto);
     }
 }

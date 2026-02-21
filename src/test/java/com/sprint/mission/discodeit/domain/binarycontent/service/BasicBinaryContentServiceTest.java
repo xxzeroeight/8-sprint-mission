@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.domain.binarycontent.service;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.domain.binarycontent.dto.response.BinaryContentDownloadResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
@@ -17,12 +16,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -102,27 +100,5 @@ class BasicBinaryContentServiceTest
             then(binaryContentRepository).should().findById(any(UUID.class));
             then(binaryContentRepository).should(never()).delete(binaryContent);
         }
-    }
-
-    @Test
-    @DisplayName("성공: 바이너리 컨텐츠 다운로드")
-    void givenBinaryContentId_whenDownload_thenBinaryContentDownloaded() {
-        // given
-        InputStream inputStream = new ByteArrayInputStream("hello".getBytes());
-
-        given(binaryContentRepository.findById(binaryContent.getId())).willReturn(Optional.of(binaryContent));
-        given(binaryContentMapper.toDto(binaryContent)).willReturn(binaryContentDto);
-        given(binaryContentStorage.openStream(binaryContent.getId())).willReturn(inputStream);
-
-        // when
-        BinaryContentDownloadResponse res = basicBinaryContentService.download(binaryContent.getId());
-
-        // then
-        then(binaryContentRepository).should().findById(binaryContent.getId());
-        then(binaryContentMapper).should().toDto(binaryContent);
-        then(binaryContentStorage).should().openStream(eq(binaryContent.getId()));
-
-        assertThat(res.fileName()).isEqualTo(binaryContent.getFileName());
-        assertThat(res.resource()).isNotNull();
     }
 }
