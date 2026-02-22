@@ -1,6 +1,3 @@
-# 스프린트 미션3
+# 스프린트 미션8
 
-## 프로젝트 마일스톤
-- Java 프로젝트를 Spring 프로젝트로 마이그레이션
-- 의존성 관리를 IoC Container에 위임하도록 리팩토링
-- 비즈니스 로직 고도화
+[![codecov](https://codecov.io/github/xxzeroeight/8-sprint-mission/branch/%EA%B9%80%EA%B2%BD%ED%83%9C-sprint8/graph/badge.svg?token=W6ZBGWRFSD)](https://codecov.io/github/xxzeroeight/8-sprint-mission)
