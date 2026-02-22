@@ -1,0 +1,12 @@
+package com.sprint.mission.discodeit.domain.readstatus.dto.domain;
+
+import java.time.Instant;
+import java.util.UUID;
+
+public record ReadStatusDto(
+        UUID id,
+        UUID userId,
+        UUID channelId,
+
+        Instant lastReadAt
+) {}
