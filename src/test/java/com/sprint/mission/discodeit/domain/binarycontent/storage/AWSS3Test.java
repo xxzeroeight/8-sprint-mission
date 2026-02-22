@@ -34,7 +34,7 @@ class AWSS3Test
 
     @BeforeEach
     void setUp() {
-        dotenv = Dotenv.load();
+        dotenv = Dotenv.configure().ignoreIfMissing().load();
 
         accessKey = dotenv.get("AWS_ACCESS_KEY_ID");
         secretKey = dotenv.get("AWS_SECRET_ACCESS_KEY");
