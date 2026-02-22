@@ -36,8 +36,8 @@ class AWSS3Test
     void setUp() {
         dotenv = Dotenv.configure().ignoreIfMissing().load();
 
-        accessKey = dotenv.get("AWS_ACCESS_KEY_ID");
-        secretKey = dotenv.get("AWS_SECRET_ACCESS_KEY");
+        accessKey = dotenv.get("AWS_ACCESS_KEY");
+        secretKey = dotenv.get("AWS_SECRET_KEY");
         bucketName = dotenv.get("AWS_S3_BUCKET");
         region = dotenv.get("AWS_S3_REGION");
 
