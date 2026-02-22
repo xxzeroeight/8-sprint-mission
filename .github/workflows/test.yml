@@ -33,7 +33,7 @@ jobs:
 
       # test
       - name: run tests
-        run: ./gradlew test
+        run: ./gradlew test jacocoTestReport
 
       # upload coverage
       - name: upload coverage to codecov
