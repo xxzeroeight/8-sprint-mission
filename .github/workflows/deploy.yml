@@ -52,6 +52,7 @@ jobs:
           
           docker push ${{ env.ECR_REPOSITORY_URI }}:latest
           docker push ${{ env.ECR_REPOSITORY_URI }}:${{ github.sha }}
+          echo "image=${{ env.ECR_REPOSITORY_URI }}:${{ github.sha }}" >> $GITHUB_OUTPUT
           
   deploy:
     needs: build-and-push
@@ -87,7 +88,7 @@ jobs:
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          task-definition: ${{ steps.ecs-task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
