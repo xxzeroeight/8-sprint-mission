@@ -2,8 +2,6 @@ FROM amazoncorretto:17 AS builder
 
 WORKDIR /app
 
-RUN yum install -y curl
-
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle .
