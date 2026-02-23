@@ -73,7 +73,7 @@ jobs:
         with:
           task-definition: task-definition.json
           container-name: discodeit-app
-          image: ${{ needs.build-and-push.outputs.images }}
+          image: ${{ needs.build-and-push.outputs.image }}
 
       - name: Stop running ECS tasks
         run: |
