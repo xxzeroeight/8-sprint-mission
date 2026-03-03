@@ -47,7 +47,7 @@ discodeit:
       secret-key: ${AWS_SECRET_KEY}
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
-      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+      expiration-duration-in-minutes: ${AWS_S3_PRESIGNED_URL_EXPIRATION_MINUTES:60}
 
 logging:
   level:

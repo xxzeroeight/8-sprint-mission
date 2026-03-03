@@ -28,16 +28,16 @@ import java.util.UUID;
 @Component
 public class S3BinaryContentStorage implements BinaryContentStorage
 {
-    private String bucketName;
-    private String region;
-    private String accessKey;
-    private String secretKey;
+    private final String bucketName;
+    private final String region;
+    private final String accessKey;
+    private final String secretKey;
 
     private S3Client s3Client;
     private S3Presigner s3Presigner;
 
-    @Value("${discodeit.storage.s3.presigned-url-expiration:600}")
-    private int presignedUrlExpirationDuration;
+    @Value("${discodeit.storage.s3.expiration-duration-in-minutes:600}")
+    private int expirationDurationInMinutes;
 
     public S3BinaryContentStorage(@Value("${discodeit.storage.s3.bucket}") String bucketName,
                                   @Value("${discodeit.storage.s3.region}") String region,
@@ -114,7 +114,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage
                 .build();
 
         GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(presignedUrlExpirationDuration))
+                .signatureDuration(Duration.ofMinutes(expirationDurationInMinutes))
                 .getObjectRequest(getObjectRequest)
                 .build();
 
@@ -133,13 +133,13 @@ public class S3BinaryContentStorage implements BinaryContentStorage
     private String extractFileNameWithExtension(String filename, String contentType) {
         String name = filename.substring(filename.lastIndexOf("/") + 1);
 
-        String extenstion = switch (contentType) {
+        String extension = switch (contentType) {
             case "image/png" -> "png";
             case "image/gif" -> "gif";
 
             default -> "jpg";
         };
 
-        return name + "." + extenstion;
+        return name + "." + extension;
     }
 }
