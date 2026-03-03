@@ -36,7 +36,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage
     private S3Client s3Client;
     private S3Presigner s3Presigner;
 
-    @Value("${discodeit.storage.s3.expiration-duration-in-minutes:600}")
+    @Value("${discodeit.storage.s3.expiration-duration-in-minutes:60}")
     private int expirationDurationInMinutes;
 
     public S3BinaryContentStorage(@Value("${discodeit.storage.s3.bucket}") String bucketName,
