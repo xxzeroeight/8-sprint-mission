@@ -13,8 +13,10 @@ import com.sprint.mission.discodeit.domain.message.domain.Message;
 import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.domain.message.mapper.MessageMapper;
+import com.sprint.mission.discodeit.domain.message.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
@@ -27,13 +29,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,6 +56,7 @@ class BasicMessageServiceTest
     @Mock private UserRepository userRepository;
     @Mock private BinaryContentRepository binaryContentRepository;
     @Mock private BinaryContentStorage binaryContentStorage;
+    @Mock private PageResponseMapper pageResponseMapper;
 
     private User user;
     private UserDto userDto;
@@ -176,6 +184,40 @@ class BasicMessageServiceTest
             
             verify(messageRepository).findById(messageId);
             verify(messageMapper).toDto(message);
+        }
+
+        @Test
+        @DisplayName("성공: 메시지 조회 (다건, 첫 페이지)")
+        void givenNullCursor_whenFind_thenFindFirstPage() {
+            // given
+            Pageable pageable = PageRequest.of(0, 10);
+            Slice<Message> slice = new SliceImpl<>(List.of(), pageable, false);
+
+            given(messageRepository.findFirstPageByChannelId(eq(channelId), any())).willReturn(slice);
+            given(pageResponseMapper.fromSlice(any(), any(), anyBoolean())).willReturn(PageResponse.of(List.of(), null, 0, false, null));
+
+            // when
+            basicMessageService.findByChannelIdOrderByCreatedAtDesc(channelId, null, pageable);
+
+            // then
+            verify(messageRepository).findFirstPageByChannelId(eq(channelId), any());
+            verify(messageRepository, never()).findNextPageByChannelId(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("성공: 메시지 조회 (다건, cursor)")
+        void findCursor_whenFind_thenFindNextPage() {
+            Instant cursor = Instant.now();
+            Pageable pageable = PageRequest.of(0, 10);
+            Slice<Message> slice = new SliceImpl<>(List.of(), pageable, false);
+
+            given(messageRepository.findNextPageByChannelId(eq(channelId), eq(cursor), any())).willReturn(slice);
+            given(pageResponseMapper.fromSlice(any(), any(), anyBoolean())).willReturn(PageResponse.of(List.of(), null, 0, false, null));
+
+            basicMessageService.findByChannelIdOrderByCreatedAtDesc(channelId, cursor, pageable);
+
+            verify(messageRepository).findNextPageByChannelId(eq(channelId), eq(cursor), any());
+            verify(messageRepository, never()).findFirstPageByChannelId(any(), any());
         }
     }
 

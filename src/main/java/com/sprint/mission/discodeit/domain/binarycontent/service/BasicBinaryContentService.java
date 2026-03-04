@@ -3,19 +3,15 @@ package com.sprint.mission.discodeit.domain.binarycontent.service;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.domain.binarycontent.dto.response.BinaryContentDownloadResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,23 +67,5 @@ public class BasicBinaryContentService implements BinaryContentService
                 .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
 
         binaryContentRepository.delete(binaryContent);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public BinaryContentDownloadResponse download(UUID binaryContentId) {
-        log.debug("바이너리 컨텐츠 다운로드 처리 시작: binaryContentId={}", binaryContentId);
-
-        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-                .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
-
-        BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);
-        InputStream inputStream = binaryContentStorage.openStream(binaryContentDto.id());
-
-        Resource resource = new InputStreamResource(inputStream);
-
-        log.info("바이너리 컨텐츠 다운로드 처리 완료: binaryContentId={}", binaryContentDto.id());
-
-        return BinaryContentDownloadResponse.from(resource, binaryContentDto);
     }
 }

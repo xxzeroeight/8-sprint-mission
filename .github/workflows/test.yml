@@ -1,0 +1,42 @@
+name: CI Test
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+  AWS_S3_REGION: ${{ secrets.AWS_S3_REGION }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # checkout
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # jdk 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # gradlew
+      - name: grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # test
+      - name: run tests
+        run: ./gradlew test jacocoTestReport
+
+      # upload coverage
+      - name: upload coverage to codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

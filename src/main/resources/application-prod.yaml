@@ -1,14 +1,12 @@
+server:
+  port: 80
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: ${POSTGRESQL_ROOT}
-    password: ${POSTGRESQL_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
-  boot:
-    admin:
-      client:
-        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
   jpa:
     database: postgresql

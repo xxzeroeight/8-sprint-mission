@@ -39,8 +39,15 @@ management:
 # custom
 discodeit:
   storage:
+    type: ${STORAGE_TYPE:local}
     local:
-      root-path: ./uploads
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:./uploads}
+    s3:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+      region: ${AWS_S3_REGION}
+      bucket: ${AWS_S3_BUCKET}
+      expiration-duration-in-minutes: ${AWS_S3_PRESIGNED_URL_EXPIRATION_MINUTES:60}
 
 logging:
   level:
