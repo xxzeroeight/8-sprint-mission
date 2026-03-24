@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.global.config;
 
+import com.sprint.mission.discodeit.auth.service.LoginFailureHandler;
+import com.sprint.mission.discodeit.auth.service.LoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +15,13 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig
 {
+    private final LoginSuccessHandler loginSuccessHandler;
+    private final LoginFailureHandler loginFailureHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -29,6 +36,11 @@ public class SecurityConfig
                     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                     // SPA 환경에 적합한 SpaCsrfTokenRequestHandler로 교체
                     .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+            )
+            .formLogin(login -> login
+                    .loginProcessingUrl("/api/auth/login")
+                    .successHandler(loginSuccessHandler)
+                    .failureHandler(loginFailureHandler)
             );
 
         return http.build();

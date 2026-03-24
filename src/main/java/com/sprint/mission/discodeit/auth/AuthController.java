@@ -1,34 +1,20 @@
 package com.sprint.mission.discodeit.auth;
 
-import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
-import com.sprint.mission.discodeit.auth.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.auth.dto.response.LoginResponse;
-import com.sprint.mission.discodeit.auth.service.AuthService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController implements AuthSwaggerApi
+public class AuthController
 {
-    private final AuthService authService;
-
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest)
-    {
-        UserDto user = authService.login(loginRequest);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(LoginResponse.from(user));
-    }
-
     @GetMapping("/csrf-token")
     public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken)
     {
