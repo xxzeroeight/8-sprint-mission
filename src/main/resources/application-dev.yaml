@@ -1,31 +1,20 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  boot:
-    admin:
-      client:
-        url: http://localhost:9090
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: ${POSTGRESQL_ROOT}
+    password: ${POSTGRESQL_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
 
   sql:
     init:
       mode: always
       schema-locations: classpath:schema-dev.sql
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create-drop
-
-# custom
 logging:
   level:
-    root: debug
+    com.sprint.mission.discodeit: debug
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
