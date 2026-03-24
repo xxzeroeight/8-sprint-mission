@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import com.sprint.mission.discodeit.domain.userstatus.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class BasicUserService implements UserService
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
@@ -48,7 +50,9 @@ public class BasicUserService implements UserService
 
         BinaryContent profile = createProfile(binaryContentCreateRequest);
 
-        User user = new User(userCreateRequest.username(), userCreateRequest.password(), userCreateRequest.email(), profile);
+        String encodedPassword = passwordEncoder.encode(userCreateRequest.password());
+
+        User user = new User(userCreateRequest.username(), encodedPassword, userCreateRequest.email(), profile);
         User createdUser = userRepository.save(user);
 
         log.info("사용자 생성 처리 완료: userId={}", createdUser.getId());
