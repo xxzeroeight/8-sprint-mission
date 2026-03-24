@@ -8,13 +8,9 @@ spring:
       hibernate:
         format_sql: true
 
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema-dev.sql
-
 logging:
   level:
     com.sprint.mission.discodeit: debug
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: trace
