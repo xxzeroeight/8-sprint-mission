@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.global.secutiry.auth;
+package com.sprint.mission.discodeit.auth;
 
-import com.sprint.mission.discodeit.global.secutiry.auth.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.global.secutiry.auth.dto.response.LoginResponse;
+import com.sprint.mission.discodeit.auth.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.auth.dto.response.LoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

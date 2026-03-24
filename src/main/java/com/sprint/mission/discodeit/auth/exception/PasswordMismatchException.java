@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.secutiry.auth.exception;
+package com.sprint.mission.discodeit.auth.exception;
 
 import com.sprint.mission.discodeit.global.exception.AuthException;
 import com.sprint.mission.discodeit.global.exception.ErrorCode;

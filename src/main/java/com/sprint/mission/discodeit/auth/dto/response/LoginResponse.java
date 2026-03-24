@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.secutiry.auth.dto.response;
+package com.sprint.mission.discodeit.auth.dto.response;
 
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.secutiry.auth.service;
+package com.sprint.mission.discodeit.auth.service;
 
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
@@ -6,8 +6,8 @@ import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import com.sprint.mission.discodeit.domain.userstatus.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.global.secutiry.auth.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.global.secutiry.auth.exception.PasswordMismatchException;
+import com.sprint.mission.discodeit.auth.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.auth.exception.PasswordMismatchException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

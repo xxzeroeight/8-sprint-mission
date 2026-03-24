@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.secutiry.auth.dto.request;
+package com.sprint.mission.discodeit.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
