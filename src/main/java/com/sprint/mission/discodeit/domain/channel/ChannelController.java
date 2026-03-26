@@ -61,11 +61,11 @@ public class ChannelController implements ChannelSwaggerApi
                 .body(channelResponses);
     }
 
-    @PutMapping("/{channelId}")
+    @PatchMapping("/{channelId}")
     public ResponseEntity<ChannelResponse> updatePublicChannel(@PathVariable UUID channelId,
                                                                @Valid @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
     {
-        log.debug("채널 정보 수정 시작: channelId={}, name={}, description={}", channelId, publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());
+        log.debug("채널 정보 수정 시작: channelId={}, name={}, description={}", channelId, publicChannelUpdateRequest.newName(), publicChannelUpdateRequest.newDescription());
 
         ChannelDto channel = channelService.update(channelId, publicChannelUpdateRequest);
 

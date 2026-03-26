@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @RequiredArgsConstructor
@@ -35,22 +36,19 @@ public class DiscodeitUserDetails implements UserDetails
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
+    public int hashCode() {
+        return Objects.hashCode(userResponse.username());
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+    public boolean equals(Object obj) {
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof DiscodeitUserDetails that)) {
+            return false;
+        }
+        return Objects.equals(userResponse.username(), that.userResponse.username());
     }
 }

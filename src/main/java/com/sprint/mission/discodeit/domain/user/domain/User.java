@@ -1,15 +1,13 @@
 package com.sprint.mission.discodeit.domain.user.domain;
 
-import com.sprint.mission.discodeit.global.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
-import com.sprint.mission.discodeit.domain.userstatus.domain.UserStatus;
+import com.sprint.mission.discodeit.global.entity.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +30,6 @@ public class User extends BaseUpdatableEntity
     @Column(name = "role", length = 20, nullable = false)
     private Role role;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserStatus userStatus;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "profile_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_users_binary_content"))
     private BinaryContent profile;
@@ -47,7 +42,6 @@ public class User extends BaseUpdatableEntity
         this.password = password;
         this.email = email;
         this.profile = profile;
-        this.userStatus = new UserStatus(this, Instant.now());
         this.role = Role.USER;
     }
 

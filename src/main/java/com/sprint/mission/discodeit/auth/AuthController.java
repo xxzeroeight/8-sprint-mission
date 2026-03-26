@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.auth;
 
 import com.sprint.mission.discodeit.auth.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.auth.service.AuthService;
 import com.sprint.mission.discodeit.auth.service.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.response.UserResponse;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController
 {
     private final UserService userService;
+    private final AuthService authService;
 
     @GetMapping("/csrf-token")
     public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken)
@@ -36,7 +38,10 @@ public class AuthController
     {
         log.debug("AuthController 세션 기반 사용자 정보 조회 요청: {}", discodeitUserDetails.getUsername());
 
-        return ResponseEntity.ok(discodeitUserDetails.getUserResponse());
+        UserDto userDto = authService.getCurrentUseInfo(discodeitUserDetails);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(UserResponse.from(userDto));
     }
 
     @PutMapping("/role")

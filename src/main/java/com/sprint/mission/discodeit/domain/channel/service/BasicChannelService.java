@@ -99,7 +99,7 @@ public class BasicChannelService implements ChannelService
     @Transactional
     @Override
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest publicChannelUpdateRequest) {
-        log.debug("채널 수정 처리 시작: channelId={}, name={}, description={}", channelId, publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());
+        log.debug("채널 수정 처리 시작: channelId={}, name={}, description={}", channelId, publicChannelUpdateRequest.newName(), publicChannelUpdateRequest.newDescription());
 
        Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new ChannelNotFoundException(channelId));
@@ -109,7 +109,7 @@ public class BasicChannelService implements ChannelService
            throw new ChannelUpdateNotAllowedException(channelId);
        }
 
-       channel.update(publicChannelUpdateRequest.updateName(), publicChannelUpdateRequest.updateDescription());
+       channel.update(publicChannelUpdateRequest.newName(), publicChannelUpdateRequest.newDescription());
 
        log.info("채널 수정 처리 완료: channelId={}", channel.getId());
 

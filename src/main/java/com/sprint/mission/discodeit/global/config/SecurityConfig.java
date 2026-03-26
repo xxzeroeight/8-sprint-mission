@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.global.config;
 
-import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
-import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
-import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
-import com.sprint.mission.discodeit.auth.handler.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.auth.handler.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -17,12 +14,15 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Slf4j
 @Configuration
@@ -40,7 +40,8 @@ public class SecurityConfig
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CustomAccessDeniedHandler customAccessDeniedHandler,
                                            LoginSuccessHandler loginSuccessHandler,
-                                           LoginFailureHandler loginFailureHandler) throws Exception
+                                           LoginFailureHandler loginFailureHandler,
+                                           SessionRegistry sessionRegistry) throws Exception
     {
         http
             // 1. CSRF 설정
@@ -61,27 +62,52 @@ public class SecurityConfig
                     .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원가입
                     .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/api/auth/logout").permitAll()
+
+                    // Public 채널 관리
+                    .requestMatchers(HttpMethod.POST, "/api/channels/public").hasRole("CHANNEL_MANAGER")
+                    .requestMatchers(HttpMethod.PATCH, "/api/channels/*").hasRole("CHANNEL_MANAGER")
+                    .requestMatchers(HttpMethod.DELETE, "/api/channels/*").hasRole("CHANNEL_MANAGER")
+
+                    // 사용자 권한 변경
                     .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
-            // 3. Form 기반 로그인 설정
+            // 3. 세션 관리 설정
+            .sessionManagement(management -> management
+                    .sessionConcurrency(concurrency -> concurrency
+                            .maximumSessions(1)
+                            .sessionRegistry(sessionRegistry)
+                    )
+            )
+            // 4. Form 기반 로그인 설정
             .formLogin(login -> login
                     .loginProcessingUrl("/api/auth/login")
                     .successHandler(loginSuccessHandler)
                     .failureHandler(loginFailureHandler)
             )
-            // 4. 로그아웃 설정
+            // 5. 로그아웃 설정
             .logout(logout -> logout
                     .logoutUrl("/api/auth/logout")
                     .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             )
-            // 5. 예외 처리 설정
+            // 6. 예외 처리 설정
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
                     .accessDeniedHandler(customAccessDeniedHandler)
             );
 
         return http.build();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    // SessionRegistry의 SessionInformation도 자동으로 만료하기 위해 필요
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 
     // 권한 계층 구조

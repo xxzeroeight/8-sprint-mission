@@ -104,12 +104,12 @@ public class BasicMessageService implements MessageService
     @Transactional
     @Override
     public MessageDto update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
-        log.debug("메시지 정보 수정 처리 시작: messageId={}, content={}", messageId, messageUpdateRequest.updateContent());
+        log.debug("메시지 정보 수정 처리 시작: messageId={}, content={}", messageId, messageUpdateRequest.newContent());
 
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new MessageNotFoundException(messageId));
 
-        message.update(messageUpdateRequest.updateContent());
+        message.update(messageUpdateRequest.newContent());
 
         log.info("메시지 정보 수정 처리 완료: messageId={}", message.getId());
 

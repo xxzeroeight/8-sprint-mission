@@ -13,10 +13,12 @@ import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsExcep
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.domain.userstatus.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,12 +32,12 @@ import java.util.UUID;
 @Service
 public class BasicUserService implements UserService
 {
-    private final UserStatusRepository userStatusRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final SessionRegistry sessionRegistry;
 
     @Transactional
     @Override
@@ -114,9 +116,36 @@ public class BasicUserService implements UserService
 
         User updatedUser = userRepository.save(user);
 
+        invalidateSession(updatedUser.getUsername());
+
         log.info("유저 권한 변경 완료: {}", roleUpdateRequest.userId());
 
         return userMapper.toDto(updatedUser);
+    }
+
+    private void invalidateSession(String username) {
+        try {
+            List<Object> principals = sessionRegistry.getAllPrincipals();
+
+            for (Object principal : principals) {
+                UserDetails user = (UserDetails) principal;
+                String principalName = user.getUsername();
+
+                if (principalName.equals(username)) {
+                    List<SessionInformation> sessionInformations = sessionRegistry.getAllSessions(principal, false);
+
+                    for (SessionInformation sessionInformation : sessionInformations) {
+                        sessionInformation.expireNow();
+                    }
+
+                    break;
+                }
+            }
+
+            log.debug("세션 무료화 작업 완료");
+        } catch (Exception e) {
+            log.warn("세션 무효화 중 오류 발생: {}", e.getMessage());
+        }
     }
 
     @Transactional
@@ -149,4 +178,6 @@ public class BasicUserService implements UserService
                 return profile;
             }).orElse(null);
     }
+
+
 }

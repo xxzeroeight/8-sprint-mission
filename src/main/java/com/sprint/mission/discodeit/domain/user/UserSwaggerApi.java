@@ -3,8 +3,6 @@ package com.sprint.mission.discodeit.domain.user;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.response.UserResponse;
-import com.sprint.mission.discodeit.domain.userstatus.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.domain.userstatus.dto.response.UserStatusResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -112,22 +110,5 @@ public interface UserSwaggerApi
     })
     ResponseEntity<Void> deleteUser(
             @Parameter(description = "삭제할 user의 id") UUID userId
-    );
-
-    // updateStatus
-    @Operation(summary = "user 상태 변경")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200", description = "user의 상태가 성공적으로 변경됨.",
-                    content = @Content(schema = @Schema(implementation = UserStatusResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404", description = "userStatus를 찾을 수 없음.",
-                    content = @Content(examples = @ExampleObject(value = "userStatus를 찾을 수 없음."))
-            )
-    })
-    ResponseEntity<UserStatusResponse> updateStatus(
-            @Parameter(description = "상태를 변경할 user의 id") UUID userId,
-            @Parameter(description = "상태 변경 시간") UserStatusUpdateRequest userStatusUpdateRequest
     );
 }

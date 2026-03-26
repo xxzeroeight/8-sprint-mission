@@ -6,10 +6,6 @@ import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.response.UserResponse;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
-import com.sprint.mission.discodeit.domain.userstatus.dto.domain.UserStatusDto;
-import com.sprint.mission.discodeit.domain.userstatus.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.domain.userstatus.dto.response.UserStatusResponse;
-import com.sprint.mission.discodeit.domain.userstatus.service.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +27,6 @@ import java.util.UUID;
 public class UserController implements UserSwaggerApi
 {
     private final UserService userService;
-    private final UserStatusService userStatusService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(@Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
@@ -113,17 +108,5 @@ public class UserController implements UserSwaggerApi
         userService.delete(userId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PatchMapping("/{userId}/userStatus")
-    public ResponseEntity<UserStatusResponse> updateStatus(@PathVariable UUID userId,
-                                                           @Valid @RequestBody UserStatusUpdateRequest userStatusUpdateRequest)
-    {
-        log.debug("사용자 상태 수정 시작: userId={}, newLastActiveAt={}", userId, userStatusUpdateRequest.newLastActiveAt());
-
-        UserStatusDto userStatus = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(UserStatusResponse.from(userStatus));
     }
 }
