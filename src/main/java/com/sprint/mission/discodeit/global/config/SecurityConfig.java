@@ -10,6 +10,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +27,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfig
 {
@@ -52,7 +58,7 @@ public class SecurityConfig
                             "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**"
                     ).permitAll()
                     .requestMatchers("/api/auth/csrf-token").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원가입
                     .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/api/auth/logout").permitAll()
                     .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
@@ -76,5 +82,23 @@ public class SecurityConfig
             );
 
         return http.build();
+    }
+
+    // 권한 계층 구조
+    // 관리자(매니저, 일반 포함), 매니저(일반 포함)
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+
+        return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_CHANNEL_MANAGER > ROLE_USER");
+    }
+
+    // Method Security에서 RoleHierarchy를 사용할 수 있도록 설정
+    @Bean
+    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+
+        handler.setRoleHierarchy(roleHierarchy);
+
+        return handler;
     }
 }
