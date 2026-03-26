@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.global.config;
 import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
+import com.sprint.mission.discodeit.auth.handler.SpaCsrfTokenRequestHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -54,6 +55,7 @@ public class SecurityConfig
                     .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                     .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/api/auth/logout").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
             // 3. Form 기반 로그인 설정

@@ -28,6 +28,10 @@ public class User extends BaseUpdatableEntity
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20, nullable = false)
+    private Role role;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserStatus userStatus;
 
@@ -44,6 +48,7 @@ public class User extends BaseUpdatableEntity
         this.email = email;
         this.profile = profile;
         this.userStatus = new UserStatus(this, Instant.now());
+        this.role = Role.USER;
     }
 
     public void update(String username, String password, String email, BinaryContent profile) {
@@ -59,5 +64,9 @@ public class User extends BaseUpdatableEntity
         if (profile != null) {
             this.profile = profile;
         }
+    }
+
+    public void updateRole(Role newRole) {
+        this.role = newRole;
     }
 }

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.domain.user.dto.response;
 
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.user.domain.Role;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 
 import java.util.UUID;
@@ -10,7 +11,8 @@ public record UserResponse(
         BinaryContentDto profile,
         String username,
         String email,
-        Boolean online
+        Boolean online,
+        Role role
 ) {
     public static UserResponse from(UserDto userDto) {
         return new UserResponse(
@@ -18,7 +20,8 @@ public record UserResponse(
                 userDto.profile(),
                 userDto.username(),
                 userDto.email(),
-                userDto.online()
+                userDto.online(),
+                userDto.role()
         );
     }
 }
