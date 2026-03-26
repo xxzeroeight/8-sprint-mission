@@ -81,6 +81,7 @@ public class BasicUserService implements UserService
                 .toList();
     }
 
+    @PreAuthorize("principal.userResponse.id == #userId")
     @Transactional
     @Override
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
@@ -148,6 +149,7 @@ public class BasicUserService implements UserService
         }
     }
 
+    @PreAuthorize("principal.userResponse.id == #userId")
     @Transactional
     @Override
     public void delete(UUID userId) {
