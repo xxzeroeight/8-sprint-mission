@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -98,8 +99,13 @@ public class BasicUserService implements UserService
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->  new UserNotFoundException(userId));
 
+        if (StringUtils.hasText(userUpdateRequest.newPassword())) {
+            String encodedPassword = passwordEncoder.encode(userUpdateRequest.newPassword());
+            user.updatePassword(encodedPassword);
+        }
+
         BinaryContent profile = createProfile(binaryContentCreateRequest);
-        user.update(userUpdateRequest.newUsername(), userUpdateRequest.newPassword(), userUpdateRequest.newEmail(), profile);
+        user.update(userUpdateRequest.newUsername(), userUpdateRequest.newEmail(), profile);
 
         log.info("사용자 정보 수정 완료: userId={}, username={}, email={}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
 

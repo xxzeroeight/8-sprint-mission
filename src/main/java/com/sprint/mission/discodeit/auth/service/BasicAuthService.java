@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -19,6 +20,7 @@ public class BasicAuthService implements AuthService
     private final UserMapper userMapper;
     private final SessionRegistry sessionRegistry;
 
+    @Transactional(readOnly = true)
     @Override
     public UserDto getCurrentUseInfo(DiscodeitUserDetails discodeitUserDetails) {
         if (discodeitUserDetails == null) {
