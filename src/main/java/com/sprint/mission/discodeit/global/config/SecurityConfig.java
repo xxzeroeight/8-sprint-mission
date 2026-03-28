@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.handler.SpaCsrfTokenRequestHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,6 +34,8 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import javax.sql.DataSource;
+import java.util.List;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Configuration
@@ -44,6 +47,22 @@ public class SecurityConfig
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // 디버깅
+    @Bean
+    public CommandLineRunner debugFilterChain(SecurityFilterChain filterChain) {
+        return args -> {
+            int filterSize = filterChain.getFilters().size();
+
+            List<String> filterNames = IntStream.range(0, filterSize)
+                    .mapToObj(idx -> String.format("\t[%s/%s] %s", idx + 1, filterSize,
+                            filterChain.getFilters().get(idx).getClass()))
+                    .toList();
+
+            System.out.println("현재 적용된 필터 체인 목록:");
+            filterNames.forEach(System.out::println);
+        };
     }
 
     @Bean
@@ -106,6 +125,7 @@ public class SecurityConfig
                     .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
                     .accessDeniedHandler(customAccessDeniedHandler)
             )
+            // 7. Remember-Me
             .rememberMe(remember -> remember
                     .rememberMeServices(rememberMeServices)
                     .key("discodeit-remember-key"));
