@@ -26,6 +26,13 @@ CREATE TABLE IF NOT EXISTS users
     CONSTRAINT fk_users_binary_content FOREIGN KEY (profile_id) REFERENCES binary_contents(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS persistent_logins (
+    username  VARCHAR(64) NOT NULL,
+    series    VARCHAR(64) PRIMARY KEY,
+    token     VARCHAR(64) NOT NULL,
+    last_used TIMESTAMPTZ NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS channels
 (
     id UUID PRIMARY KEY,

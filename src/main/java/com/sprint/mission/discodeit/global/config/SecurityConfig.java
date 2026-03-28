@@ -14,19 +14,25 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+
+import javax.sql.DataSource;
 
 @Slf4j
 @Configuration
@@ -45,7 +51,8 @@ public class SecurityConfig
                                            CustomAccessDeniedHandler customAccessDeniedHandler,
                                            LoginSuccessHandler loginSuccessHandler,
                                            LoginFailureHandler loginFailureHandler,
-                                           SessionRegistry sessionRegistry) throws Exception
+                                           SessionRegistry sessionRegistry,
+                                           RememberMeServices rememberMeServices) throws Exception
     {
         http
             // 1. CSRF 설정
@@ -99,7 +106,9 @@ public class SecurityConfig
                     .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
                     .accessDeniedHandler(customAccessDeniedHandler)
             )
-            .rememberMe(Customizer.withDefaults());
+            .rememberMe(remember -> remember
+                    .rememberMeServices(rememberMeServices)
+                    .key("discodeit-remember-key"));
 
         return http.build();
     }
@@ -131,5 +140,32 @@ public class SecurityConfig
         handler.setRoleHierarchy(roleHierarchy);
 
         return handler;
+    }
+
+    // DB에 저장(보안)
+    @Bean
+    public PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices(UserDetailsService userDetailsService,
+                                                                                         PersistentTokenRepository persistentTokenRepository)
+    {
+        PersistentTokenBasedRememberMeServices rememberMeServices =
+                new PersistentTokenBasedRememberMeServices(
+                        "discodeit-remember-key",
+                        userDetailsService,
+                        persistentTokenRepository
+                );
+
+        rememberMeServices.setTokenValiditySeconds(60 * 60 * 24 * 7);
+        rememberMeServices.setCookieName("remember-me");
+        rememberMeServices.setParameter("remember-me");
+
+        return rememberMeServices;
+    }
+
+    @Bean
+    public JdbcTokenRepositoryImpl tokenRepository(DataSource dataSource) {
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+        tokenRepository.setDataSource(dataSource);
+
+        return tokenRepository;
     }
 }
