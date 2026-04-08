@@ -27,7 +27,7 @@ public class BasicAuthService implements AuthService
             return null;
         }
 
-        UUID userId = discodeitUserDetails.getUserResponse().id();
+        UUID userId = discodeitUserDetails.getUserDto().id();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다." + userId));
 

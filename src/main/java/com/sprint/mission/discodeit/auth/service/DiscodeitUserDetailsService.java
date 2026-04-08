@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.auth.service;
 
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
-import com.sprint.mission.discodeit.domain.user.dto.response.UserResponse;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,6 @@ public class DiscodeitUserDetailsService implements UserDetailsService
 
         UserDto userDto = userMapper.toDto(user);
 
-        return new DiscodeitUserDetails(UserResponse.from(userDto), user.getPassword());
+        return new DiscodeitUserDetails(userDto, user.getPassword());
     }
 }

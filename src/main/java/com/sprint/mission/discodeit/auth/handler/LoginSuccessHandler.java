@@ -23,7 +23,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
-        UserResponse userResponse = userDetails.getUserResponse();
+        UserResponse userResponse = UserResponse.from(userDetails.getUserDto());
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

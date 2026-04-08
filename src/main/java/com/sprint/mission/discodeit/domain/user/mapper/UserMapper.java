@@ -37,6 +37,6 @@ public class UserMapper
         return sessionRegistry.getAllPrincipals().stream()
                 .filter(principal -> principal instanceof DiscodeitUserDetails)
                 .map(principal -> (DiscodeitUserDetails) principal)
-                .anyMatch(userDetails -> userDetails.getUserResponse().id().equals(userId));
+                .anyMatch(userDetails -> userDetails.getUserDto().id().equals(userId));
     }
 }

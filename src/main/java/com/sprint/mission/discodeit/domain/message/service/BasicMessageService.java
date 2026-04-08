@@ -102,7 +102,7 @@ public class BasicMessageService implements MessageService
         return pageResponseMapper.fromSlice(content, nextCursor, hasNext);
     }
 
-    @PreAuthorize("principal.userResponse.id == @basicMessageService.findById(#messageId).author.id") // 단점: db 조회
+    @PreAuthorize("principal.userDto.id == @basicMessageService.findById(#messageId).author.id") // 단점: db 조회
     @Transactional
     @Override
     public MessageDto update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
@@ -118,7 +118,7 @@ public class BasicMessageService implements MessageService
         return messageMapper.toDto(message);
     }
 
-    @PreAuthorize("principal.userResponse.id == @basicMessageService.findById(#messageId).author.id") // 단점: db 조회
+    @PreAuthorize("principal.userDto.id == @basicMessageService.findById(#messageId).author.id") // 단점: db 조회
     @Transactional
     @Override
     public void delete(UUID messageId) {

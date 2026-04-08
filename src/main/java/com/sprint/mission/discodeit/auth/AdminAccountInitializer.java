@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.auth;
 import com.sprint.mission.discodeit.domain.user.domain.Role;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-public class AdminAccoutInitializer implements CommandLineRunner
+public class AdminAccountInitializer implements CommandLineRunner
 {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -22,7 +21,7 @@ public class AdminAccoutInitializer implements CommandLineRunner
     private final String ADMIN_USERNAME;
     private final String ADMIN_PASSWORD;
 
-    public AdminAccoutInitializer(UserRepository userRepository,
+    public AdminAccountInitializer(UserRepository userRepository,
                                   PasswordEncoder passwordEncoder,
                                   @Value("${admin.email}") String ADMIN_EMAIL,
                                   @Value("${admin.username}") String ADMIN_USERNAME,

@@ -122,7 +122,9 @@ public class SecurityConfig
             )
             // 6. 예외 처리 설정
             .exceptionHandling(ex -> ex
+                    // 401 인증 실패(나중에 수정)
                     .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
+                    // 403 권한 없음
                     .accessDeniedHandler(customAccessDeniedHandler)
             )
             // 7. Remember-Me

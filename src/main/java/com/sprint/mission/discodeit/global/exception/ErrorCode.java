@@ -19,7 +19,9 @@ public enum ErrorCode
 
     PRIVATE_CHANNEL_UPDATE("비공개 채널은 수정할 수 없습니다.", HttpStatus.FORBIDDEN),
 
-    PASSWORD_MISMATCH("비밀번호 또는 아이디가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
+    PASSWORD_MISMATCH("비밀번호 또는 아이디가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
+
+    SESSION_INVALIDATION_FAILED("세션 무효화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int status;
     private final String message;
