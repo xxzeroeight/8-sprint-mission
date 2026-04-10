@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,21 +102,23 @@ public class BasicMessageService implements MessageService
         return pageResponseMapper.fromSlice(content, nextCursor, hasNext);
     }
 
+    @PreAuthorize("principal.userDto.id == @basicMessageService.findById(#messageId).author.id") // 단점: db 조회
     @Transactional
     @Override
     public MessageDto update(UUID messageId, MessageUpdateRequest messageUpdateRequest) {
-        log.debug("메시지 정보 수정 처리 시작: messageId={}, content={}", messageId, messageUpdateRequest.updateContent());
+        log.debug("메시지 정보 수정 처리 시작: messageId={}, content={}", messageId, messageUpdateRequest.newContent());
 
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new MessageNotFoundException(messageId));
 
-        message.update(messageUpdateRequest.updateContent());
+        message.update(messageUpdateRequest.newContent());
 
         log.info("메시지 정보 수정 처리 완료: messageId={}", message.getId());
 
         return messageMapper.toDto(message);
     }
 
+    @PreAuthorize("principal.userDto.id == @basicMessageService.findById(#messageId).author.id") // 단점: db 조회
     @Transactional
     @Override
     public void delete(UUID messageId) {

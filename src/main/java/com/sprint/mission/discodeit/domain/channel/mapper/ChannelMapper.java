@@ -22,7 +22,6 @@ public interface ChannelMapper
     @Mapping(target = "lastMessageAt", expression = "java(getLastMessageAt(channel))")
     ChannelDto toDto(Channel channel);
 
-    @Mapping(target = "online", expression = "java(user.getUserStatus() != null && user.getUserStatus().isOnline())")
     UserDto mapUser(User user);
 
     default List<UserDto> getParticipants(Channel channel) {

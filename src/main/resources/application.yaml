@@ -55,6 +55,11 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
     root: info
 
+admin:
+  email: ${ADMIN_EMAIL}
+  username: ${ADMIN_USERNAME}
+  password: ${ADMIN_PASSWORD}
+
 info:
   app:
     name: Discodeit
