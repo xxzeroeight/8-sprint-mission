@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.global.config;
 
 import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
+import com.sprint.mission.discodeit.auth.handler.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
-import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.handler.SpaCsrfTokenRequestHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +18,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -68,7 +69,7 @@ public class SecurityConfig
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CustomAccessDeniedHandler customAccessDeniedHandler,
-                                           LoginSuccessHandler loginSuccessHandler,
+                                           JwtLoginSuccessHandler jwtLoginSuccessHandler,
                                            LoginFailureHandler loginFailureHandler,
                                            SessionRegistry sessionRegistry,
                                            RememberMeServices rememberMeServices) throws Exception
@@ -91,7 +92,6 @@ public class SecurityConfig
                     .requestMatchers("/api/auth/csrf-token").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원가입
                     .requestMatchers("/api/auth/login").permitAll()
-                    .requestMatchers("/api/auth/logout").permitAll()
 
                     // Public 채널 관리
                     .requestMatchers(HttpMethod.POST, "/api/channels/public").hasRole("CHANNEL_MANAGER")
@@ -103,16 +103,13 @@ public class SecurityConfig
                     .anyRequest().authenticated()
             )
             // 3. 세션 관리 설정
-            .sessionManagement(management -> management
-                    .sessionConcurrency(concurrency -> concurrency
-                            .maximumSessions(1)
-                            .sessionRegistry(sessionRegistry)
-                    )
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             // 4. Form 기반 로그인 설정
             .formLogin(login -> login
                     .loginProcessingUrl("/api/auth/login")
-                    .successHandler(loginSuccessHandler)
+                    .successHandler(jwtLoginSuccessHandler)
                     .failureHandler(loginFailureHandler)
             )
             // 5. 로그아웃 설정
