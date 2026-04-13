@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import com.sprint.mission.discodeit.global.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.global.exception.TokenGenerationException;
+import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
 import com.sprint.mission.discodeit.global.secutiry.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.session.SessionRegistry;
@@ -22,10 +23,11 @@ public class BasicAuthService implements AuthService
     private final SessionRegistry sessionRegistry;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+    private final JwtRegistry jwtRegistry;
 
     @Override
     public JwtInformation refreshToken(String refreshToken) {
-        if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken) || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
             throw new InvalidTokenException();
         }
 
@@ -44,6 +46,11 @@ public class BasicAuthService implements AuthService
                     discodeitUserDetails.getUserDto(),
                     newAccessToken,
                     newRefreshToken
+            );
+
+            jwtRegistry.rotateJwtInformation(
+                    refreshToken,
+                    jwtInformation
             );
 
             return jwtInformation;

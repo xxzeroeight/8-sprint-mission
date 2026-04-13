@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.auth.handler;
 
+import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
 import com.sprint.mission.discodeit.global.secutiry.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,15 +10,28 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Component
 public class JwtLogoutHandler implements LogoutHandler
 {
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtRegistry jwtRegistry;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         Cookie refreshTokenCookie = jwtTokenProvider.genereateRefreshTokenExpirationCookie();
         response.addCookie(refreshTokenCookie);
+
+        Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME))
+                .findFirst()
+                .ifPresent(cookie -> {
+                    String refreshToken = cookie.getValue();
+                    UUID userId = jwtTokenProvider.getUserId(refreshToken);
+                    jwtRegistry.invalidateJwtInformationByUserId(userId);
+                });
     }
 }

@@ -14,6 +14,7 @@ import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import com.sprint.mission.discodeit.global.exception.SessionInvalidationException;
+import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,6 +41,7 @@ public class BasicUserService implements UserService
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final SessionRegistry sessionRegistry;
+    private final JwtRegistry jwtRegistry;
 
     @Transactional
     @Override
@@ -124,7 +126,7 @@ public class BasicUserService implements UserService
 
         User updatedUser = userRepository.save(user);
 
-        invalidateSession(updatedUser.getUsername());
+        jwtRegistry.invalidateJwtInformationByUserId(roleUpdateRequest.userId());
 
         log.info("유저 권한 변경 완료: {}", roleUpdateRequest.userId());
 

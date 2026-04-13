@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider
 {
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
+    public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
 
     private final JWSSigner accessTokenSigner;
     private final JWSVerifier accessTokenVerifier;

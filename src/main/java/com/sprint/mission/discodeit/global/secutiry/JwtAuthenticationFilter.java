@@ -27,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
+    private final JwtRegistry jwtRegistry;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -34,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
             String token = extractToken(request);
 
             if (StringUtils.hasText(token)) {
-                if (jwtTokenProvider.validateAccessToken(token)) {
+                if (jwtTokenProvider.validateAccessToken(token) && jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
                     String username = jwtTokenProvider.getUsernameFromToken(token);
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);

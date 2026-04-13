@@ -5,7 +5,10 @@ import com.sprint.mission.discodeit.auth.handler.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.handler.JwtLogoutHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.global.secutiry.InMemoryJwtRegistry;
 import com.sprint.mission.discodeit.global.secutiry.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
+import com.sprint.mission.discodeit.global.secutiry.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -86,7 +89,7 @@ public class SecurityConfig
                     .requestMatchers("/api/auth/csrf-token").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원가입
                     .requestMatchers("/api/auth/login").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/apit/auth/refresh").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
 
                     // Public 채널 관리
                     .requestMatchers(HttpMethod.POST, "/api/channels/public").hasRole("CHANNEL_MANAGER")
@@ -147,5 +150,10 @@ public class SecurityConfig
         handler.setRoleHierarchy(roleHierarchy);
 
         return handler;
+    }
+
+    @Bean
+    public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
+        return new InMemoryJwtRegistry(1, jwtTokenProvider);
     }
 }
