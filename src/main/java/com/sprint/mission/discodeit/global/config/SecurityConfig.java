@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.global.config;
 
 import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
 import com.sprint.mission.discodeit.auth.handler.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.auth.handler.JwtLogoutHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.global.secutiry.JwtAuthenticationFilter;
@@ -63,6 +64,7 @@ public class SecurityConfig
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CustomAccessDeniedHandler customAccessDeniedHandler,
                                            JwtLoginSuccessHandler jwtLoginSuccessHandler,
+                                           JwtLogoutHandler jwtLogoutHandler,
                                            LoginFailureHandler loginFailureHandler,
                                            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception
     {
@@ -108,6 +110,7 @@ public class SecurityConfig
             // 5. 로그아웃 설정
             .logout(logout -> logout
                     .logoutUrl("/api/auth/logout")
+                    .addLogoutHandler(jwtLogoutHandler)
                     .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             )
             // 6. 예외 처리 설정
