@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.auth.service;
 
-import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
+import com.sprint.mission.discodeit.auth.dto.info.JwtInformation;
 
 public interface AuthService
 {
-    UserDto getCurrentUseInfo(DiscodeitUserDetails discodeitUserDetails);
+    JwtInformation refreshToken(String refreshToken);
 }

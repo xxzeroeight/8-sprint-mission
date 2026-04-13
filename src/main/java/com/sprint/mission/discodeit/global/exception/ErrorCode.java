@@ -24,7 +24,8 @@ public enum ErrorCode
     SESSION_INVALIDATION_FAILED("세션 무효화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
-    MISSING_TOKEN_CLAIM("토큰에 필요한 정보가 없습니다.", HttpStatus.UNAUTHORIZED);
+    MISSING_TOKEN_CLAIM("토큰에 필요한 정보가 없습니다.", HttpStatus.UNAUTHORIZED),
+    TOKEN_GENERATION_FAILED("토큰 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int status;
     private final String message;
