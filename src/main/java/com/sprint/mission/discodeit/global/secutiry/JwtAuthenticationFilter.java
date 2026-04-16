@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.global.secutiry;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +25,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
-    private final ObjectMapper objectMapper;
     private final JwtRegistry jwtRegistry;
 
     @Override

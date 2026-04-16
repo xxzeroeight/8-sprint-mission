@@ -100,7 +100,7 @@ public class JwtTokenProvider
         }
     }
 
-    public Cookie genereateRefreshTokenCookie(String refreshToken) {
+    public Cookie generateRefreshTokenCookie(String refreshToken) {
         Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
@@ -109,7 +109,7 @@ public class JwtTokenProvider
         return refreshCookie;
     }
 
-    public Cookie genereateRefreshTokenExpirationCookie() {
+    public Cookie generateRefreshTokenExpirationCookie() {
         Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, "");
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);

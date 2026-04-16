@@ -9,7 +9,6 @@ import com.sprint.mission.discodeit.global.exception.TokenGenerationException;
 import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
 import com.sprint.mission.discodeit.global.secutiry.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ public class BasicAuthService implements AuthService
 {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final SessionRegistry sessionRegistry;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
     private final JwtRegistry jwtRegistry;

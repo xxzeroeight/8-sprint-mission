@@ -22,16 +22,19 @@ public class JwtLogoutHandler implements LogoutHandler
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        Cookie refreshTokenCookie = jwtTokenProvider.genereateRefreshTokenExpirationCookie();
+        Cookie refreshTokenCookie = jwtTokenProvider.generateRefreshTokenExpirationCookie();
         response.addCookie(refreshTokenCookie);
 
-        Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equals(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME))
-                .findFirst()
-                .ifPresent(cookie -> {
-                    String refreshToken = cookie.getValue();
-                    UUID userId = jwtTokenProvider.getUserId(refreshToken);
-                    jwtRegistry.invalidateJwtInformationByUserId(userId);
-                });
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME))
+                    .findFirst()
+                    .ifPresent(cookie -> {
+                        String refreshToken = cookie.getValue();
+                        UUID userId = jwtTokenProvider.getUserId(refreshToken);
+                        jwtRegistry.invalidateJwtInformationByUserId(userId);
+                    });
+        }
     }
 }

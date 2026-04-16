@@ -11,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -32,14 +33,6 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler
                 String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
                 String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
-                Cookie refreshTokenCookie = jwtTokenProvider.genereateRefreshTokenCookie(refreshToken);
-                response.addCookie(refreshTokenCookie);
-
-                JwtDto jwtDto = new JwtDto(userDetails.getUserDto(), accessToken);
-
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
-
                 jwtRegistry.registerJwtInformation(
                         new JwtInformation(
                                 userDetails.getUserDto(),
@@ -47,6 +40,17 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler
                                 refreshToken
                         )
                 );
+
+                Cookie refreshTokenCookie = jwtTokenProvider.generateRefreshTokenCookie(refreshToken);
+                response.addCookie(refreshTokenCookie);
+
+                JwtDto jwtDto = new JwtDto(userDetails.getUserDto(), accessToken);
+
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
+
             } catch (Exception e) {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 response.getWriter().write(objectMapper.createObjectNode()

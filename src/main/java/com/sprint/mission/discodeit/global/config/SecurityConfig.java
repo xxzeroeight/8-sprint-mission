@@ -23,8 +23,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -90,6 +88,7 @@ public class SecurityConfig
                     .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원가입
                     .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                    .requestMatchers("/api/auth/logout").permitAll()
 
                     // Public 채널 관리
                     .requestMatchers(HttpMethod.POST, "/api/channels/public").hasRole("CHANNEL_MANAGER")
@@ -127,11 +126,6 @@ public class SecurityConfig
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
     }
 
     // 권한 계층 구조

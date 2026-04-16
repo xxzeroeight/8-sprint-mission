@@ -47,7 +47,7 @@ public class AuthController
     public ResponseEntity<JwtDto> reissue(@CookieValue("REFRESH_TOKEN") String refreshToken, HttpServletResponse response)
     {
         JwtInformation jwtInformation = authService.refreshToken(refreshToken);
-        Cookie refreshCookie = jwtTokenProvider.genereateRefreshTokenCookie(jwtInformation.refreshToken());
+        Cookie refreshCookie = jwtTokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
         response.addCookie(refreshCookie);
 
         JwtDto jwtDto = new JwtDto(

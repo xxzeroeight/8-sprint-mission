@@ -82,14 +82,9 @@ public class InMemoryJwtRegistry implements JwtRegistry
                     .findFirst()
                     .ifPresent(jwtInformation -> {
                         removeTokenIndex(jwtInformation.accessToken(), jwtInformation.refreshToken());
-                        jwtInformation.rotate(
-                                newJwtInformation.accessToken(),
-                                newJwtInformation.refreshToken()
-                        );
-                        addTokenIndex(
-                                newJwtInformation.accessToken(),
-                                newJwtInformation.refreshToken()
-                        );
+                        queue.remove(jwtInformation);
+                        queue.add(newJwtInformation);
+                        addTokenIndex(newJwtInformation.accessToken(), newJwtInformation.refreshToken());
                     });
             return queue;
         });
@@ -101,9 +96,7 @@ public class InMemoryJwtRegistry implements JwtRegistry
         origin.entrySet().removeIf(entry -> {
             Queue<JwtInformation> queue = entry.getValue();
             queue.removeIf(jwtInformation -> {
-                boolean isExpired =
-                        !jwtTokenProvider.validateAccessToken(jwtInformation.accessToken()) ||
-                                !jwtTokenProvider.validateRefreshToken(jwtInformation.refreshToken());
+                boolean isExpired = !jwtTokenProvider.validateRefreshToken(jwtInformation.refreshToken());
                 if (isExpired) {
                     removeTokenIndex(
                             jwtInformation.accessToken(),
