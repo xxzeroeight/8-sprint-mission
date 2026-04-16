@@ -1,42 +1,23 @@
 package com.sprint.mission.discodeit.domain.user.mapper;
 
-import com.sprint.mission.discodeit.auth.service.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.stereotype.Component;
+import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.UUID;
-
-@RequiredArgsConstructor
-@Component
-public class UserMapper
+@Mapper(componentModel = "spring", uses = {BinaryContentMapper.class})
+public abstract class UserMapper
 {
-    private final SessionRegistry sessionRegistry;
-    private final BinaryContentMapper binaryContentMapper;
+    protected JwtRegistry jwtRegistry;
 
-    public UserDto toDto(User user) {
-        BinaryContentDto profile = user.getProfile() != null ? binaryContentMapper.toDto(user.getProfile()) : null;
-
-        boolean online = isOnline(user.getId());
-
-        return new UserDto(
-                user.getId(),
-                profile,
-                user.getUsername(),
-                user.getEmail(),
-                online,
-                user.getRole()
-        );
+    @Autowired
+    public void setJwtRegistry(JwtRegistry jwtRegistry) {
+        this.jwtRegistry = jwtRegistry;
     }
 
-    public boolean isOnline(UUID userId) {
-        return sessionRegistry.getAllPrincipals().stream()
-                .filter(principal -> principal instanceof DiscodeitUserDetails)
-                .map(principal -> (DiscodeitUserDetails) principal)
-                .anyMatch(userDetails -> userDetails.getUserDto().id().equals(userId));
-    }
+    @Mapping(target = "online", expression = "java(jwtRegistry.hasActiveJwtInformationByUserId(user.getId()))")
+    public abstract UserDto toDto(User user);
 }

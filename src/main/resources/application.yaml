@@ -55,6 +55,14 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
     root: info
 
+jwt:
+  access-token:
+    secret: ${AT_SECRET}
+    expiration: 900000
+  refresh-token:
+    secret: ${RT_SECRET}
+    expiration: 3600000
+
 admin:
   email: ${ADMIN_EMAIL}
   username: ${ADMIN_USERNAME}

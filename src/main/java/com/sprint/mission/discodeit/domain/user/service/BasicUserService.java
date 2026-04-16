@@ -13,13 +13,10 @@ import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsExcep
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.global.exception.SessionInvalidationException;
+import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +36,7 @@ public class BasicUserService implements UserService
     private final BinaryContentStorage binaryContentStorage;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final SessionRegistry sessionRegistry;
+    private final JwtRegistry jwtRegistry;
 
     @Transactional
     @Override
@@ -124,51 +121,11 @@ public class BasicUserService implements UserService
 
         User updatedUser = userRepository.save(user);
 
-        invalidateSession(updatedUser.getUsername());
+        jwtRegistry.invalidateJwtInformationByUserId(roleUpdateRequest.userId());
 
         log.info("유저 권한 변경 완료: {}", roleUpdateRequest.userId());
 
         return userMapper.toDto(updatedUser);
-    }
-
-    private void invalidateSession(String username) {
-        List<Object> principals;
-
-        try {
-            principals = sessionRegistry.getAllPrincipals();
-        } catch (Exception e) {
-            log.error("SessionRegistry 조회 실패: username={}", username);
-            throw new SessionInvalidationException("세션 레지스트리 조회 실패");
-        }
-
-        for (Object principal : principals) {
-            UserDetails user = (UserDetails) principal;
-            String principalName = user.getUsername();
-
-            if (principalName.equals(username)) {
-                List<SessionInformation> sessionInformations;
-
-                try {
-                    sessionInformations = sessionRegistry.getAllSessions(user, false);
-                } catch (Exception e) {
-                    log.error("세션 목록 조회 실패: username={}", username, e);
-                    throw new SessionInvalidationException(username);
-                }
-
-                for (SessionInformation sessionInformation : sessionInformations) {
-                    try {
-                        sessionInformation.expireNow();
-                    } catch (Exception e) {
-                        log.error("세션 만료 처리 실패: sessionId={}", sessionInformation.getSessionId(), e);
-                        throw new SessionInvalidationException(sessionInformation.getSessionId());
-                    }
-                }
-
-                break;
-            }
-        }
-
-        log.debug("세션 무효화 작업 완료");
     }
 
     @PreAuthorize("principal.userDto.id == #userId")

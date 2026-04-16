@@ -21,7 +21,11 @@ public enum ErrorCode
 
     PASSWORD_MISMATCH("비밀번호 또는 아이디가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
 
-    SESSION_INVALIDATION_FAILED("세션 무효화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    SESSION_INVALIDATION_FAILED("세션 무효화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    MISSING_TOKEN_CLAIM("토큰에 필요한 정보가 없습니다.", HttpStatus.UNAUTHORIZED),
+    TOKEN_GENERATION_FAILED("토큰 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int status;
     private final String message;

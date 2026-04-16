@@ -1,10 +1,14 @@
 package com.sprint.mission.discodeit.global.config;
 
 import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
+import com.sprint.mission.discodeit.auth.handler.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.auth.handler.JwtLogoutHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
-import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.auth.handler.SpaCsrfTokenRequestHandler;
-import lombok.RequiredArgsConstructor;
+import com.sprint.mission.discodeit.global.secutiry.InMemoryJwtRegistry;
+import com.sprint.mission.discodeit.global.secutiry.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
+import com.sprint.mission.discodeit.global.secutiry.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -18,28 +22,20 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 
-import javax.sql.DataSource;
 import java.util.List;
 import java.util.stream.IntStream;
 
 @Slf4j
 @Configuration
-@RequiredArgsConstructor
 @EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfig
@@ -68,10 +64,10 @@ public class SecurityConfig
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CustomAccessDeniedHandler customAccessDeniedHandler,
-                                           LoginSuccessHandler loginSuccessHandler,
+                                           JwtLoginSuccessHandler jwtLoginSuccessHandler,
+                                           JwtLogoutHandler jwtLogoutHandler,
                                            LoginFailureHandler loginFailureHandler,
-                                           SessionRegistry sessionRegistry,
-                                           RememberMeServices rememberMeServices) throws Exception
+                                           JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception
     {
         http
             // 1. CSRF 설정
@@ -91,6 +87,7 @@ public class SecurityConfig
                     .requestMatchers("/api/auth/csrf-token").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원가입
                     .requestMatchers("/api/auth/login").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                     .requestMatchers("/api/auth/logout").permitAll()
 
                     // Public 채널 관리
@@ -103,21 +100,19 @@ public class SecurityConfig
                     .anyRequest().authenticated()
             )
             // 3. 세션 관리 설정
-            .sessionManagement(management -> management
-                    .sessionConcurrency(concurrency -> concurrency
-                            .maximumSessions(1)
-                            .sessionRegistry(sessionRegistry)
-                    )
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             // 4. Form 기반 로그인 설정
             .formLogin(login -> login
                     .loginProcessingUrl("/api/auth/login")
-                    .successHandler(loginSuccessHandler)
+                    .successHandler(jwtLoginSuccessHandler)
                     .failureHandler(loginFailureHandler)
             )
             // 5. 로그아웃 설정
             .logout(logout -> logout
                     .logoutUrl("/api/auth/logout")
+                    .addLogoutHandler(jwtLogoutHandler)
                     .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             )
             // 6. 예외 처리 설정
@@ -127,23 +122,10 @@ public class SecurityConfig
                     // 403 권한 없음
                     .accessDeniedHandler(customAccessDeniedHandler)
             )
-            // 7. Remember-Me
-            .rememberMe(remember -> remember
-                    .rememberMeServices(rememberMeServices)
-                    .key("discodeit-remember-key"));
+            // 7. jwt 토큰 삽입
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
-    }
-
-    // SessionRegistry의 SessionInformation도 자동으로 만료하기 위해 필요
-    @Bean
-    public HttpSessionEventPublisher httpSessionEventPublisher() {
-        return new HttpSessionEventPublisher();
     }
 
     // 권한 계층 구조
@@ -164,30 +146,8 @@ public class SecurityConfig
         return handler;
     }
 
-    // DB에 저장(보안)
     @Bean
-    public PersistentTokenBasedRememberMeServices persistentTokenBasedRememberMeServices(UserDetailsService userDetailsService,
-                                                                                         PersistentTokenRepository persistentTokenRepository)
-    {
-        PersistentTokenBasedRememberMeServices rememberMeServices =
-                new PersistentTokenBasedRememberMeServices(
-                        "discodeit-remember-key",
-                        userDetailsService,
-                        persistentTokenRepository
-                );
-
-        rememberMeServices.setTokenValiditySeconds(60 * 60 * 24 * 7);
-        rememberMeServices.setCookieName("remember-me");
-        rememberMeServices.setParameter("remember-me");
-
-        return rememberMeServices;
-    }
-
-    @Bean
-    public JdbcTokenRepositoryImpl tokenRepository(DataSource dataSource) {
-        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
-        tokenRepository.setDataSource(dataSource);
-
-        return tokenRepository;
+    public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
+        return new InMemoryJwtRegistry(1, jwtTokenProvider);
     }
 }
