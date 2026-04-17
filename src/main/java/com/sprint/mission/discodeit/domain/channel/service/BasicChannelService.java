@@ -69,7 +69,7 @@ public class BasicChannelService implements ChannelService
                             log.warn("존재하지 않는 사용자: userId={}", userId);
                             return new UserNotFoundException(userId);
                         }))
-                .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
+                .map(user -> new ReadStatus(user, channel, channel.getCreatedAt(), false))
                 .forEach(channel.getReadStatuses()::add);
 
         channelRepository.save(channel);

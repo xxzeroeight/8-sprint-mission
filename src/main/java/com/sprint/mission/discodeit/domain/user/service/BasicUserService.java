@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.domain.user.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
@@ -119,9 +120,17 @@ public class BasicUserService implements UserService
         User user = userRepository.findById(roleUpdateRequest.userId())
                 .orElseThrow(() -> new UserNotFoundException(roleUpdateRequest.userId()));
 
+        String oldRole = user.getRole().name();
+
         user.updateRole(roleUpdateRequest.newRole());
 
         User updatedUser = userRepository.save(user);
+
+        eventPublisher.publishEvent(new RoleUpdatedEvent(
+                updatedUser.getId(),
+                oldRole,
+                roleUpdateRequest.newRole().name()
+        ));
 
         jwtRegistry.invalidateJwtInformationByUserId(roleUpdateRequest.userId());
 

@@ -25,7 +25,10 @@ public enum ErrorCode
 
     INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
     MISSING_TOKEN_CLAIM("토큰에 필요한 정보가 없습니다.", HttpStatus.UNAUTHORIZED),
-    TOKEN_GENERATION_FAILED("토큰 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    TOKEN_GENERATION_FAILED("토큰 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    NOTIFICATION_NOT_FOUND("알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    NOTIFICATION_FORBIDDEN("본인의 알림만 삭제할 수 있습니다.", HttpStatus.FORBIDDEN);
 
     private final int status;
     private final String message;
