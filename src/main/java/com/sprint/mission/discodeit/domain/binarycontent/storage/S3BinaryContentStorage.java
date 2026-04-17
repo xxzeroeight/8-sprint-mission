@@ -1,15 +1,21 @@
 package com.sprint.mission.discodeit.domain.binarycontent.storage;
 
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.binarycontent.event.S3UploadFailedEvent;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -33,6 +39,8 @@ public class S3BinaryContentStorage implements BinaryContentStorage
     private final String accessKey;
     private final String secretKey;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private S3Client s3Client;
     private S3Presigner s3Presigner;
 
@@ -42,13 +50,15 @@ public class S3BinaryContentStorage implements BinaryContentStorage
     public S3BinaryContentStorage(@Value("${discodeit.storage.s3.bucket}") String bucketName,
                                   @Value("${discodeit.storage.s3.region}") String region,
                                   @Value("${discodeit.storage.s3.access-key}") String accessKey,
-                                  @Value("${discodeit.storage.s3.secret-key}") String secretKey)
+                                  @Value("${discodeit.storage.s3.secret-key}") String secretKey,
+                                  ApplicationEventPublisher eventPublisher)
     {
         log.info("Creating S3BinaryContentStorage");
         this.bucketName = bucketName;
         this.region = region;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
+        this.eventPublisher = eventPublisher;
     }
 
     @PostConstruct
@@ -60,6 +70,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage
                 .build();
     }
 
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2, maxDelay = 10000))
     @Override
     public UUID save(UUID id, byte[] bytes) {
         log.debug("S3 파일 요청 시작: Id={}", id);
@@ -74,6 +85,17 @@ public class S3BinaryContentStorage implements BinaryContentStorage
         log.info("S3 파일 요청 완료: Id={}", id);
 
         return id;
+    }
+
+    @Recover
+    public void recover(Exception ex, UUID binaryContentId, byte[] bytes) {
+        log.error("S3 업로드 실패: Id={}, Exception={}", binaryContentId, ex.getMessage());
+
+        String requestID = (ex instanceof SdkServiceException sdkEx) ? sdkEx.requestId() : null;
+
+        eventPublisher.publishEvent(
+                new S3UploadFailedEvent(requestID, binaryContentId, ex.getMessage())
+        );
     }
 
     @Override

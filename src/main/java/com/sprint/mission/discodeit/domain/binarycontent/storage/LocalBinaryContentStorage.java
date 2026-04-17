@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.domain.binarycontent.storage;
 
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
+import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -38,6 +39,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage
         }
     }
 
+    @Timed("binarycontent.save.time")
     @Override
     public UUID save(UUID id, byte[] bytes) {
         try {
