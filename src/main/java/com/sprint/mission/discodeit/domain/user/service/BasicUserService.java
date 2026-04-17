@@ -2,9 +2,10 @@ package com.sprint.mission.discodeit.domain.user.service;
 
 import com.sprint.mission.discodeit.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.domain.binarycontent.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
@@ -16,6 +17,7 @@ import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public class BasicUserService implements UserService
 {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
+    private final ApplicationEventPublisher eventPublisher;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtRegistry jwtRegistry;
@@ -153,9 +155,12 @@ public class BasicUserService implements UserService
                         new BinaryContent(
                                 binaryContent.fileName(),
                                 (long) binaryContent.bytes().length,
-                                binaryContent.contentType())
+                                binaryContent.contentType(),
+                                BinaryContentStatus.PROCESSING)
                 );
-                binaryContentStorage.save(profile.getId(), binaryContent.bytes());
+                eventPublisher.publishEvent(
+                        new BinaryContentCreatedEvent(profile.getId(), binaryContent.bytes())
+                );
                 return profile;
             }).orElse(null);
     }

@@ -1,15 +1,18 @@
 package com.sprint.mission.discodeit.domain.binarycontent.service;
 
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.domain.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.domain.binarycontent.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,7 +25,7 @@ public class BasicBinaryContentService implements BinaryContentService
 {
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentMapper binaryContentMapper;
-    private final BinaryContentStorage binaryContentStorage;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -32,16 +35,26 @@ public class BasicBinaryContentService implements BinaryContentService
         BinaryContent binaryContent = new BinaryContent(
                 binaryContentCreateRequest.fileName(),
                 (long) binaryContentCreateRequest.bytes().length,
-                binaryContentCreateRequest.contentType()
+                binaryContentCreateRequest.contentType(),
+                BinaryContentStatus.PROCESSING
         );
 
         BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
 
-        binaryContentStorage.save(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
+        eventPublisher.publishEvent(new BinaryContentCreatedEvent(savedBinaryContent.getId(), binaryContentCreateRequest.bytes()));
 
         log.info("바이너리 컨텐츠 생성 처리 완료: binaryContentId={}", savedBinaryContent.getId());
 
         return binaryContentMapper.toDto(savedBinaryContent);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public void updateStatus(UUID binaryContentId, BinaryContentStatus binaryContentStatus) {
+        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+                .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
+
+        binaryContent.updateStatus(binaryContentStatus);
     }
 
     @Transactional(readOnly = true)
