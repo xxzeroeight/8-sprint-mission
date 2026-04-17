@@ -73,6 +73,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.kafka:spring-kafka'
     compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'

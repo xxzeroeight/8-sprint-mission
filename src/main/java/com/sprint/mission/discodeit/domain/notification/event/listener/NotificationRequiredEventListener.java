@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepos
 import com.sprint.mission.discodeit.domain.user.event.RoleUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "discodeit.notification", name = "listener", havingValue = "event", matchIfMissing = true)
 @Component
 public class NotificationRequiredEventListener
 {
