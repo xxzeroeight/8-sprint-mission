@@ -35,6 +35,9 @@ management:
   info:
     env:
       enabled: true
+  observations:
+    annotations:
+      enabled: true
 
 # custom
 discodeit:

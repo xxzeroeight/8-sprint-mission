@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepos
 import com.sprint.mission.discodeit.domain.user.event.RoleUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -24,6 +25,7 @@ public class NotificationRequiredEventListener
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
 
+    @Async("notificationTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(MessageCreatedEvent event) {
         List<ReadStatus> readStatuses = readStatusRepository
@@ -48,6 +50,7 @@ public class NotificationRequiredEventListener
         }
     }
 
+    @Async("notificationTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(RoleUpdatedEvent event) {
         String title = "권한인 변경되었습니다.";
