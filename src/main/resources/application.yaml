@@ -1,13 +1,11 @@
 spring:
   application:
     name: discodeit
-
   boot:
     admin:
       client:
         instance:
           name: discodeit
-
   jpa:
     properties:
       hibernate:
@@ -17,21 +15,33 @@ spring:
         default_batch_fetch_size: 100 # global
     show-sql: false # logging이랑 겹침.
     open-in-view: false # PC를 언제까지 유지할지 결정. (transaction or view)
-
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 30MB
+  cache:
+    type: caffeine
+    cache-names:
+      - channels
+      - notifications
+      - users
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
 
 # actuator
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, loggers
+        include: health, info, metrics, loggers, caches
   endpoint:
     health:
       show-details: always
+    caches:
+      access: unrestricted
   info:
     env:
       enabled: true
