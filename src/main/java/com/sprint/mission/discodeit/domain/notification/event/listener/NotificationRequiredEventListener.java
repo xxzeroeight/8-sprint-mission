@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.domain.notification.event.listener;
 
 import com.sprint.mission.discodeit.domain.message.event.MessageCreatedEvent;
-import com.sprint.mission.discodeit.domain.notification.repository.NotificationRepository;
 import com.sprint.mission.discodeit.domain.notification.service.NotificationService;
 import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
@@ -24,7 +23,6 @@ import java.util.UUID;
 public class NotificationRequiredEventListener
 {
     private final ReadStatusRepository readStatusRepository;
-    private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
 
     @Async("notificationTaskExecutor")
@@ -33,7 +31,7 @@ public class NotificationRequiredEventListener
         List<ReadStatus> readStatuses = readStatusRepository
                 .findAllByChannelIdAndNotificationEnabledTrue(event.channelId());
 
-        String title = event.authorName() + "[#" + event.channelName() + ")";
+        String title = event.authorName() + " [#" + event.channelName() + "]";
         String content = event.content();
 
         for (ReadStatus readStatus : readStatuses) {
@@ -55,7 +53,7 @@ public class NotificationRequiredEventListener
     @Async("notificationTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(RoleUpdatedEvent event) {
-        String title = "권한인 변경되었습니다.";
+        String title = "권한이 변경되었습니다.";
         String content = event.oldRole() + " -> " + event.newRole();
 
         try {

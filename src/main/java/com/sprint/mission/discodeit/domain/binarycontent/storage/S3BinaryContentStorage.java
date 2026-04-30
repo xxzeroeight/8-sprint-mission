@@ -88,7 +88,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage
     }
 
     @Recover
-    public void recover(Exception ex, UUID binaryContentId, byte[] bytes) {
+    public UUID recover(Exception ex, UUID binaryContentId, byte[] bytes) {
         log.error("S3 업로드 실패: Id={}, Exception={}", binaryContentId, ex.getMessage());
 
         String requestID = (ex instanceof SdkServiceException sdkEx) ? sdkEx.requestId() : null;
@@ -96,6 +96,8 @@ public class S3BinaryContentStorage implements BinaryContentStorage
         eventPublisher.publishEvent(
                 new S3UploadFailedEvent(requestID, binaryContentId, ex.getMessage())
         );
+
+        return null;
     }
 
     @Override

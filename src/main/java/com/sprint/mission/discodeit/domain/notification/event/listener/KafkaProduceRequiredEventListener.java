@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.domain.user.event.RoleUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ public class KafkaProduceRequiredEventListener
     }
 
     @Async("eventTaskExecutor")
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void on(S3UploadFailedEvent event) {
         sendEvent(KafkaTopics.S3_UPLOAD_FAILED, event);
     }

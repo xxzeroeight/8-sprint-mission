@@ -12,11 +12,13 @@ import com.sprint.mission.discodeit.domain.user.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@ConditionalOnProperty(prefix = "discodeit.notification", name = "listener", havingValue = "kafka")
 @Slf4j
 @RequiredArgsConstructor
 @Component

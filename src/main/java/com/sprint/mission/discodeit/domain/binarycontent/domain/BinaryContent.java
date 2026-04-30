@@ -29,7 +29,7 @@ public class BinaryContent extends BaseUpdatableEntity
     @Column(name = "status", nullable = false, length = 20)
     private BinaryContentStatus status;
 
-    public BinaryContent(String fileName, Long size, String contentType, BinaryContentStatus status) {
+    public BinaryContent(String fileName, Long size, String contentType) {
         this.fileName = fileName;
         this.size = size;
         this.contentType = contentType;

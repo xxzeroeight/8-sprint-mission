@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.global.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +22,11 @@ public class CacheConfig
         ObjectMapper redisObjectMapper = objectMapper.copy();
 
         redisObjectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType("com.sprint.mission.discodeit")
+                        .allowIfSubType("java.util")
+                        .allowIfSubType("java.time")
+                        .build(),
                 DefaultTyping.EVERYTHING,
                 As.PROPERTY
         );
