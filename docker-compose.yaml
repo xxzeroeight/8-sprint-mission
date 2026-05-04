@@ -99,6 +99,9 @@ services:
     volumes:
       - app_data:/app/uploads
 
+    deploy:
+      replicas: 3
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SERVER_PORT}/actuator/health"]
       interval: 30s
