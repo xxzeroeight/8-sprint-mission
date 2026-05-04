@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.domain.message.service;
 
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.domain.binarycontent.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
@@ -12,6 +13,7 @@ import com.sprint.mission.discodeit.domain.message.dto.domain.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.response.PageResponse;
+import com.sprint.mission.discodeit.domain.message.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.domain.message.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.domain.message.mapper.MessageMapper;
 import com.sprint.mission.discodeit.domain.message.mapper.PageResponseMapper;
@@ -21,6 +23,7 @@ import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -41,7 +44,7 @@ public class BasicMessageService implements MessageService
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
-    private final BinaryContentStorage binaryContentStorage;
+    private final ApplicationEventPublisher eventPublisher;
     private final BinaryContentRepository binaryContentRepository;
     private final MessageMapper messageMapper;
     private final PageResponseMapper pageResponseMapper;
@@ -63,6 +66,14 @@ public class BasicMessageService implements MessageService
 
         Message message = new Message(channel, author, messageCreateRequest.content(), savedBinaryContents);
         Message savedMessage = messageRepository.save(message);
+
+        eventPublisher.publishEvent(new MessageCreatedEvent(
+                author.getId(),
+                channel.getId(),
+                author.getUsername(),
+                channel.getName(),
+                messageCreateRequest.content()
+        ));
 
         log.info("메시지 생성 처리 완료: messageId={}", savedMessage.getId());
 
@@ -138,12 +149,12 @@ public class BasicMessageService implements MessageService
         BinaryContent binaryContent = new BinaryContent(
                 binaryContentCreateRequest.fileName(),
                 (long) binaryContentCreateRequest.bytes().length,
-                binaryContentCreateRequest.contentType()
+                binaryContentCreateRequest.contentType(),
+                BinaryContentStatus.PROCESSING
         );
 
         BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
-        binaryContentStorage.save(savedBinaryContent.getId(), binaryContentCreateRequest.bytes());
-
+        eventPublisher.publishEvent(new BinaryContentCreatedEvent(savedBinaryContent.getId(), binaryContentCreateRequest.bytes()));
         return savedBinaryContent;
     }
 }

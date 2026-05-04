@@ -10,7 +10,18 @@ CREATE TABLE IF NOT EXISTS binary_contents
      created_at TIMESTAMPTZ NOT NULL,
      file_name VARCHAR(255) NOT NULL,
      size BIGINT NOT NULL,
-     content_type VARCHAR(100) NOT NULL
+     content_type VARCHAR(100) NOT NULL,
+     updated_at TIMESTAMPTZ,
+     status VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS notifications
+(
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    receiver_id UUID NOT NULL,
+    title VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users
@@ -80,6 +91,7 @@ CREATE TABLE IF NOT EXISTS read_statuses
     user_id UUID NOT NULL,
     channel_id UUID NOT NULL,
     last_read_at TIMESTAMPTZ,
+    notification_enabled BOOLEAN NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ,
     CONSTRAINT fk_read_statuses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

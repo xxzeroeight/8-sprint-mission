@@ -2,13 +2,15 @@ package com.sprint.mission.discodeit.domain.user.service;
 
 import com.sprint.mission.discodeit.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.domain.binarycontent.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.dto.domain.UserDto;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.domain.user.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.domain.user.exception.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
@@ -16,6 +18,9 @@ import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import com.sprint.mission.discodeit.global.secutiry.JwtRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,11 +38,12 @@ public class BasicUserService implements UserService
 {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
+    private final ApplicationEventPublisher eventPublisher;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtRegistry jwtRegistry;
 
+    @CacheEvict(value = "users", allEntries = true)
     @Transactional
     @Override
     public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> binaryContentCreateRequest) {
@@ -72,6 +78,7 @@ public class BasicUserService implements UserService
 
     }
 
+    @Cacheable(value = "users")
     @Transactional(readOnly = true)
     @Override
     public List<UserDto> findAll() {
@@ -80,6 +87,7 @@ public class BasicUserService implements UserService
                 .toList();
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("principal.userDto.id == #userId")
     @Transactional
     @Override
@@ -117,9 +125,17 @@ public class BasicUserService implements UserService
         User user = userRepository.findById(roleUpdateRequest.userId())
                 .orElseThrow(() -> new UserNotFoundException(roleUpdateRequest.userId()));
 
+        String oldRole = user.getRole().name();
+
         user.updateRole(roleUpdateRequest.newRole());
 
         User updatedUser = userRepository.save(user);
+
+        eventPublisher.publishEvent(new RoleUpdatedEvent(
+                updatedUser.getId(),
+                oldRole,
+                roleUpdateRequest.newRole().name()
+        ));
 
         jwtRegistry.invalidateJwtInformationByUserId(roleUpdateRequest.userId());
 
@@ -128,6 +144,7 @@ public class BasicUserService implements UserService
         return userMapper.toDto(updatedUser);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("principal.userDto.id == #userId")
     @Transactional
     @Override
@@ -153,9 +170,12 @@ public class BasicUserService implements UserService
                         new BinaryContent(
                                 binaryContent.fileName(),
                                 (long) binaryContent.bytes().length,
-                                binaryContent.contentType())
+                                binaryContent.contentType(),
+                                BinaryContentStatus.PROCESSING)
                 );
-                binaryContentStorage.save(profile.getId(), binaryContent.bytes());
+                eventPublisher.publishEvent(
+                        new BinaryContentCreatedEvent(profile.getId(), binaryContent.bytes())
+                );
                 return profile;
             }).orElse(null);
     }

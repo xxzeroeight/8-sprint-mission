@@ -1,0 +1,13 @@
+package com.sprint.mission.discodeit.domain.notification.service;
+
+import com.sprint.mission.discodeit.domain.notification.dto.entity.NotificationDto;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface NotificationService
+{
+    NotificationDto create(UUID receiverId, String title, String content);
+    List<NotificationDto> findAllByReceiverId(UUID receiverId);
+    void delete(UUID notificationId, UUID receiverId);
+}

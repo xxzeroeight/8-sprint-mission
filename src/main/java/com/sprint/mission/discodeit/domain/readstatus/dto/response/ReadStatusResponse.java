@@ -10,14 +10,16 @@ public record ReadStatusResponse(
         UUID userId,
         UUID channelId,
 
-        Instant lastReadAt
+        Instant lastReadAt,
+        Boolean notificationEnabled
 ) {
     public static ReadStatusResponse from(ReadStatusDto readStatus) {
         return new ReadStatusResponse(
                 readStatus.id(),
                 readStatus.userId(),
                 readStatus.channelId(),
-                readStatus.lastReadAt()
+                readStatus.lastReadAt(),
+                readStatus.notificationEnabled()
         );
     }
 }

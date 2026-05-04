@@ -18,6 +18,8 @@ import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,7 @@ public class BasicChannelService implements ChannelService
     private final ChannelMapper channelMapper;
     private final UserMapper userMapper;
 
+    @CacheEvict(value = "channels", allEntries = true)
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     @Override
@@ -56,6 +59,7 @@ public class BasicChannelService implements ChannelService
         return channelMapper.toDto(channel);
     }
 
+    @CacheEvict(value = "channels", allEntries = true)
     @Transactional
     @Override
     public ChannelDto create(PrivateChannelCreateRequest privateChannelCreateRequest) {
@@ -69,7 +73,7 @@ public class BasicChannelService implements ChannelService
                             log.warn("존재하지 않는 사용자: userId={}", userId);
                             return new UserNotFoundException(userId);
                         }))
-                .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
+                .map(user -> new ReadStatus(user, channel, channel.getCreatedAt(), true))
                 .forEach(channel.getReadStatuses()::add);
 
         channelRepository.save(channel);
@@ -87,6 +91,7 @@ public class BasicChannelService implements ChannelService
                 .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 
+    @Cacheable(value = "channels", key = "#userId")
     @Transactional(readOnly = true)
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
@@ -95,6 +100,7 @@ public class BasicChannelService implements ChannelService
                 .toList();
     }
 
+    @CacheEvict(value = "channels", allEntries = true)
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     @Override
@@ -116,6 +122,7 @@ public class BasicChannelService implements ChannelService
        return channelMapper.toDto(channel);
     }
 
+    @CacheEvict(value = "channels", allEntries = true)
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     @Override
