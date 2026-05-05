@@ -71,7 +71,6 @@ services:
       dockerfile: Dockerfile
 
     image: discodeit:latest
-    container_name: backend
     restart: unless-stopped
 
     depends_on:
@@ -89,9 +88,6 @@ services:
       SERVER_PORT: ${SERVER_PORT}
 
       TZ: "Asia/Seoul"
-
-    ports:
-      - "${APP_PORT}:${SERVER_PORT}"
 
     env_file:
       - .env

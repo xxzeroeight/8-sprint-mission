@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,11 +42,8 @@ public class SseRequiredTopicListener {
             NotificationCreatedEvent event = objectMapper.readValue(kafkaEvent,
                     NotificationCreatedEvent.class);
 
-            List<NotificationDto> notifications = event.data();
-            notifications.forEach(notification -> {
-                UUID receiverId = notification.receiverId();
-                sseService.send(Set.of(receiverId), "notifications.created", notification);
-            });
+            NotificationDto notification = event.notification();
+            sseService.send(Set.of(notification.receiverId()), "notifications.created", notification);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
