@@ -74,9 +74,12 @@ services:
     restart: unless-stopped
 
     depends_on:
-      - postgres
-      - redis
-      - broker
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
 
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}

@@ -34,28 +34,31 @@ public class JwtAuthenticationChannelInterceptor implements ChannelInterceptor
             return message;
         }
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            try {
-                String token = extractToken(accessor);
+        try {
+            String token = extractToken(accessor);
 
-                if (jwtTokenProvider.validateAccessToken(token) && jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
-                    String username = jwtTokenProvider.getUsernameFromToken(token);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                    accessor.setUser(authenticationToken);
-                } else {
-                    throw new InvalidTokenException("Invalid token");
-                }
-            } catch (Exception e) {
+            if (token == null) {
                 throw new InvalidTokenException("Invalid token");
             }
+
+            if (jwtTokenProvider.validateAccessToken(token) && jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
+                String username = jwtTokenProvider.getUsernameFromToken(token);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                accessor.setUser(authenticationToken);
+            } else {
+                throw new InvalidTokenException("Invalid token");
+            }
+        } catch (Exception e) {
+            throw new InvalidTokenException("Invalid token");
         }
+
 
         return message;
     }

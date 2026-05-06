@@ -55,11 +55,10 @@ public class BasicBinaryContentService implements BinaryContentService
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
                 .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
 
-        BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);
-
-        eventPublisher.publishEvent(new BinaryContentStatusUpdatedEvent("binaryContents.updated", binaryContentDto, binaryContent.getCreatedAt()));
-
         binaryContent.updateStatus(binaryContentStatus);
+
+        BinaryContentDto binaryContentDto = binaryContentMapper.toDto(binaryContent);
+        eventPublisher.publishEvent(new BinaryContentStatusUpdatedEvent("binaryContents.updated", binaryContentDto, binaryContent.getCreatedAt()));
     }
 
     @Transactional(readOnly = true)

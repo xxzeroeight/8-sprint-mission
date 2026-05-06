@@ -37,7 +37,7 @@ public class BasicNotificationService implements NotificationService
 
         applicationEventPublisher.publishEvent(new NotificationCreatedEvent("notifications.created", notificationDto, savedNotification.getCreatedAt()));
 
-        return notificationMapper.toDto(savedNotification);
+        return notificationDto;
     }
 
     @Cacheable(value = "notifications", key = "#receiverId")

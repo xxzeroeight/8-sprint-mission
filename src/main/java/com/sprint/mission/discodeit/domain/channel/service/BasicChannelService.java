@@ -58,7 +58,7 @@ public class BasicChannelService implements ChannelService
         channelRepository.save(channel);
 
         ChannelDto channelDto = channelMapper.toDto(channel);
-        applicationEventPublisher.publishEvent(new ChannelEvent("channels", channelDto, channel.getCreatedAt()));
+        applicationEventPublisher.publishEvent(new ChannelEvent("channels.created", channelDto, channel.getCreatedAt()));
 
         log.info("채널 생성 처리 완료(공개): channelId={}", channel.getId());
 
